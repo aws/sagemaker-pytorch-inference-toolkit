@@ -9,7 +9,7 @@ env:
     GPU_INSTANCE_TYPE: 'ml.p2.xlarge'
     LOCAL_BASE_REPO: 'pytorch-base'
     ECR_REPO: 'sagemaker-test'
-    GITHUB_REPO: 'sagemaker-pytorch-container'
+    GITHUB_REPO: 'sagemaker-pytorch-serving-container'
     SETUP_FILE: 'setup_cmds.sh'
     SETUP_CMDS: '#!/bin/bash\npip install --upgrade pip\npip install -U -e .\npip install -U -e .[test]'
 
