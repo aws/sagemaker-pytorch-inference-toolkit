@@ -20,21 +20,19 @@ CYAN_COLOR = '\033[36m'
 END_COLOR = '\033[0m'
 
 
-def build_base_image(framework_name, framework_version, py_version,
-                     processor, base_image_tag, cwd='.'):
+def build_base_image(framework_name, framework_version, processor, base_image_tag, cwd='.'):
     base_image_uri = get_base_image_uri(framework_name, base_image_tag)
 
     dockerfile_location = os.path.join('docker', framework_version, 'base',
                                        'Dockerfile.{}'.format(processor))
 
     subprocess.check_call(['docker', 'build', '-t', base_image_uri,
-                           '-f', dockerfile_location, '--build-arg',
-                           'py_version={}'.format(py_version[-1]), cwd], cwd=cwd)
+                           '-f', dockerfile_location, cwd], cwd=cwd)
     print('created image {}'.format(base_image_uri))
     return base_image_uri
 
 
-def build_image(framework_name, framework_version, py_version, processor, tag, cwd='.'):
+def build_image(framework_name, framework_version, processor, tag, cwd='.'):
     _check_call('python setup.py bdist_wheel')
 
     image_uri = get_image_uri(framework_name, tag)
@@ -43,8 +41,7 @@ def build_image(framework_name, framework_version, py_version, processor, tag, c
                                        'Dockerfile.{}'.format(processor))
 
     subprocess.check_call(
-        ['docker', 'build', '-t', image_uri, '-f', dockerfile_location, '--build-arg',
-         'py_version={}'.format(py_version[-1]), cwd], cwd=cwd)
+        ['docker', 'build', '-t', image_uri, '-f', dockerfile_location, cwd], cwd=cwd)
     print('created image {}'.format(image_uri))
     return image_uri
 
