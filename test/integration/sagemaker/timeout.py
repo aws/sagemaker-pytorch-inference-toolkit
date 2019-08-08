@@ -53,14 +53,15 @@ def timeout(seconds=0, minutes=0, hours=0):
 
 
 @contextmanager
-def timeout_and_delete_endpoint(estimator, seconds=0, minutes=0, hours=0):
+def timeout_and_delete_endpoint(endpoint_name, sagemaker_session,
+                                seconds=0, minutes=0, hours=0):
     with timeout(seconds=seconds, minutes=minutes, hours=hours) as t:
         try:
             yield [t]
         finally:
             try:
-                estimator.delete_endpoint()
-                LOGGER.info('deleted endpoint')
+                sagemaker_session.delete_endpoint(endpoint_name)
+                LOGGER.info("deleted endpoint {}".format(endpoint_name))
             except ClientError as ce:
                 if ce.response['Error']['Code'] == 'ValidationException':
                     # avoids the inner exception to be overwritten

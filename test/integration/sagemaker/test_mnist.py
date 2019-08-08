@@ -14,6 +14,7 @@ from __future__ import absolute_import
 
 import numpy as np
 import pytest
+import sagemaker
 from sagemaker.pytorch import PyTorchModel
 
 from test.integration import (DEFAULT_TIMEOUT, mnist_script, model_cpu_dir, model_gpu_dir)
@@ -36,15 +37,17 @@ def _test_mnist_distributed(sagemaker_session, ecr_image, instance_type):
     use_gpu = instance_type.startswith('ml.p') or instance_type.startswith('ml.g')
     model_dir = model_gpu_dir if use_gpu else model_cpu_dir
 
-    with timeout(minutes=DEFAULT_TIMEOUT):
-        pytorch = PyTorchModel('file://{}'.format(model_dir),
-                               'SageMakerRole',
-                               mnist_script,
-                               ecr_image,
-                               sagemaker_session)
+    endpoint_name = sagemaker.utils.unique_name_from_base("sagemaker-pytorch-serving")
 
-    with timeout_and_delete_endpoint(estimator=pytorch, minutes=30):
-        predictor = pytorch.deploy(initial_instance_count=1, instance_type=instance_type)
+    pytorch = PyTorchModel('file://{}'.format(model_dir),
+                           'SageMakerRole',
+                           mnist_script,
+                           ecr_image,
+                           sagemaker_session)
+
+    with timeout_and_delete_endpoint(endpoint_name, sagemaker_session, minutes=30):
+        predictor = pytorch.deploy(initial_instance_count=1, instance_type=instance_type,
+                                   endpoint_name=endpoint_name)
 
         batch_size = 100
         data = np.random.rand(batch_size, 1, 28, 28).astype(np.float32)
