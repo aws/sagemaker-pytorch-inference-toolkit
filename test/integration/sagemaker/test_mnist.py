@@ -39,7 +39,12 @@ def _test_mnist_distributed(sagemaker_session, ecr_image, instance_type):
 
     endpoint_name = sagemaker.utils.unique_name_from_base("sagemaker-pytorch-serving")
 
-    pytorch = PyTorchModel('file://{}'.format(model_dir),
+    model_data = sagemaker_session.upload_data(
+        path=model_dir,
+        key_prefix="sagemaker-pytorch-serving/models",
+    )
+
+    pytorch = PyTorchModel(model_data,
                            'SageMakerRole',
                            mnist_script,
                            ecr_image,
