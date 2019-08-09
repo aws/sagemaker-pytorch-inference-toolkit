@@ -1,9 +1,9 @@
 
 ===========================
-SageMaker PyTorch Container
+SageMaker PyTorch Serving Container
 ===========================
 
-SageMaker PyTorch Container is an open source library for making the
+SageMaker PyTorch Serving Container is an open source library for making the
 PyTorch framework run on Amazon SageMaker.
 
 This repository also contains Dockerfiles which install this library, PyTorch, and dependencies
@@ -116,7 +116,7 @@ Dockerfile.
 
 ::
 
-    # Create the SageMaker PyTorch Container Python package.
+    # Create the SageMaker PyTorch Serving Container Python package.
     cd sagemaker-pytorch-container
     python setup.py bdist_wheel
 
@@ -146,7 +146,7 @@ If you want to build "final" Docker images, then use:
 Running the tests
 -----------------
 
-Running the tests requires installation of the SageMaker PyTorch Container code and its test
+Running the tests requires installation of the SageMaker PyTorch Serving Container code and its test
 dependencies.
 
 ::
@@ -261,6 +261,6 @@ requests to us.
 License
 -------
 
-SageMaker PyTorch Container is licensed under the Apache 2.0 License. It is copyright 2018 Amazon
+SageMaker PyTorch Serving Container is licensed under the Apache 2.0 License. It is copyright 2018 Amazon
 .com, Inc. or its affiliates. All Rights Reserved. The license is available at:
 http://aws.amazon.com/apache2.0/
