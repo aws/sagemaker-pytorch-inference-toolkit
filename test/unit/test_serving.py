@@ -25,8 +25,8 @@ from sagemaker_containers.beta.framework import content_types, errors
 from six import StringIO, BytesIO
 from torch.autograd import Variable
 
-from sagemaker_pytorch_serving_container.serving import main, default_model_fn, default_input_fn
-from sagemaker_pytorch_serving_container.serving import default_predict_fn, default_output_fn
+from sagemaker_pytorch_serving_container.serving_backup import main, default_model_fn, default_input_fn
+from sagemaker_pytorch_serving_container.serving_backup import default_predict_fn, default_output_fn
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
