@@ -10,9 +10,24 @@
 # distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF
 # ANY KIND, either express or implied. See the License for the specific
 # language governing permissions and limitations under the License.
+import re
 import json
 import logging
 import requests
+
+
+def _validate_instance_id(instance_id):
+    """
+    Validate instance ID
+    """
+    instance_id_regex = '^(i-\S{17})'
+    compiled_regex = re.compile(instance_id_regex)
+    match = compiled_regex.match(instance_id)
+
+    if not match:
+        return None
+
+    return match.group(1)
 
 
 def _retrieve_instance_id():
@@ -24,7 +39,7 @@ def _retrieve_instance_id():
     response = requests_helper(url, timeout=0.1)
 
     if response is not None:
-        instance_id = response.text
+        instance_id = _validate_instance_id(response.text)
 
     return instance_id
 
@@ -34,12 +49,19 @@ def _retrieve_instance_region():
     Retrieve instance region from instance metadata service
     """
     region = None
+    valid_regions = ['ap-northeast-1', 'ap-northeast-2', 'ap-southeast-1', 'ap-southeast-2',
+                     'ap-south-1', 'ca-central-1', 'eu-central-1', 'eu-north-1',
+                     'eu-west-1', 'eu-west-2', 'eu-west-3', 'sa-east-1',
+                     'us-east-1', 'us-east-2', 'us-west-1', 'us-west-2']
+
     url = "http://169.254.169.254/latest/dynamic/instance-identity/document"
     response = requests_helper(url, timeout=0.1)
 
     if response is not None:
         response_json = json.loads(response.text)
-        region = response_json['region']
+
+        if response_json['region'] in valid_regions:
+            region = response_json['region']
 
     return region
 
@@ -52,11 +74,11 @@ def query_bucket():
     instance_id = _retrieve_instance_id()
     region = _retrieve_instance_region()
 
-    if region is not None:
+    if instance_id is not None and region is not None:
         url = "https://aws-deep-learning-containers-{0}.s3.{0}.amazonaws.com/dlc-containers.txt?x-instance-id={1}".format(region, instance_id)
         response = requests_helper(url, timeout=0.2)
 
-    logging.debug("Tracking finished: {}".format(response))
+    logging.debug("Query bucket finished: {}".format(response))
 
     return response
 
@@ -73,7 +95,7 @@ def requests_helper(url, timeout):
 
 def main():
     """
-    Invoke tracking
+    Invoke bucket query
     """
 
     logging.basicConfig(level=logging.ERROR)

@@ -36,7 +36,7 @@ def test_mnist_distributed_gpu(sagemaker_session, ecr_image, instance_type):
 
 
 def _test_mnist_distributed(sagemaker_session, ecr_image, instance_type):
-    model_dir = os.path.join(model_cpu_dir, '1d', 'model.tar.gz')
+    model_dir = os.path.join(model_cpu_dir, 'model_mnist.tar.gz')
 
     endpoint_name = sagemaker.utils.unique_name_from_base("sagemaker-pytorch-serving")
 

@@ -24,7 +24,6 @@ RUN apt-get update && apt-get install -y  --allow-downgrades --allow-change-held
         libxrender-dev \
         build-essential \
         zlib1g-dev \
-        nginx \
         libglib2.0-0 \
         libgl1-mesa-glx \
         openjdk-8-jdk-headless
@@ -34,27 +33,15 @@ ENV LANG C.UTF-8
 
 # Add arguments to achieve the version, python and url
 ARG PYTHON_VERSION=3.6.6
-ARG OPEN_MPI_VERSION=4.0.1
 
-RUN wget https://www.open-mpi.org/software/ompi/v4.0/downloads/openmpi-$OPEN_MPI_VERSION.tar.gz && \
-    gunzip -c openmpi-$OPEN_MPI_VERSION.tar.gz | tar xf - && \
-    cd openmpi-$OPEN_MPI_VERSION && \
-    ./configure --prefix=/home/.openmpi && \
-    make all install && \
-    cd .. && rm openmpi-$OPEN_MPI_VERSION.tar.gz && rm -rf openmpi-$OPEN_MPI_VERSION
-
-ENV PATH="$PATH:/home/.openmpi/bin"
-ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/home/.openmpi/lib/"
-
-# Install OpenSSH for MPI to communicate between containers, Allow OpenSSH to talk to containers without asking for confirmation
+# Install OpenSSH. Allow OpenSSH to talk to containers without asking for confirmation
 RUN apt-get install -y --no-install-recommends openssh-client openssh-server && \
     mkdir -p /var/run/sshd && \
     cat /etc/ssh/ssh_config | grep -v StrictHostKeyChecking > /etc/ssh/ssh_config.new && \
     echo "    StrictHostKeyChecking no" >> /etc/ssh/ssh_config.new && \
     mv /etc/ssh/ssh_config.new /etc/ssh/ssh_configs
 
-RUN ompi_info --parsable --all | grep mpi_built_with_cuda_support:value && \
-    curl -o ~/miniconda.sh -O  https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh  && \
+RUN curl -o ~/miniconda.sh -O  https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh  && \
     chmod +x ~/miniconda.sh && \
     ~/miniconda.sh -b -p /opt/conda && \
     rm ~/miniconda.sh && \
@@ -85,14 +72,14 @@ RUN conda install -c pytorch magma-cuda100 && \
     /opt/conda/bin/conda config --set ssl_verify False && \
     pip install --upgrade pip --trusted-host pypi.org --trusted-host files.pythonhosted.org && \
     ln -s /opt/conda/bin/pip /usr/local/bin/pip3 && \
-    pip install mxnet-model-server==$MMS_VERSION
+    pip install --pre -U mxnet-model-server
 
 RUN useradd -m model-server \
     && mkdir -p /home/model-server/tmp \
     && chown -R model-server /home/model-server
 
-COPY mms-entrypoint.py /usr/local/bin/dockerd-entrypoint.py
-COPY config.properties /home/model-server
+COPY docker/$PYTORCH_VERSION/py3/mms-entrypoint.py /usr/local/bin/dockerd-entrypoint.py
+COPY docker/$PYTORCH_VERSION/py3/config.properties /home/model-server
 COPY src/sagemaker_pytorch_serving_container/deep_learning_container.py /usr/local/bin/deep_learning_container.py
 
 RUN chmod +x /usr/local/bin/dockerd-entrypoint.py && \

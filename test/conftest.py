@@ -179,6 +179,10 @@ def skip_by_device_type(request, use_gpu, instance_type):
             (request.node.get_closest_marker('skip_cpu') and not is_gpu):
         pytest.skip('Skipping because running on \'{}\' instance'.format(instance_type))
 
+@pytest.fixture(autouse=True)
+def skip_by_py_version(request, py_version):
+    if request.node.get_closest_marker('skip_py2') and py_version != 'py3':
+        pytest.skip('Skipping the test because Python 2 is not supported.')
 
 @pytest.fixture(autouse=True)
 def skip_gpu_instance_restricted_regions(region, instance_type):

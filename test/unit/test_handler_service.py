@@ -15,11 +15,11 @@ from __future__ import absolute_import
 from mock import patch
 
 
-@patch('sagemaker_inference.model_server.start_model_server')
-def test_hosting_start(start_model_server):
-    from sagemaker_pytorch_serving_container import serving
+@patch('sagemaker_pytorch_serving_container.default_inference_handler.DefaultPytorchInferenceHandler')
+@patch('sagemaker_inference.transformer.Transformer')
+def test_hosting_start(Transformer, DefaultPytorchInferenceHandler):
+    from sagemaker_pytorch_serving_container import handler_service
 
-    serving.main()
+    handler_service.HandlerService()
 
-    start_model_server.assert_called_with(
-        handler_service='sagemaker_pytorch_serving_container.handler_service')
+    Transformer.assert_called_with(default_inference_handler=DefaultPytorchInferenceHandler())

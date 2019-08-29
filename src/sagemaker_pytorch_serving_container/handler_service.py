@@ -12,15 +12,10 @@
 # language governing permissions and limitations under the License.
 from __future__ import absolute_import
 
-import importlib
-
-import torch
-from sagemaker_inference import environment
 from sagemaker_inference.default_handler_service import DefaultHandlerService
 from sagemaker_inference.transformer import Transformer
-
-from sagemaker_pytorch_serving_container.default_inference_handler import DefaultPyTorchInferenceHandler
-from sagemaker_pytorch_serving_container.pytorch_module_transformer import PyTorchModuleTransformer
+from sagemaker_pytorch_serving_container.default_inference_handler import \
+    DefaultPytorchInferenceHandler
 
 
 class HandlerService(DefaultHandlerService):
@@ -36,19 +31,5 @@ class HandlerService(DefaultHandlerService):
 
     """
     def __init__(self):
-        super(HandlerService, self).__init__(transformer=self._user_module_transformer())
-
-    @staticmethod
-    def _user_module_transformer():
-        user_module = importlib.import_module(environment.Environment().module_name)
-
-        if hasattr(user_module, 'transform_fn'):
-            return Transformer(default_inference_handler=DefaultPyTorchInferenceHandler())
-
-        model_fn = getattr(user_module, 'model_fn', DefaultPyTorchInferenceHandler().default_model_fn)
-
-        model = model_fn(environment.model_dir)
-        if isinstance(model, torch.nn.Module):
-            return PyTorchModuleTransformer()
-        else:
-            raise ValueError('Unsupported model type: {}'.format(model.__class__.__name__))
+        transformer = Transformer(default_inference_handler=DefaultPytorchInferenceHandler())
+        super(HandlerService, self).__init__(transformer=transformer)
