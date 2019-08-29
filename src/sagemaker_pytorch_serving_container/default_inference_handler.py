@@ -12,23 +12,11 @@
 # language governing permissions and limitations under the License.
 from __future__ import absolute_import
 
-import os
-import logging
+import textwrap
+
 import torch
-from sagemaker_containers.beta.framework import (content_types, encoders, env, modules, transformer,
-                                                 worker)
 
 from sagemaker_inference import content_types, decoder, default_inference_handler, encoder, errors
-
-PREFERRED_BATCH_SIZE_PARAM = 'SAGEMAKER_DEFAULT_MODEL_FIRST_DIMENSION_SIZE'
-INFERENCE_ACCELERATOR_PRESENT_ENV = 'SAGEMAKER_INFERENCE_ACCELERATOR_PRESENT'
-
-DEFAULT_MODEL_NAME = 'model'
-DEFAULT_MODEL_FILENAMES = {
-    'symbol': 'model-symbol.json',
-    'params': 'model-0000.params',
-    'shapes': 'model-shapes.json',
-}
 
 
 class DefaultPytorchInferenceHandler(default_inference_handler.DefaultInferenceHandler):
@@ -43,64 +31,30 @@ class DefaultPytorchInferenceHandler(default_inference_handler.DefaultInferenceH
 
         Returns: A PyTorch model.
         """
-        return transformer.default_model_fn(model_dir)
+        raise NotImplementedError(textwrap.dedent("""
+        Please provide a model_fn implementation.
+        See documentation for model_fn at https://github.com/aws/sagemaker-python-sdk
+        """))
 
-    def default_input_fn(self, input_data, content_type):
-        """A default input_fn that can handle JSON, CSV and NPY formats.
-
+    def default_input_fn(input_data, content_type):
+        """A default input_fn that can handle JSON, CSV and NPZ formats.
         Args:
             input_data: the request payload serialized in the content_type format
             content_type: the request content_type
-
         Returns: input_data deserialized into torch.FloatTensor or torch.cuda.FloatTensor depending if cuda is available.
         """
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        np_array = encoders.decode(input_data, content_type)
+        np_array = encoder.decode(input_data, content_type)
         tensor = torch.FloatTensor(
             np_array) if content_type in content_types.UTF8_TYPES else torch.from_numpy(np_array)
         return tensor.to(device)
 
-    def default_output_fn(self, prediction, accept):
-        """A default output_fn for PyTorch. Serializes predictions from predict_fn to JSON, CSV or NPZ format.
-
-        Args:
-            prediction: a prediction result from predict_fn
-            accept: type which the output data needs to be serialized
-
-        Returns: output data serialized
-        """
-        if type(prediction) == torch.Tensor:
-            prediction = prediction.detach().cpu().numpy()
-
-        return worker.Response(response=encoders.encode(prediction, accept), mimetype=accept)
-
-
-class DefaultModuleInferenceHandler(DefaultPytorchInferenceHandler):
-    VALID_CONTENT_TYPES = (content_types.JSON, content_types.CSV, content_types.NPY)
-
-    def default_input_fn(self, input_data, content_type, model=None):
-        """A default input_fn that can handle JSON, CSV and NPY formats.
-
-        Args:
-            input_data: the request payload serialized in the content_type format
-            content_type: the request content_type
-
-        Returns: input_data deserialized into torch.FloatTensor or torch.cuda.FloatTensor depending if cuda is available.
-        """
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        np_array = encoders.decode(input_data, content_type)
-        tensor = torch.FloatTensor(
-            np_array) if content_type in content_types.UTF8_TYPES else torch.from_numpy(np_array)
-        return tensor.to(device)
-
-    def default_predict_fn(self, data, model):
+    def default_predict_fn(data, model):
         """A default predict_fn for PyTorch. Calls a model on data deserialized in input_fn.
         Runs prediction on GPU if cuda is available.
-
         Args:
             data: input data (torch.Tensor) for prediction deserialized by input_fn
             model: PyTvorch model loaded in memory by model_fn
-
         Returns: a prediction
         """
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -110,3 +64,15 @@ class DefaultModuleInferenceHandler(DefaultPytorchInferenceHandler):
         with torch.no_grad():
             output = model(input_data)
         return output
+
+    def default_output_fn(prediction, accept):
+        """A default output_fn for PyTorch. Serializes predictions from predict_fn to JSON, CSV or NPZ format.
+        Args:
+            prediction: a prediction result from predict_fn
+            accept: type which the output data needs to be serialized
+        Returns: output data serialized
+        """
+        if type(prediction) == torch.Tensor:
+            prediction = prediction.detach().cpu().numpy()
+
+        return encoder.encode(prediction, accept)
