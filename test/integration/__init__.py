@@ -24,9 +24,9 @@ data_dir = os.path.join(mnist_path, 'data')
 training_dir = os.path.join(data_dir, 'training')
 dist_operations_path = os.path.join(resources_path, 'distributed_operations.py')
 
-mnist_1d_script = os.path.join(mnist_path, 'mnist_1d.py')
 model_cpu_dir = os.path.join(mnist_path, 'model_cpu')
 model_cpu_1d_dir = os.path.join(model_cpu_dir, '1d')
+mnist_1d_script = os.path.join(model_cpu_1d_dir, 'mnist_1d.py')
 model_gpu_dir = os.path.join(mnist_path, 'model_gpu')
 model_gpu_1d_dir = os.path.join(model_gpu_dir, '1d')
 call_model_fn_once_script = os.path.join(resources_path, 'call_model_fn_once.py')
@@ -34,3 +34,12 @@ call_model_fn_once_script = os.path.join(resources_path, 'call_model_fn_once.py'
 ROLE = 'dummy/unused-role'
 DEFAULT_TIMEOUT = 20
 PYTHON3 = 'py3'
+
+RESOURCE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'resources'))
+
+# These regions have some p2 and p3 instances, but not enough for automated testing
+NO_P2_REGIONS = ['ca-central-1', 'eu-central-1', 'eu-west-2', 'us-west-1', 'eu-west-3',
+                 'eu-north-1', 'sa-east-1', 'ap-east-1']
+NO_P3_REGIONS = ['ap-southeast-1', 'ap-southeast-2', 'ap-south-1', 'ca-central-1',
+                 'eu-central-1', 'eu-west-2', 'us-west-1', 'eu-west-3', 'eu-north-1',
+                 'sa-east-1', 'ap-east-1']

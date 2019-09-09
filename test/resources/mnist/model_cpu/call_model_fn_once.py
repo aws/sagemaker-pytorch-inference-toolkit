@@ -12,14 +12,26 @@
 # language governing permissions and limitations under the License.
 from __future__ import absolute_import
 
-from mock import patch
+import os
 
 
-@patch('sagemaker_inference.model_server.start_model_server')
-def test_hosting_start(start_model_server):
-    from sagemaker_pytorch_serving_container import serving
+def model_fn(model_dir):
+    lock_file = os.path.join(model_dir, 'model_fn.lock.{}'.format(os.getpid()))
+    if os.path.exists(lock_file):
+        raise RuntimeError('model_fn called more than once (lock: {})'.format(lock_file))
 
-    serving.main()
+    open(lock_file, 'a').close()
 
-    start_model_server.assert_called_with(
-        handler_service='sagemaker_pytorch_serving_container.handler_service')
+    return 'model'
+
+
+def input_fn(data, content_type):
+    return data
+
+
+def predict_fn(data, model):
+    return b'output'
+
+
+def output_fn(prediction, accept):
+    return prediction
