@@ -6,12 +6,6 @@ RUN apt-get update && apt-get install -y  --allow-downgrades --allow-change-held
         build-essential \
         ca-certificates \
         cmake \
-        cuda-command-line-tools-10-0 \
-        cuda-cublas-10-0 \
-        cuda-cufft-10-0 \
-        cuda-curand-10-0 \
-        cuda-cusolver-10-0 \
-        cuda-cusparse-10-0 \
         libgomp1 \
         libibverbs-dev \
         curl \
@@ -59,7 +53,7 @@ ENV PATH /opt/conda/bin:$PATH
 
 ARG PYTORCH_VERSION=1.2.0
 ARG TORCHVISION_VERSION=0.4.0
-ARG MMS_VERSION=1.0.5
+ARG MMS_VERSION=1.0.7
 RUN conda install -c pytorch magma-cuda100 && \
     conda install -c conda-forge awscli==1.16.210 opencv==4.0.1 && \
     conda install -y scikit-learn==0.21.2 \
@@ -72,7 +66,7 @@ RUN conda install -c pytorch magma-cuda100 && \
     /opt/conda/bin/conda config --set ssl_verify False && \
     pip install --upgrade pip --trusted-host pypi.org --trusted-host files.pythonhosted.org && \
     ln -s /opt/conda/bin/pip /usr/local/bin/pip3 && \
-    pip install --pre -U mxnet-model-server
+    pip install mxnet-model-server==$MMS_VERSION
 
 RUN useradd -m model-server \
     && mkdir -p /home/model-server/tmp \
