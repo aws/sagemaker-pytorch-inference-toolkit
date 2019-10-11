@@ -48,8 +48,8 @@ def _test_mnist_distributed(sagemaker_session, ecr_image, instance_type):
     pytorch = PyTorchModel(model_data,
                            'SageMakerRole',
                            mnist_script,
-                           ecr_image,
-                           sagemaker_session)
+                           image=ecr_image,
+                           sagemaker_session=sagemaker_session)
 
     with timeout_and_delete_endpoint(endpoint_name, sagemaker_session, minutes=30):
         predictor = pytorch.deploy(initial_instance_count=1, instance_type=instance_type,
