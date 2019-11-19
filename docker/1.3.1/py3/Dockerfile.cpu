@@ -35,7 +35,7 @@ RUN curl -o ~/miniconda.sh -O  https://repo.continuum.io/miniconda/Miniconda3-la
  && chmod +x ~/miniconda.sh \
  && ~/miniconda.sh -b -p /opt/conda \
  && rm ~/miniconda.sh \
- && /opt/conda/bin/conda update conda 
+ && /opt/conda/bin/conda update conda \
  && /opt/conda/bin/conda install -y python=$PYTHON_VERSION \
     cython==0.29.12 \
     ipython==7.7.0 \
