@@ -36,7 +36,8 @@ RUN apt-get update \
     zlib1g-dev
 
 # Install OpenSSH, Allow OpenSSH to talk to containers without asking for confirmation
-RUN apt-get install -y --no-install-recommends openssh-client openssh-server \
+RUN apt-get install -y --no-install-recommends \
+    openssh-client openssh-server \
  && mkdir -p /var/run/sshd \
  && cat /etc/ssh/ssh_config | grep -v StrictHostKeyChecking > /etc/ssh/ssh_config.new \
  && echo "    StrictHostKeyChecking no" >> /etc/ssh/ssh_config.new \
@@ -47,7 +48,8 @@ RUN curl -o ~/miniconda.sh -O  https://repo.continuum.io/miniconda/Miniconda3-la
  && ~/miniconda.sh -b -p /opt/conda \
  && rm ~/miniconda.sh \
  && /opt/conda/bin/conda update conda \
- && /opt/conda/bin/conda install -y python=$PYTHON_VERSION \
+ && /opt/conda/bin/conda install -y \
+    python=$PYTHON_VERSION \
     cython==0.29.12 \
     ipython==5.8.0 \
     mkl-include==2019.4 \
@@ -58,8 +60,10 @@ RUN curl -o ~/miniconda.sh -O  https://repo.continuum.io/miniconda/Miniconda3-la
  && /opt/conda/bin/conda clean -ya
 
 
-RUN conda install -c pytorch magma-cuda100 \
- && conda install -c conda-forge \
+RUN conda install -c \
+    pytorch magma-cuda100 \
+ && conda install -c \
+    conda-forge \
     awscli==1.16.210 \
     opencv==4.0.1 \
  && conda install -y scikit-learn==0.20.3 \
@@ -67,7 +71,8 @@ RUN conda install -c pytorch magma-cuda100 \
     pandas==0.24.2 \
     pillow==6.1.0 \
     requests==2.22.0 \
- && conda install -c pytorch \
+ && conda install -c \
+    pytorch \
     cudatoolkit=10.0 \
     pytorch==$PYTORCH_VERSION \
     torchvision==$TORCHVISION_VERSION \
@@ -88,7 +93,8 @@ RUN chmod +x /usr/local/bin/dockerd-entrypoint.py \
  && chmod +x /usr/local/bin/deep_learning_container.py
 
 # Install OpenSSH for MPI to communicate between containers, Allow OpenSSH to talk to containers without asking for confirmation
-RUN apt-get install -y --no-install-recommends openssh-client openssh-server \
+RUN apt-get install -y --no-install-recommends \
+    openssh-client openssh-server \
  && mkdir -p /var/run/sshd \
  && cat /etc/ssh/ssh_config | grep -v StrictHostKeyChecking > /etc/ssh/ssh_config.new \
  && echo "    StrictHostKeyChecking no" >> /etc/ssh/ssh_config.new \
@@ -97,7 +103,8 @@ RUN apt-get install -y --no-install-recommends openssh-client openssh-server \
 # RUN pip install --no-cache-dir 'opencv-python>=4.0,<4.1'
 
 COPY dist/sagemaker_pytorch_serving_container-1.2-py2.py3-none-any.whl /sagemaker_pytorch_serving_container-1.2-py2.py3-none-any.whl
-RUN pip install --no-cache-dir /sagemaker_pytorch_serving_container-1.2-py2.py3-none-any.whl \
+RUN pip install --no-cache-dir \
+    /sagemaker_pytorch_serving_container-1.2-py2.py3-none-any.whl \
  && rm /sagemaker_pytorch_serving_container-1.2-py2.py3-none-any.whl
 
 EXPOSE 8080 8081

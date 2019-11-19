@@ -38,7 +38,8 @@ RUN curl -o ~/miniconda.sh -O  https://repo.continuum.io/miniconda/Miniconda3-la
  && ~/miniconda.sh -b -p /opt/conda \
  && rm ~/miniconda.sh \
  && /opt/conda/bin/conda update conda \
- && /opt/conda/bin/conda install -y python=$PYTHON_VERSION \
+ && /opt/conda/bin/conda install -y \
+    python=$PYTHON_VERSION \
     cython==0.29.12 \
     ipython==5.8.0 \
     mkl-include==2019.4 \
@@ -48,15 +49,18 @@ RUN curl -o ~/miniconda.sh -O  https://repo.continuum.io/miniconda/Miniconda3-la
     typing==3.7.4 \
  && /opt/conda/bin/conda clean -ya
 
-RUN conda install -c conda-forge \
+RUN conda install -c \
+    conda-forge \
     awscli==1.16.210 \
     opencv==4.0.1 \
- && conda install -y scikit-learn==0.20.3 \
+ && conda install -y \
+    scikit-learn==0.20.3 \
     pandas==0.24.2 \
     pillow==6.1.0 \
     h5py==2.9.0 \
     requests==2.22.0 \
- && conda install pytorch==$PYTORCH_VERSION \
+ && conda install \
+    pytorch==$PYTORCH_VERSION \
     torchvision==$TORCHVISION_VERSION cpuonly -c pytorch \
  && conda clean -ya \
  && pip install --upgrade pip --trusted-host pypi.org --trusted-host files.pythonhosted.org \
@@ -74,7 +78,8 @@ RUN chmod +x /usr/local/bin/dockerd-entrypoint.py \
  && chmod +x /usr/local/bin/deep_learning_container.py
 
 COPY dist/sagemaker_pytorch_serving_container-1.2-py2.py3-none-any.whl /sagemaker_pytorch_serving_container-1.2-py2.py3-none-any.whl
-RUN pip install --no-cache-dir /sagemaker_pytorch_serving_container-1.2-py2.py3-none-any.whl \
+RUN pip install --no-cache-dir \
+    /sagemaker_pytorch_serving_container-1.2-py2.py3-none-any.whl \
  && rm /sagemaker_pytorch_serving_container-1.2-py2.py3-none-any.whl
 
 
