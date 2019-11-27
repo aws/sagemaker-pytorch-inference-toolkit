@@ -99,6 +99,7 @@ RUN pip install --no-cache-dir \
     /sagemaker_pytorch_serving_container-1.3-py2.py3-none-any.whl \
  && rm /sagemaker_pytorch_serving_container-1.3-py2.py3-none-any.whl
 
+RUN curl https://aws-dlc-licenses.s3.amazonaws.com/pytorch/license.txt -o /license.txt
 
 EXPOSE 8080 8081
 ENTRYPOINT ["python", "/usr/local/bin/dockerd-entrypoint.py"]
