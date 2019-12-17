@@ -52,7 +52,7 @@ setup(
     extras_require={
         'test': ['boto3==1.9.213', 'coverage==4.5.3', 'docker-compose==1.23.2', 'flake8==3.7.7', 'Flask==1.1.1',
                  'mock==2.0.0', 'pytest==4.4.0', 'pytest-cov==2.7.1', 'pytest-xdist==1.28.0', 'PyYAML==3.10',
-                 'sagemaker==1.38.5', 'requests==2.20.0', 'torchvision==0.4.2', 'tox==3.7.0', 'requests_mock==1.6.0']
+                 'sagemaker==1.48.0', 'requests==2.20.0', 'torchvision==0.4.2', 'tox==3.7.0', 'requests_mock==1.6.0']
     },
 
     entry_points={
