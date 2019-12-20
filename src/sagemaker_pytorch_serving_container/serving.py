@@ -21,6 +21,7 @@ from sagemaker_pytorch_serving_container import handler_service
 
 HANDLER_SERVICE = handler_service.__name__
 
+
 def _retry_if_error(exception):
     return isinstance(exception, CalledProcessError)
 
