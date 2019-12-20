@@ -16,7 +16,8 @@ import textwrap
 
 import torch
 
-from sagemaker_inference import content_types, decoder, default_inference_handler, encoder, errors
+from sagemaker_inference import content_types, decoder, default_inference_handler, encoder
+
 
 class DefaultPytorchInferenceHandler(default_inference_handler.DefaultInferenceHandler):
     VALID_CONTENT_TYPES = (content_types.JSON, content_types.NPY)
@@ -37,10 +38,13 @@ class DefaultPytorchInferenceHandler(default_inference_handler.DefaultInferenceH
 
     def default_input_fn(self, input_data, content_type):
         """A default input_fn that can handle JSON, CSV and NPZ formats.
+
         Args:
             input_data: the request payload serialized in the content_type format
             content_type: the request content_type
-        Returns: input_data deserialized into torch.FloatTensor or torch.cuda.FloatTensor depending if cuda is available.
+
+        Returns: input_data deserialized into torch.FloatTensor or torch.cuda.FloatTensor,
+            depending if cuda is available.
         """
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         np_array = decoder.decode(input_data, content_type)
@@ -51,9 +55,11 @@ class DefaultPytorchInferenceHandler(default_inference_handler.DefaultInferenceH
     def default_predict_fn(self, data, model):
         """A default predict_fn for PyTorch. Calls a model on data deserialized in input_fn.
         Runs prediction on GPU if cuda is available.
+
         Args:
             data: input data (torch.Tensor) for prediction deserialized by input_fn
             model: PyTorch model loaded in memory by model_fn
+
         Returns: a prediction
         """
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -67,9 +73,11 @@ class DefaultPytorchInferenceHandler(default_inference_handler.DefaultInferenceH
 
     def default_output_fn(self, prediction, accept):
         """A default output_fn for PyTorch. Serializes predictions from predict_fn to JSON, CSV or NPY format.
+
         Args:
             prediction: a prediction result from predict_fn
             accept: type which the output data needs to be serialized
+
         Returns: output data serialized
         """
         if type(prediction) == torch.Tensor:

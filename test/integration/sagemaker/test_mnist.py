@@ -1,4 +1,4 @@
-# Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"). You
 # may not use this file except in compliance with the License. A copy of
@@ -19,8 +19,8 @@ import pytest
 import sagemaker
 from sagemaker.pytorch import PyTorchModel
 
-from test.integration import (DEFAULT_TIMEOUT, mnist_script, model_cpu_dir, model_gpu_dir)
-from test.integration.sagemaker.timeout import timeout, timeout_and_delete_endpoint
+from test.integration import mnist_script, model_cpu_dir
+from test.integration.sagemaker.timeout import timeout_and_delete_endpoint
 
 
 @pytest.mark.skip_gpu
