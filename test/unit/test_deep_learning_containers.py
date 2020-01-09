@@ -17,7 +17,7 @@ import requests
 
 import pytest
 
-from sagemaker_pytorch_serving_container import deep_learning_container as deep_learning_container_to_test
+from docker.build_artifacts import deep_learning_container as deep_learning_container_to_test
 
 DLC_S3_URI = (
     'https://aws-deep-learning-containers-us-east-1.s3.us-east-1.amazonaws.com/'
