@@ -103,10 +103,10 @@ RUN apt-get install -y --no-install-recommends \
 
 # RUN pip install --no-cache-dir 'opencv-python>=4.0,<4.1'
 
-COPY sagemaker_pytorch_serving_container-1.3-py2.py3-none-any.whl /sagemaker_pytorch_serving_container-1.3-py2.py3-none-any.whl
+COPY sagemaker_pytorch_serving_container-1.4-py2.py3-none-any.whl /sagemaker_pytorch_serving_container-1.4-py2.py3-none-any.whl
 RUN pip install --no-cache-dir \
-    /sagemaker_pytorch_serving_container-1.3-py2.py3-none-any.whl \
- && rm /sagemaker_pytorch_serving_container-1.3-py2.py3-none-any.whl
+    /sagemaker_pytorch_serving_container-1.4-py2.py3-none-any.whl \
+ && rm /sagemaker_pytorch_serving_container-1.4-py2.py3-none-any.whl
 
 RUN curl https://aws-dlc-licenses.s3.amazonaws.com/pytorch/license.txt -o /license.txt
 
