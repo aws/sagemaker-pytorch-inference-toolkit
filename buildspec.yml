@@ -89,7 +89,7 @@ phases:
       - execute-command-if-has-matching-changes "$py3_cmd" "test/" "src/*.py" "setup.py" "setup.cfg" "docker/*" "buildspec.yml"
 
       - py2_pytest_cmd="pytest test/integration/local --region $AWS_DEFAULT_REGION --docker-base-name $PREPROD_IMAGE --framework-version $FRAMEWORK_VERSION --py-version $GPU_PY2_VERSION --processor gpu --tag $GPU_PY2_TAG"
-      - py2_cmd="remote-test --github-repo $GITHUB_REPO --test-cmd \"$py2_test_cmd\" --setup-file $SETUP_FILE --pr-number \"$PR_NUM\" --skip-setup"
+      - py2_cmd="remote-test --github-repo $GITHUB_REPO --test-cmd \"$py2_pytest_cmd\" --setup-file $SETUP_FILE --pr-number \"$PR_NUM\" --skip-setup"
       - execute-command-if-has-matching-changes "$py2_cmd" "test/" "src/*.py" "setup.py" "setup.cfg" "docker/*" "buildspec.yml"
 
       # run cpu sagemaker tests
