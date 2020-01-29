@@ -15,7 +15,6 @@ from __future__ import absolute_import
 import shlex
 import subprocess
 import sys
-import os.path
 
 
 if sys.argv[1] == 'serve':

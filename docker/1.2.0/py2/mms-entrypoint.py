@@ -15,7 +15,6 @@ from __future__ import absolute_import
 import shlex
 import subprocess
 import sys
-import os.path
 
 from sagemaker_pytorch_serving_container import serving
 
