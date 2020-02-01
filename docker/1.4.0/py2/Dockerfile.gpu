@@ -62,7 +62,7 @@ RUN curl -o ~/miniconda.sh -O  https://repo.continuum.io/miniconda/Miniconda3-la
 
 
 RUN conda install -c \
-    pytorch magma-cuda100 \
+    pytorch magma-cuda101==2.5.1 \
  && conda install -c \
     conda-forge \
     awscli==1.16.296 \
@@ -74,7 +74,7 @@ RUN conda install -c \
     requests==2.22.0 \
  && conda install -c \
     pytorch \
-    cudatoolkit=10.0 \
+    cudatoolkit=10.1 \
     pytorch==$PYTORCH_VERSION \
     torchvision==$TORCHVISION_VERSION \
  && conda clean -ya \
