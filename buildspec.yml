@@ -3,12 +3,15 @@ version: 0.2
 env:
   variables:
     FRAMEWORK_VERSION: '1.4.0'
+    EIA_FRAMEWORK_VERSION: '1.3.1'
     CPU_PY2_VERSION: '2'
     CPU_PY3_VERSION: '3'
     CPU_INSTANCE_TYPE: 'ml.c4.xlarge'
     GPU_PY2_VERSION: '2'
     GPU_PY3_VERSION: '3'
+    EIA_PY3_VERSION: '3'
     GPU_INSTANCE_TYPE: 'ml.p2.xlarge'
+    EIA_ACCELERATOR_TYPE: 'ml.eia2.medium'
     LOCAL_BASE_REPO: 'pytorch-base'
     ECR_REPO: 'sagemaker-test'
     GITHUB_REPO: 'sagemaker-pytorch-serving-container'
@@ -44,6 +47,7 @@ phases:
 
       - cpu_dockerfile="Dockerfile.cpu"
       - gpu_dockerfile="Dockerfile.gpu"
+      - eia_dockerfile="Dockerfile.eia"
 
       # build py2 images
       - build_dir="docker/$FRAMEWORK_VERSION/py$CPU_PY2_VERSION"
@@ -60,8 +64,14 @@ phases:
       - cp -r docker/build_artifacts/* $build_dir/
       - CPU_PY3_TAG="$FRAMEWORK_VERSION-cpu-py3-$BUILD_ID"
       - GPU_PY3_TAG="$FRAMEWORK_VERSION-gpu-py3-$BUILD_ID"
+      - EIA_PY3_TAG="$EIA_FRAMEWORK_VERSION-eia-py3-$BUILD_ID"
       - docker build -f "$build_dir/$cpu_dockerfile" -t $PREPROD_IMAGE:$CPU_PY3_TAG $build_dir
       - docker build -f "$build_dir/$gpu_dockerfile" -t $PREPROD_IMAGE:$GPU_PY3_TAG $build_dir
+      # PY2 not offered for EIA PyTorch
+      - eia_build_dir="docker/$EIA_FRAMEWORK_VERSION/py$EIA_PY3_VERSION"
+      - cp sagemaker_pytorch_inference.tar.gz $eia_build_dir/
+      - cp -r docker/build_artifacts/* $eia_build_dir/
+      - docker build -f "$eia_build_dir/$eia_dockerfile" -t $PREPROD_IMAGE:$EIA_PY3_TAG $eia_build_dir
 
       # push images to ecr
       - $(aws ecr get-login --registry-ids $ACCOUNT --no-include-email --region $AWS_DEFAULT_REGION)
@@ -69,6 +79,7 @@ phases:
       - docker push $PREPROD_IMAGE:$CPU_PY3_TAG
       - docker push $PREPROD_IMAGE:$GPU_PY2_TAG
       - docker push $PREPROD_IMAGE:$GPU_PY3_TAG
+      - docker push $PREPROD_IMAGE:$EIA_PY3_TAG
 
       # launch remote gpu instance
       - prefix='ml.'
@@ -104,6 +115,10 @@ phases:
       - execute-command-if-has-matching-changes "$py3_cmd" "test/" "src/*.py" "setup.py" "setup.cfg" "docker/*" "buildspec.yml"
       - execute-command-if-has-matching-changes "$py2_cmd" "test/" "src/*.py" "setup.py" "setup.cfg" "docker/*" "buildspec.yml"
 
+      # run eia sagemaker tests
+      - py3_cmd="pytest test/integration/sagemaker --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $EIA_FRAMEWORK_VERSION --py-version $EIA_PY3_VERSION --processor cpu --instance-type $CPU_INSTANCE_TYPE --accelerator-type $EIA_ACCELERATOR_TYPE --tag $EIA_PY3_TAG"
+      - execute-command-if-has-matching-changes "$py3_cmd" "test/" "src/*.py" "setup.py" "setup.cfg" "docker/*" "buildspec.yml"
+
     finally:
       # shut down remote gpu instance
       - cleanup-gpu-instances
@@ -114,3 +129,4 @@ phases:
       - aws ecr batch-delete-image --repository-name $ECR_REPO --region $AWS_DEFAULT_REGION --image-ids imageTag=$CPU_PY3_TAG
       - aws ecr batch-delete-image --repository-name $ECR_REPO --region $AWS_DEFAULT_REGION --image-ids imageTag=$GPU_PY2_TAG
       - aws ecr batch-delete-image --repository-name $ECR_REPO --region $AWS_DEFAULT_REGION --image-ids imageTag=$GPU_PY3_TAG
+      - aws ecr batch-delete-image --repository-name $ECR_REPO --region $AWS_DEFAULT_REGION --image-ids imageTag=$EIA_PY3_TAG
