@@ -74,10 +74,8 @@ RUN useradd -m model-server \
 
 COPY docker/$PYTORCH_VERSION/py2/mms-entrypoint.py /usr/local/bin/dockerd-entrypoint.py
 COPY docker/$PYTORCH_VERSION/py2/config.properties /home/model-server
-COPY src/sagemaker_pytorch_serving_container/deep_learning_container.py /usr/local/bin/deep_learning_container.py
 
-RUN chmod +x /usr/local/bin/dockerd-entrypoint.py && \
-    chmod +x /usr/local/bin/deep_learning_container.py
+RUN chmod +x /usr/local/bin/dockerd-entrypoint.py
 
 # Install OpenSSH for MPI to communicate between containers, Allow OpenSSH to talk to containers without asking for confirmation
 RUN apt-get install -y --no-install-recommends openssh-client openssh-server && \
