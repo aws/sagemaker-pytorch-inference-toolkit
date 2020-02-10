@@ -42,11 +42,11 @@ RUN curl -o ~/miniconda.sh -O  https://repo.continuum.io/miniconda/Miniconda3-la
  && /opt/conda/bin/conda update conda \
  && /opt/conda/bin/conda install -y \
     python=$PYTHON_VERSION \
-    cython==0.29.12 \
-    ipython==5.8.0 \
-    mkl-include==2019.4 \
-    mkl==2019.4 \
-    numpy==1.16.4 \
+    cython==0.29.14 \
+    ipython==7.12.0 \
+    mkl-include==2020 \
+    mkl==2020 \
+    numpy==1.18.1 \
     scipy==1.2.1 \
     typing==3.7.4 \
  && /opt/conda/bin/conda clean -ya
