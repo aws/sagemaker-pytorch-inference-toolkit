@@ -25,7 +25,7 @@ def read(fname):
 
 
 setup(
-    name='sagemaker_pytorch_serving_container',
+    name='sagemaker_pytorch_inference',
     version='1.3',
     description='Open source library for creating PyTorch containers to run on Amazon SageMaker.',
 
