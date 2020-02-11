@@ -28,7 +28,7 @@ phases:
 
   build:
     commands:
-      - tox -e flake8
+      - tox -e flake8,twine
 
       # install
       - pip3 install -U -e .
