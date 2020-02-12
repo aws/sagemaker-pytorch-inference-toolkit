@@ -6,3 +6,5 @@ test/resources/local_mode_lock
 __pycache__/
 .idea/
 .DS_Store
+**/*.pyc
+**.pyc
