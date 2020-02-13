@@ -1,5 +1,43 @@
 # Changelog
 
+## v1.1.0 (2020-02-13)
+
+### Features
+
+ * Add release to PyPI. Change package name to sagemaker-pytorch-inference.
+
+### Bug Fixes and Other Changes
+
+ * Fix version.
+ * Fix py2 test environment.
+ * Adding changes for PyTorch 1.4.0 DLC
+ * Update artifacts
+ * Create __init__.py
+ * run local GPU tests for Python 3
+ * update: Update buildspec for PyTorch 1.3.1
+ * update copyright year in license header
+ * fix year in copyright license header
+ * update gitignore
+ * remove unused test files
+ * add flake8 check to PR build
+ * upgrade sagemaker to 1.48.0 for test dependencies
+ * Updated Pillow version to 6.2.1
+ * Add LABEL for port bind to 1.2.0 and 1.3.1 dockerfiles
+ * Updated awscli version
+ * Added license file
+ * Disabling logs in deep_learning_container.py
+ * Wheel name typo fix
+ * Bump inference-toolkit version and add mme label
+
+### Documentation Changes
+
+ * Fix README.
+
+### Testing and Release Infrastructure
+
+ * properly fail build if has-matching-changes fails
+ * properly fail build if has-matching-changes fails
+
 ## v1.0.5 (2019-08-05)
 
 ### Bug fixes and other changes
