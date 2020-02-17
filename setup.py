@@ -46,9 +46,10 @@ setup(
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.6',
     ],
-    install_requires=['numpy==1.16.4', 'Pillow==6.2.0', 'retrying==1.3.3', 'sagemaker-containers==2.5.4',
-                      'six==1.12.0', 'torch==1.4.0', 'requests_mock==1.6.0', 'sagemaker-inference==1.1.2',
-                      'retrying==1.3.3'],
+
+    # We don't declare our dependency on torch here because we build with
+    # different packages for different variants
+    install_requires=['numpy', 'retrying', 'sagemaker-inference==1.1.2'],
     extras_require={
         'test': ['boto3==1.10.32', 'coverage==4.5.3', 'docker-compose==1.23.2', 'flake8==3.7.7', 'Flask==1.1.1',
                  'mock==2.0.0', 'pytest==4.4.0', 'pytest-cov==2.7.1', 'pytest-xdist==1.28.0', 'PyYAML==3.10',
