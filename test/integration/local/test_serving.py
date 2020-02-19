@@ -73,7 +73,7 @@ def test_serve_cpu_model_on_gpu(test_loader, docker_image, sagemaker_local_sessi
 
 def test_serving_calls_model_fn_once(docker_image, sagemaker_local_session, instance_type):
     with _predictor(model_cpu_dir, call_model_fn_once_script, docker_image, sagemaker_local_session,
-                    instance_type, model_server_workers=2) as predictor:
+                    instance_type, model_server_workers=1) as predictor:
         predictor.accept = None
         predictor.deserializer = BytesDeserializer()
 
