@@ -1,5 +1,16 @@
 # Changelog
 
+## v1.2.0 (2020-02-20)
+
+### Features
+
+ * Remove torch as requirement for sagemaker_pytorch_inference
+
+### Bug Fixes and Other Changes
+
+ * copy all tests to test-toolkit folder.
+ * Remove awscli pin to avoid broken requirements
+
 ## v1.1.1 (2020-02-17)
 
 ### Bug Fixes and Other Changes
