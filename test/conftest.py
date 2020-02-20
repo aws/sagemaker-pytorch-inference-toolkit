@@ -194,7 +194,8 @@ def skip_gpu_instance_restricted_regions(region, instance_type):
 
 
 @pytest.fixture(autouse=True)
-def skip_gpu_py2(request, use_gpu, instance_type, py_version):
+def skip_gpu_py2(request, use_gpu, instance_type, py_version, framework_version):
     is_gpu = use_gpu or instance_type[3] in ['g', 'p']
-    if request.node.get_closest_marker('skip_gpu_py2') and is_gpu and py_version != 'py3':
+    if request.node.get_closest_marker('skip_gpu_py2') and is_gpu and py_version != 'py3' \
+            and framework_version == '1.4.0':
         pytest.skip('Skipping the test until mms issue resolved.')
