@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.2.1 (2020-02-24)
+
+### Bug Fixes and Other Changes
+
+ * update: Update PyTorch-EI health check binary version to match ECL
+ * Adding PyTorch EI Support
+ * undo upgrade mms version and library name
+ * remove multi-model label from dockerfiles
+
 ## v1.2.0 (2020-02-20)
 
 ### Features
