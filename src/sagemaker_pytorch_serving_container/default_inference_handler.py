@@ -12,11 +12,22 @@
 # language governing permissions and limitations under the License.
 from __future__ import absolute_import
 
+import logging
+import os
 import textwrap
 
 import torch
-
 from sagemaker_inference import content_types, decoder, default_inference_handler, encoder
+
+INFERENCE_ACCELERATOR_PRESENT_ENV = 'SAGEMAKER_INFERENCE_ACCELERATOR_PRESENT'
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+logger.addHandler(logging.StreamHandler(sys.stdout))
+
+
+class FileNotFoundError(OSError):
+    pass
 
 
 class DefaultPytorchInferenceHandler(default_inference_handler.DefaultInferenceHandler):
@@ -31,10 +42,18 @@ class DefaultPytorchInferenceHandler(default_inference_handler.DefaultInferenceH
 
         Returns: A PyTorch model.
         """
-        raise NotImplementedError(textwrap.dedent("""
-        Please provide a model_fn implementation.
-        See documentation for model_fn at https://github.com/aws/sagemaker-python-sdk
-        """))
+        if os.getenv(INFERENCE_ACCELERATOR_PRESENT_ENV) == 'true':
+            default_model_filename = "model.pt"
+            model_path = os.path.join(model_dir, default_model_filename)
+            if not os.path.exists(model_path):
+                raise FileNotFoundError("Cannot find model.pt.")
+            model = torch.jit.load(model_path)
+            return model
+        else:
+            raise NotImplementedError(textwrap.dedent("""
+            Please provide a model_fn implementation.
+            See documentation for model_fn at https://github.com/aws/sagemaker-python-sdk
+            """))
 
     def default_input_fn(self, input_data, content_type):
         """A default input_fn that can handle JSON, CSV and NPZ formats.
@@ -62,12 +81,22 @@ class DefaultPytorchInferenceHandler(default_inference_handler.DefaultInferenceH
 
         Returns: a prediction
         """
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        model.to(device)
-        input_data = data.to(device)
-        model.eval()
         with torch.no_grad():
-            output = model(input_data)
+            if os.getenv(INFERENCE_ACCELERATOR_PRESENT_ENV) == 'true':
+                logger.info(
+                    'Performing EIA inference with Torch JIT context with input of size {}'.format(data.shape))
+                device = torch.device('cpu')
+                model = model.to(device)
+                input_data = data.to(device)
+                model.eval()
+                with torch.jit.optimized_execution(True, {'target_device': 'eia:0'}):
+                    output = model(input_data)
+            else:
+                device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+                model = model.to(device)
+                input_data = data.to(device)
+                model.eval()
+                output = model(input_data)
 
         return output
 
