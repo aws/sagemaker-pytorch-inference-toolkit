@@ -34,10 +34,10 @@ class DefaultPytorchInferenceHandler(default_inference_handler.DefaultInferenceH
 
         Returns: A PyTorch model.
         """
-        if os.getenv(INFERENCE_ACCELERATOR_PRESENT_ENV) == 'true':
+        if os.getenv(INFERENCE_ACCELERATOR_PRESENT_ENV) == "true":
             model_path = os.path.join(model_dir, DEFAULT_MODEL_FILENAME)
             if not os.path.exists(model_path):
-                raise FileNotFoundError('Failed to load model with default model_fn: missing file {}.'
+                raise FileNotFoundError("Failed to load model with default model_fn: missing file {}."
                                         .format(DEFAULT_MODEL_FILENAME))
             return torch.jit.load(model_path)
         else:
@@ -73,12 +73,12 @@ class DefaultPytorchInferenceHandler(default_inference_handler.DefaultInferenceH
         Returns: a prediction
         """
         with torch.no_grad():
-            if os.getenv(INFERENCE_ACCELERATOR_PRESENT_ENV) == 'true':
-                device = torch.device('cpu')
+            if os.getenv(INFERENCE_ACCELERATOR_PRESENT_ENV) == "true":
+                device = torch.device("cpu")
                 model = model.to(device)
                 input_data = data.to(device)
                 model.eval()
-                with torch.jit.optimized_execution(True, {'target_device': 'eia:0'}):
+                with torch.jit.optimized_execution(True, {"target_device": "eia:0"}):
                     output = model(input_data)
             else:
                 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
