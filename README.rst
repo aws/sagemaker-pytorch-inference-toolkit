@@ -25,6 +25,7 @@ Table of Contents
 
 #. `Getting Started <#getting-started>`__
 #. `Building your Image <#building-your-image>`__
+#. `Amazon Elastic Inference with PyTorch in SageMaker <#elastic-inference>`__
 #. `Running the tests <#running-the-tests>`__
 
 Getting Started
@@ -142,6 +143,38 @@ If you want to build "final" Docker images, then use:
     # GPU
     docker build -t preprod-pytorch:1.0.0-gpu-py3 -f docker/1.0.0/final/Dockerfile.gpu --build-arg py_version=3 .
 
+Amazon Elastic Inference with PyTorch in SageMaker
+------------------------------------------------
+`Amazon Elastic Inference <https://aws.amazon.com/machine-learning/elastic-inference/>`__ allows you to to attach
+low-cost GPU-powered acceleration to Amazon EC2 and Amazon SageMaker instances to reduce the cost of running deep
+learning inference by up to 75%. Currently, Amazon Elastic Inference supports TensorFlow, Apache MXNet, PyTorch,
+and ONNX models, with more frameworks coming soon.
+
+Support for using PyTorch with Amazon Elastic Inference in SageMaker is supported in the public SageMaker PyTorch serving containers.
+
+* For information on how Amazon Elastic Inference works, see `How EI Works <https://docs.aws.amazon.com/sagemaker/latest/dg/ei.html#ei-how-it-works>`__.
+* For more information in regards to using Amazon Elastic Inference in SageMaker, see `Amazon SageMaker Elastic Inference <https://docs.aws.amazon.com/sagemaker/latest/dg/ei.html>`__.
+
+Building the SageMaker Elastic Inference MXNet Serving container
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Amazon Elastic Inference is designed to be used with AWS enhanced versions of TensorFlow serving, Apache MXNet or PyTorch serving. These enhanced
+versions of the frameworks are automatically built into containers when you use the Amazon SageMaker Python SDK, or you can
+download them as binary files and import them into your own Docker containers. The enhanced MXNet binaries are available on Amazon S3 at https://s3.console.aws.amazon.com/s3/buckets/amazonei-apachemxnet.
+
+The SageMaker PyTorch containers with Amazon Elastic Inference support were built utilizing the
+same instructions listed `above <https://github.com/aws/sagemaker-mxnet-serving-container#building-your-image>`__ with the
+EIA Dockerfiles, which are all named ``Dockerfile.eia``, and can be found in the same ``docker/`` directory.
+
+Example:
+
+::
+
+    # MXNet 1.3.1, Python 3, EI
+    $ cp dist/sagemaker_pytorch_inference-*.tar.gz dist/sagemaker_pytorch_inference.tar.gz
+    $ docker build -t preprod-pytorch-serving-eia:1.3.1-cpu-py3 -f docker/1.3.1/py3/Dockerfile.eia .
+
+
+* Currently, only PyTorch serving 1.3.1 is supported for Elastic Inference.
 
 Running the tests
 -----------------
