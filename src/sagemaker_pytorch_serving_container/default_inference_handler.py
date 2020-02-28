@@ -35,8 +35,7 @@ class DefaultPytorchInferenceHandler(default_inference_handler.DefaultInferenceH
         Returns: A PyTorch model.
         """
         if os.getenv(INFERENCE_ACCELERATOR_PRESENT_ENV) == 'true':
-            default_model_filename = "model.pt"
-            model_path = os.path.join(model_dir, default_model_filename)
+            model_path = os.path.join(model_dir, DEFAULT_MODEL_FILENAME)
             if not os.path.exists(model_path):
                 raise FileNotFoundError('Failed to load model with default model_fn: missing file {}.'
                                         .format(DEFAULT_MODEL_FILENAME))
