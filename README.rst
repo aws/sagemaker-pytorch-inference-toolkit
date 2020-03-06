@@ -144,7 +144,7 @@ If you want to build "final" Docker images, then use:
     docker build -t preprod-pytorch:1.0.0-gpu-py3 -f docker/1.0.0/final/Dockerfile.gpu --build-arg py_version=3 .
 
 Amazon Elastic Inference with PyTorch in SageMaker
-------------------------------------------------
+--------------------------------------------------
 `Amazon Elastic Inference <https://aws.amazon.com/machine-learning/elastic-inference/>`__ allows you to to attach
 low-cost GPU-powered acceleration to Amazon EC2 and Amazon SageMaker instances to reduce the cost of running deep
 learning inference by up to 75%. Currently, Amazon Elastic Inference supports TensorFlow, Apache MXNet, PyTorch,
