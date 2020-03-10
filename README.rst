@@ -157,7 +157,7 @@ Support for using PyTorch with Amazon Elastic Inference in SageMaker is supporte
 * For more information in regards to using Amazon Elastic Inference in SageMaker, see `Amazon SageMaker Elastic Inference <https://docs.aws.amazon.com/sagemaker/latest/dg/ei.html>`__.
 
 Building the SageMaker Elastic Inference PyTorch Serving container
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Amazon Elastic Inference is designed to be used with AWS enhanced versions of TensorFlow serving, Apache MXNet or PyTorch serving.
 The SageMaker PyTorch containers with Amazon Elastic Inference support were built utilizing the
 same instructions listed `above <https://github.com/aws/sagemaker-pytorch-serving-container#building-your-image>`__ with the
