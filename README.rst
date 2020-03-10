@@ -152,7 +152,7 @@ and ONNX models.
 
 Support for using PyTorch with Amazon Elastic Inference in SageMaker is supported in the public SageMaker PyTorch serving containers.
 
-* For information on how to use the Python SDK to create an endpoint with Amazon Elastic Inference and PyTorch in SageMaker, see `Deploying PyTorch Models<https://sagemaker.readthedocs.io/en/stable/using_pytorch.html#deploy-pytorch-models>`__.
+* For information on how to use the Python SDK to create an endpoint with Amazon Elastic Inference and PyTorch in SageMaker, see `Deploying PyTorch Models <https://sagemaker.readthedocs.io/en/stable/using_pytorch.html#deploy-pytorch-models>`__.
 * For information on how Amazon Elastic Inference works, see `How EI Works <https://docs.aws.amazon.com/sagemaker/latest/dg/ei.html#ei-how-it-works>`__.
 * For more information in regards to using Amazon Elastic Inference in SageMaker, see `Amazon SageMaker Elastic Inference <https://docs.aws.amazon.com/sagemaker/latest/dg/ei.html>`__.
 
