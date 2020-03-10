@@ -2,7 +2,6 @@ ARG py_version
 FROM pytorch-base:1.1.0-cpu-py$py_version
 
 LABEL com.amazonaws.sagemaker.capabilities.accept-bind-to-port=true
-LABEL com.amazonaws.sagemaker.capabilities.multi-models=true
 
 # Copy workaround script for incorrect hostname
 COPY lib/changehostname.c /
