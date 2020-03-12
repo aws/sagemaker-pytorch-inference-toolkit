@@ -19,23 +19,23 @@ import pytest
 import sagemaker
 from sagemaker.pytorch import PyTorchModel
 
-from test.integration import mnist_script, model_cpu_dir
-from test.integration.sagemaker.timeout import timeout_and_delete_endpoint
+from integration import mnist_script, model_cpu_dir
+from integration.sagemaker.timeout import timeout_and_delete_endpoint
 
 
 @pytest.mark.skip_gpu
-def test_mnist_distributed_cpu(sagemaker_session, ecr_image, instance_type):
+def test_mnist_distributed_cpu(sagemaker_session, image_uri, instance_type):
     instance_type = instance_type or 'ml.c4.xlarge'
-    _test_mnist_distributed(sagemaker_session, ecr_image, instance_type)
+    _test_mnist_distributed(sagemaker_session, image_uri, instance_type)
 
 
 @pytest.mark.skip_cpu
-def test_mnist_distributed_gpu(sagemaker_session, ecr_image, instance_type):
+def test_mnist_distributed_gpu(sagemaker_session, image_uri, instance_type):
     instance_type = instance_type or 'ml.p2.xlarge'
-    _test_mnist_distributed(sagemaker_session, ecr_image, instance_type)
+    _test_mnist_distributed(sagemaker_session, image_uri, instance_type)
 
 
-def _test_mnist_distributed(sagemaker_session, ecr_image, instance_type):
+def _test_mnist_distributed(sagemaker_session, image_uri, instance_type):
     model_dir = os.path.join(model_cpu_dir, 'model_mnist.tar.gz')
 
     endpoint_name = sagemaker.utils.unique_name_from_base("sagemaker-pytorch-serving")
@@ -48,7 +48,7 @@ def _test_mnist_distributed(sagemaker_session, ecr_image, instance_type):
     pytorch = PyTorchModel(model_data,
                            'SageMakerRole',
                            mnist_script,
-                           image=ecr_image,
+                           image=image_uri,
                            sagemaker_session=sagemaker_session)
 
     with timeout_and_delete_endpoint(endpoint_name, sagemaker_session, minutes=30):

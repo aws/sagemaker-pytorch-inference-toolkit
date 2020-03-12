@@ -1,4 +1,4 @@
-# Copyright 2019-2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# Copyright 2018-2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"). You
 # may not use this file except in compliance with the License. A copy of
@@ -22,9 +22,8 @@ import sys
 import tempfile
 
 from sagemaker import LocalSession, Session
-from sagemaker.pytorch import PyTorch
 
-from test.utils import image_utils
+from utils import image_utils
 
 logger = logging.getLogger(__name__)
 logging.getLogger('boto').setLevel(logging.INFO)
@@ -44,17 +43,31 @@ NO_P3_REGIONS = ['ap-east-1', 'ap-northeast-3', 'ap-southeast-1', 'ap-southeast-
 
 
 def pytest_addoption(parser):
-    parser.addoption('--build-image', '-D', action='store_true')
-    parser.addoption('--build-base-image', '-B', action='store_true')
-    parser.addoption('--aws-id')
+    parser.addoption('--build-image', '-B', action='store_true')
+    parser.addoption('--push-image', '-P', action='store_true')
+    parser.addoption('--dockerfile-type', '-T', choices=['dlc.cpu', 'dlc.gpu', 'pytorch'],
+                     default='pytorch')
+    parser.addoption('--dockerfile', '-D', default=None)
+    parser.addoption('--aws-id', default=None)
     parser.addoption('--instance-type')
-    parser.addoption('--docker-base-name', default='pytorch')
+    parser.addoption('--docker-base-name', default='sagemaker-pytorch-training')
     parser.addoption('--region', default='us-west-2')
-    parser.addoption('--framework-version', default=PyTorch.LATEST_VERSION)
+    parser.addoption('--framework-version', default="1.4.0")
     parser.addoption('--py-version', choices=['2', '3'], default=str(sys.version_info.major))
     parser.addoption('--processor', choices=['gpu', 'cpu'], default='cpu')
     # If not specified, will default to {framework-version}-{processor}-py{py-version}
     parser.addoption('--tag', default=None)
+
+
+@pytest.fixture(scope='session', name='dockerfile_type')
+def fixture_dockerfile_type(request):
+    return request.config.getoption('--dockerfile-type')
+
+
+@pytest.fixture(scope='session', name='dockerfile')
+def fixture_dockerfile(request, dockerfile_type):
+    dockerfile = request.config.getoption('--dockerfile')
+    return dockerfile if dockerfile else 'Dockerfile.{}'.format(dockerfile_type)
 
 
 @pytest.fixture(scope='session', name='docker_base_name')
@@ -89,11 +102,6 @@ def fixture_tag(request, framework_version, processor, py_version):
     return provided_tag if provided_tag else default_tag
 
 
-@pytest.fixture(scope='session', name='docker_image')
-def fixture_docker_image(docker_base_name, tag):
-    return '{}:{}'.format(docker_base_name, tag)
-
-
 @pytest.fixture
 def opt_ml():
     tmp = tempfile.mkdtemp()
@@ -112,32 +120,25 @@ def fixture_use_gpu(processor):
     return processor == 'gpu'
 
 
-@pytest.fixture(scope='session', name='build_base_image', autouse=True)
-def fixture_build_base_image(request, framework_version, py_version, processor, tag, docker_base_name):
-    build_base_image = request.config.getoption('--build-base-image')
-    if build_base_image:
-        return image_utils.build_base_image(framework_name=docker_base_name,
-                                            framework_version=framework_version,
-                                            py_version=py_version,
-                                            base_image_tag=tag,
-                                            processor=processor,
-                                            cwd=os.path.join(dir_path, '..'))
-
-    return tag
-
-
 @pytest.fixture(scope='session', name='build_image', autouse=True)
-def fixture_build_image(request, framework_version, py_version, processor, tag, docker_base_name):
+def fixture_build_image(request, framework_version, dockerfile, image_uri, region):
     build_image = request.config.getoption('--build-image')
     if build_image:
-        return image_utils.build_image(framework_name=docker_base_name,
-                                       framework_version=framework_version,
-                                       py_version=py_version,
-                                       processor=processor,
-                                       tag=tag,
+        return image_utils.build_image(framework_version=framework_version,
+                                       dockerfile=dockerfile,
+                                       image_uri=image_uri,
+                                       region=region,
                                        cwd=os.path.join(dir_path, '..'))
 
-    return tag
+    return image_uri
+
+
+@pytest.fixture(scope='session', name='push_image', autouse=True)
+def fixture_push_image(request, image_uri, region, aws_id):
+    push_image = request.config.getoption('--push-image')
+    if push_image:
+        return image_utils.push_image(image_uri, region, aws_id)
+    return None
 
 
 @pytest.fixture(scope='session', name='sagemaker_session')
@@ -164,12 +165,24 @@ def fixture_instance_type(request, processor):
 
 @pytest.fixture(name='docker_registry', scope='session')
 def fixture_docker_registry(aws_id, region):
-    return '{}.dkr.ecr.{}.amazonaws.com'.format(aws_id, region)
+    return '{}.dkr.ecr.{}.amazonaws.com'.format(aws_id, region) if aws_id else None
 
 
-@pytest.fixture(name='ecr_image', scope='session')
-def fixture_ecr_image(docker_registry, docker_base_name, tag):
-    return '{}/{}:{}'.format(docker_registry, docker_base_name, tag)
+@pytest.fixture(name='image_uri', scope='session')
+def fixture_image_uri(docker_registry, docker_base_name, tag):
+    if docker_registry:
+        return '{}/{}:{}'.format(docker_registry, docker_base_name, tag)
+    return '{}:{}'.format(docker_base_name, tag)
+
+
+@pytest.fixture(scope='session', name='dist_cpu_backend', params=['gloo'])
+def fixture_dist_cpu_backend(request):
+    return request.param
+
+
+@pytest.fixture(scope='session', name='dist_gpu_backend', params=['gloo', 'nccl'])
+def fixture_dist_gpu_backend(request):
+    return request.param
 
 
 @pytest.fixture(autouse=True)
@@ -182,12 +195,31 @@ def skip_by_device_type(request, use_gpu, instance_type):
 
 @pytest.fixture(autouse=True)
 def skip_by_py_version(request, py_version):
+    """
+    This will cause tests to be skipped w/ py3 containers if "py-version" flag is not set
+    and pytest is running from py2. We can rely on this when py2 is deprecated, but for now
+    we must use "skip_py2_containers"
+    """
     if request.node.get_closest_marker('skip_py2') and py_version != 'py3':
         pytest.skip('Skipping the test because Python 2 is not supported.')
 
 
 @pytest.fixture(autouse=True)
+def skip_test_in_region(request, region):
+    if request.node.get_closest_marker('skip_test_in_region'):
+        if region == 'me-south-1':
+            pytest.skip('Skipping SageMaker test in region {}'.format(region))
+
+
+@pytest.fixture(autouse=True)
 def skip_gpu_instance_restricted_regions(region, instance_type):
-    if (region in NO_P2_REGIONS and instance_type.startswith('ml.p2')) \
-       or (region in NO_P3_REGIONS and instance_type.startswith('ml.p3')):
+    if ((region in NO_P2_REGIONS and instance_type.startswith('ml.p2'))
+       or (region in NO_P3_REGIONS and instance_type.startswith('ml.p3'))):
         pytest.skip('Skipping GPU test in region {}'.format(region))
+
+
+@pytest.fixture(autouse=True)
+def skip_py2_containers(request, tag):
+    if request.node.get_closest_marker('skip_py2_containers'):
+        if 'py2' in tag:
+            pytest.skip('Skipping python2 container with tag {}'.format(tag))

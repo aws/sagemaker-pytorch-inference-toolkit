@@ -1,0 +1,32 @@
+from pytorch/pytorch:1.4-cuda10.1-cudnn7-runtime
+
+ARG MMS_VERSION=1.0.8
+
+ENV SAGEMAKER_SERVING_MODULE sagemaker_pytorch_serving_container.serving:main
+ENV TEMP=/home/model-server/tmp
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends jq openjdk-8-jdk-headless \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY docker/build_artifacts/changehostname.c /
+COPY docker/build_artifacts/start_with_right_hostname.sh /usr/local/bin/start_with_right_hostname.sh
+RUN chmod +x /usr/local/bin/start_with_right_hostname.sh
+
+COPY dist/sagemaker_pytorch_inference-*.tar.gz /sagemaker_pytorch_inference.tar.gz
+RUN pip install --no-cache-dir mxnet-model-server==$MMS_VERSION \
+    /sagemaker_pytorch_inference.tar.gz && \
+    rm /sagemaker_pytorch_inference.tar.gz
+
+RUN useradd -m model-server \
+    && mkdir -p /home/model-server/tmp \
+    && chown -R model-server /home/model-server
+
+COPY mms-entrypoint.py /usr/local/bin/dockerd-entrypoint.py
+COPY config.properties /home/model-server
+
+RUN chmod +x /usr/local/bin/dockerd-entrypoint.py
+
+EXPOSE 8080 8081
+ENTRYPOINT ["python", "/usr/local/bin/dockerd-entrypoint.py"]
+CMD ["mxnet-model-server", "--start", "--mms-config", "/home/model-server/config.properties"]
