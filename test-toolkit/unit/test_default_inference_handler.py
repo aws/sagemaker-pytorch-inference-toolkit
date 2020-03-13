@@ -15,6 +15,7 @@ from __future__ import absolute_import
 import csv
 import json
 
+import mock
 import numpy as np
 import pytest
 import torch
@@ -40,7 +41,7 @@ class DummyModel(nn.Module):
         return 3 * tensor
 
 
-@pytest.fixture(scope='session', name='tensor')
+@pytest.fixture(scope="session", name="tensor")
 def fixture_tensor():
     tensor = torch.rand(5, 10, 7, 9)
     return tensor.to(device)
@@ -51,9 +52,14 @@ def inference_handler():
     return default_inference_handler.DefaultPytorchInferenceHandler()
 
 
+@pytest.fixture()
+def eia_inference_handler():
+    return default_inference_handler.DefaultPytorchInferenceHandler()
+
+
 def test_default_model_fn(inference_handler):
     with pytest.raises(NotImplementedError):
-        inference_handler.default_model_fn('model_dir')
+        inference_handler.default_model_fn("model_dir")
 
 
 def test_default_input_fn_json(inference_handler, tensor):
@@ -67,7 +73,7 @@ def test_default_input_fn_json(inference_handler, tensor):
 def test_default_input_fn_csv(inference_handler):
     array = [[1, 2, 3], [4, 5, 6]]
     str_io = StringIO()
-    csv.writer(str_io, delimiter=',').writerows(array)
+    csv.writer(str_io, delimiter=",").writerows(array)
 
     deserialized_np_array = inference_handler.default_input_fn(str_io.getvalue(), content_types.CSV)
 
@@ -78,7 +84,7 @@ def test_default_input_fn_csv(inference_handler):
 
 def test_default_input_fn_csv_bad_columns(inference_handler):
     str_io = StringIO()
-    csv_writer = csv.writer(str_io, delimiter=',')
+    csv_writer = csv.writer(str_io, delimiter=",")
     csv_writer.writerow([1, 2, 3])
     csv_writer.writerow([1, 2, 3, 4])
 
@@ -97,7 +103,7 @@ def test_default_input_fn_npy(inference_handler, tensor):
 
 def test_default_input_fn_bad_content_type(inference_handler):
     with pytest.raises(errors.UnsupportedFormatError):
-        inference_handler.default_input_fn('', 'application/not_supported')
+        inference_handler.default_input_fn("", "application/not_supported")
 
 
 def test_default_predict_fn(inference_handler, tensor):
@@ -162,7 +168,7 @@ def test_default_output_fn_csv_float(inference_handler):
 
 def test_default_output_fn_bad_accept(inference_handler):
     with pytest.raises(errors.UnsupportedFormatError):
-        inference_handler.default_output_fn('', 'application/not_supported')
+        inference_handler.default_output_fn("", "application/not_supported")
 
 
 @pytest.mark.skipif(not torch.cuda.is_available(), reason="cuda is not available")
@@ -171,4 +177,34 @@ def test_default_output_fn_gpu(inference_handler):
 
     output = inference_handler.default_output_fn(tensor_gpu, content_types.CSV)
 
-    assert '1,2,3\n4,5,6\n'.encode("utf-8") == output
+    assert "1,2,3\n4,5,6\n".encode("utf-8") == output
+
+
+def test_eia_default_model_fn(eia_inference_handler):
+    with mock.patch("sagemaker_pytorch_serving_container.default_inference_handler.os") as mock_os:
+        mock_os.getenv.return_value = "true"
+        mock_os.path.join.return_value = "model_dir"
+        mock_os.path.exists.return_value = True
+        with mock.patch("torch.jit.load") as mock_torch:
+            mock_torch.return_value = DummyModel()
+            model = eia_inference_handler.default_model_fn("model_dir")
+    assert model is not None
+
+
+def test_eia_default_model_fn_error(eia_inference_handler):
+    with mock.patch("sagemaker_pytorch_serving_container.default_inference_handler.os") as mock_os:
+        mock_os.getenv.return_value = "true"
+        mock_os.path.join.return_value = "model_dir"
+        mock_os.path.exists.return_value = False
+        with pytest.raises(FileNotFoundError):
+            eia_inference_handler.default_model_fn("model_dir")
+
+
+def test_eia_default_predict_fn(eia_inference_handler, tensor):
+    model = DummyModel()
+    with mock.patch("sagemaker_pytorch_serving_container.default_inference_handler.os") as mock_os:
+        mock_os.getenv.return_value = "true"
+        with mock.patch("torch.jit.optimized_execution") as mock_torch:
+            mock_torch.__enter__.return_value = "dummy"
+            eia_inference_handler.default_predict_fn(tensor, model)
+        mock_torch.assert_called_once()
