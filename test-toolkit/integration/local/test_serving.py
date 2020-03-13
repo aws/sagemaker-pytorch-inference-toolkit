@@ -54,9 +54,6 @@ def test_serve_json_npy(test_loader, use_gpu, image_uri, sagemaker_local_session
                     instance_type) as predictor:
         for content_type in (content_types.JSON, content_types.NPY):
             for accept in (content_types.JSON, content_types.CSV, content_types.NPY):
-                print("")
-                print("{}-{}/n".format(content_type, accept))
-                print("")
                 _assert_prediction_npy_json(predictor, test_loader, content_type, accept)
 
 
