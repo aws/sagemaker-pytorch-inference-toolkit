@@ -1,4 +1,4 @@
-# Copyright 2018-2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# Copyright 2019-2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"). You
 # may not use this file except in compliance with the License. A copy of
@@ -45,16 +45,17 @@ NO_P3_REGIONS = ['ap-east-1', 'ap-northeast-3', 'ap-southeast-1', 'ap-southeast-
 def pytest_addoption(parser):
     parser.addoption('--build-image', '-B', action='store_true')
     parser.addoption('--push-image', '-P', action='store_true')
-    parser.addoption('--dockerfile-type', '-T', choices=['dlc.cpu', 'dlc.gpu', 'pytorch'],
+    parser.addoption('--dockerfile-type', '-T',
+                     choices=['dlc.cpu', 'dlc.gpu', 'dlc.eia', 'pytorch'],
                      default='pytorch')
     parser.addoption('--dockerfile', '-D', default=None)
     parser.addoption('--aws-id', default=None)
     parser.addoption('--instance-type')
     parser.addoption('--accelerator-type')
-    parser.addoption('--docker-base-name', default='sagemaker-pytorch-training')
+    parser.addoption('--docker-base-name', default='sagemaker-pytorch-inference')
     parser.addoption('--region', default='us-west-2')
     parser.addoption('--framework-version', default="1.4.0")
-    parser.addoption('--py-version', choices=['2', '3'], default=str(sys.version_info.major))
+    parser.addoption('--py-version', choices=['2', '3'], default='3')
     # Processor is still "cpu" for EIA tests
     parser.addoption('--processor', choices=['gpu', 'cpu'], default='cpu')
     # If not specified, will default to {framework-version}-{processor}-py{py-version}
