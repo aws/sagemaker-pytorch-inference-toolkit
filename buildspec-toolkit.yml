@@ -60,8 +60,6 @@ phases:
       - build_dir="test-toolkit/docker/$FRAMEWORK_VERSION"
       - $(aws ecr get-login --registry-ids $DLC_ACCOUNT --no-include-email --region $AWS_DEFAULT_REGION)
       - docker build -f "$build_dir/Dockerfile.dlc.gpu" -t $PREPROD_IMAGE:$DLC_GPU_TAG --build-arg region=$AWS_DEFAULT_REGION .
-      - eia_build_dir="test-toolkit/docker/$EIA_FRAMEWORK_VERSION"
-      - docker build -f "$build_dir/Dockerfile.dlc.eia" -t $PREPROD_IMAGE:$DLC_EIA_TAG --build-arg region=$AWS_DEFAULT_REGION .
       # push DLC GPU image to ECR
       - $(aws ecr get-login --registry-ids $ACCOUNT --no-include-email --region $AWS_DEFAULT_REGION)
       - docker push $PREPROD_IMAGE:$DLC_GPU_TAG
