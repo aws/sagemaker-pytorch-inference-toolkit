@@ -18,7 +18,6 @@ import logging
 import platform
 import pytest
 import shutil
-import sys
 import tempfile
 
 from sagemaker import LocalSession, Session
