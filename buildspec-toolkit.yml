@@ -6,7 +6,7 @@ env:
     CPU_INSTANCE_TYPE: 'ml.c4.xlarge'
     GPU_INSTANCE_TYPE: 'ml.p2.xlarge'
     ECR_REPO: 'sagemaker-test'
-    GITHUB_REPO: 'sagemaker-pytorch-container'
+    GITHUB_REPO: 'sagemaker-pytorch-serving-container'
     DLC_ACCOUNT: '763104351884'
     SETUP_FILE: 'setup_cmds.sh'
     SETUP_CMDS: '#!/bin/bash\npip install --upgrade pip\npip install -U -e .\npip install -U -e .[test]'
