@@ -1,5 +1,25 @@
 # Changelog
 
+## v1.2.1 (2020-02-24)
+
+### Bug Fixes and Other Changes
+
+ * update: Update PyTorch-EI health check binary version to match ECL
+ * Adding PyTorch EI Support
+ * undo upgrade mms version and library name
+ * remove multi-model label from dockerfiles
+
+## v1.2.0 (2020-02-20)
+
+### Features
+
+ * Remove torch as requirement for sagemaker_pytorch_inference
+
+### Bug Fixes and Other Changes
+
+ * copy all tests to test-toolkit folder.
+ * Remove awscli pin to avoid broken requirements
+
 ## v1.1.1 (2020-02-17)
 
 ### Bug Fixes and Other Changes

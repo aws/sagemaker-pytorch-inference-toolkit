@@ -12,29 +12,39 @@
 # language governing permissions and limitations under the License.
 from __future__ import absolute_import
 
+import os
 import textwrap
 
 import torch
-
 from sagemaker_inference import content_types, decoder, default_inference_handler, encoder
+
+INFERENCE_ACCELERATOR_PRESENT_ENV = "SAGEMAKER_INFERENCE_ACCELERATOR_PRESENT"
+DEFAULT_MODEL_FILENAME = "model.pt"
 
 
 class DefaultPytorchInferenceHandler(default_inference_handler.DefaultInferenceHandler):
     VALID_CONTENT_TYPES = (content_types.JSON, content_types.NPY)
 
     def default_model_fn(self, model_dir):
-        """Loads a model. For PyTorch, a default function to load a model cannot be provided.
-        Users should provide customized model_fn() in script.
+        """Loads a model. For PyTorch, a default function to load a model only if Elastic Inference is used.
+        In other cases, users should provide customized model_fn() in script.
 
         Args:
             model_dir: a directory where model is saved.
 
         Returns: A PyTorch model.
         """
-        raise NotImplementedError(textwrap.dedent("""
-        Please provide a model_fn implementation.
-        See documentation for model_fn at https://github.com/aws/sagemaker-python-sdk
-        """))
+        if os.getenv(INFERENCE_ACCELERATOR_PRESENT_ENV) == "true":
+            model_path = os.path.join(model_dir, DEFAULT_MODEL_FILENAME)
+            if not os.path.exists(model_path):
+                raise FileNotFoundError("Failed to load model with default model_fn: missing file {}."
+                                        .format(DEFAULT_MODEL_FILENAME))
+            return torch.jit.load(model_path)
+        else:
+            raise NotImplementedError(textwrap.dedent("""
+            Please provide a model_fn implementation.
+            See documentation for model_fn at https://github.com/aws/sagemaker-python-sdk
+            """))
 
     def default_input_fn(self, input_data, content_type):
         """A default input_fn that can handle JSON, CSV and NPZ formats.
@@ -62,12 +72,20 @@ class DefaultPytorchInferenceHandler(default_inference_handler.DefaultInferenceH
 
         Returns: a prediction
         """
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        model.to(device)
-        input_data = data.to(device)
-        model.eval()
         with torch.no_grad():
-            output = model(input_data)
+            if os.getenv(INFERENCE_ACCELERATOR_PRESENT_ENV) == "true":
+                device = torch.device("cpu")
+                model = model.to(device)
+                input_data = data.to(device)
+                model.eval()
+                with torch.jit.optimized_execution(True, {"target_device": "eia:0"}):
+                    output = model(input_data)
+            else:
+                device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+                model = model.to(device)
+                input_data = data.to(device)
+                model.eval()
+                output = model(input_data)
 
         return output
 
