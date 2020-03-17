@@ -168,7 +168,6 @@ Example:
 ::
 
     # PyTorch 1.3.1, Python 3, EI
-    $ cp dist/sagemaker_pytorch_inference-*.tar.gz dist/sagemaker_pytorch_inference.tar.gz
     $ docker build -t preprod-pytorch-serving-eia:1.3.1-cpu-py3 -f docker/1.3.1/py3/Dockerfile.eia .
 
 
