@@ -25,8 +25,8 @@ from sagemaker.predictor import BytesDeserializer, csv_deserializer, csv_seriali
 from sagemaker_containers.beta.framework import content_types
 from torchvision import datasets, transforms
 
-from test.integration import training_dir, mnist_script, mnist_1d_script, model_cpu_dir, \
-    model_gpu_dir, model_cpu_1d_dir, call_model_fn_once_script, ROLE
+from test.integration import training_dir, mnist_1d_script, model_cpu_dir, mnist_cpu_script, \
+    model_gpu_dir, mnist_gpu_script, model_cpu_1d_dir, call_model_fn_once_script, ROLE
 from test.utils import local_mode_utils
 
 CONTENT_TYPE_TO_SERIALIZER_MAP = {
@@ -50,6 +50,7 @@ def fixture_test_loader():
 
 def test_serve_json_npy(test_loader, use_gpu, docker_image, sagemaker_local_session, instance_type):
     model_dir = model_gpu_dir if use_gpu else model_cpu_dir
+    mnist_script = mnist_gpu_script if use_gpu else mnist_cpu_script
     with _predictor(model_dir, mnist_script, docker_image, sagemaker_local_session,
                     instance_type) as predictor:
         for content_type in (content_types.JSON, content_types.NPY):
