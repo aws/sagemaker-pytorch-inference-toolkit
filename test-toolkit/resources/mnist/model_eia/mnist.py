@@ -10,28 +10,4 @@
 # distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF
 # ANY KIND, either express or implied. See the License for the specific
 # language governing permissions and limitations under the License.
-from __future__ import absolute_import
-
-import os
-
-
-def model_fn(model_dir):
-    lock_file = os.path.join(model_dir, 'model_fn.lock.{}'.format(os.getpid()))
-    if os.path.exists(lock_file):
-        raise RuntimeError('model_fn called more than once (lock: {})'.format(lock_file))
-
-    open(lock_file, 'a').close()
-
-    return 'model'
-
-
-def input_fn(data, content_type):
-    return data
-
-
-def predict_fn(data, model):
-    return b'output'
-
-
-def output_fn(prediction, accept):
-    return prediction
+# This file is intentionally left blank to utilize default_model_fn and default_predict_fn
