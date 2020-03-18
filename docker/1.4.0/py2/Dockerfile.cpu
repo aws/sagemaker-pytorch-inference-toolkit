@@ -53,7 +53,7 @@ RUN curl -o ~/miniconda.sh -O  https://repo.continuum.io/miniconda/Miniconda3-la
 
 RUN conda install -c \
     conda-forge \
-    awscli==1.18.22 \
+    awscli==1.18.23 \
     opencv==4.0.1 \
  && conda install -y \
     scikit-learn==0.20.3 \
