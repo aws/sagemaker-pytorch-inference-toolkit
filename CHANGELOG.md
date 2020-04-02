@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.3.2 (2020-04-02)
+
+### Bug Fixes and Other Changes
+
+ * upgrade pillow etc. to fix safety issues in 1.4.0 dockerfiles
+
 ## v1.3.1 (2020-04-01)
 
 ### Bug Fixes and Other Changes
