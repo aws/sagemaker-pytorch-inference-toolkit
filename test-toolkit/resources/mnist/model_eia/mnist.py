@@ -22,17 +22,6 @@ logger.setLevel(logging.DEBUG)
 logger.addHandler(logging.StreamHandler(sys.stdout))
 
 
-print("YAYYAYYAYAY")
-print("YAYYAYYAYAY")
-print("YAYYAYYAYAY")
-print("YAYYAYYAYAY")
-print("EIA")
-print("YAYYAYYAYAY")
-print("YAYYAYYAYAY")
-print("YAYYAYYAYAY")
-print("YAYYAYYAYAY")
-print("YAYYAYYAYAY")
-
 def predict_fn(input_data, model):
     logger.info('Performing EIA inference with Torch JIT context with input of size {}'.format(input_data.shape))
     # With EI, client instance should be CPU for cost-efficiency. Subgraphs with unsupported arguments run locally. Server runs with CUDA

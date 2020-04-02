@@ -9,4 +9,3 @@ __pycache__/
 **/*.pyc
 **.pyc
 **/*.tar.gz
-.DS_Store
