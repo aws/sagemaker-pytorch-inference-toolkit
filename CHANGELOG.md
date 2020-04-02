@@ -1,5 +1,34 @@
 # Changelog
 
+## v1.3.1 (2020-04-01)
+
+### Bug Fixes and Other Changes
+
+ * upgrade inference-toolkit version
+
+## v1.3.0 (2020-03-18)
+
+### Features
+
+ * install inference toolkit from PyPI.
+
+### Bug Fixes and Other Changes
+
+ * Fixed awscli
+ * awscli update
+ * Update awscli
+ * Add multi-model capability label to 1.4.0 Dockerfile
+ * Upgrade the version of sagemaker-inference
+ * default model_fn and predict_fn in default handler
+
+### Documentation Changes
+
+ * update README with pytorch eia section
+
+### Testing and Release Infrastructure
+
+ * refactor toolkit tests.
+
 ## v1.2.1 (2020-02-24)
 
 ### Bug Fixes and Other Changes
