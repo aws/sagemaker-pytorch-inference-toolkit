@@ -46,6 +46,7 @@ setup(
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.6',
     ],
+
     install_requires=['numpy==1.16.4', 'Pillow>=6.2.0', 'retrying==1.3.3', 'sagemaker-containers>=2.5.4',
                       'six==1.12.0', 'requests_mock==1.6.0', 'sagemaker-inference>=1.2.2',
                       'retrying==1.3.3'],
