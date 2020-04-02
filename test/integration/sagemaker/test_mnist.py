@@ -12,14 +12,13 @@
 # language governing permissions and limitations under the License.
 from __future__ import absolute_import
 
-import os
-
 import numpy as np
 import pytest
 import sagemaker
 from sagemaker.pytorch import PyTorchModel
 
-from test.integration import model_cpu_tar, mnist_cpu_script, model_gpu_tar, mnist_gpu_script, model_eia_tar, mnist_eia_script
+from test.integration import model_cpu_tar, mnist_cpu_script, model_gpu_tar, mnist_gpu_script, \
+    model_eia_tar, mnist_eia_script
 from test.integration.sagemaker.timeout import timeout_and_delete_endpoint
 
 
