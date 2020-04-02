@@ -8,5 +8,5 @@ __pycache__/
 .DS_Store
 **/*.pyc
 **.pyc
-*.tar.gz
+**/*.tar.gz
 .DS_Store
