@@ -1,4 +1,4 @@
-# Copyright 2019-2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"). You
 # may not use this file except in compliance with the License. A copy of
@@ -13,25 +13,12 @@
 from __future__ import absolute_import
 
 import os
+import tarfile
 
 
-def model_fn(model_dir):
-    lock_file = os.path.join(model_dir, 'model_fn.lock.{}'.format(os.getpid()))
-    if os.path.exists(lock_file):
-        raise RuntimeError('model_fn called more than once (lock: {})'.format(lock_file))
-
-    open(lock_file, 'a').close()
-
-    return 'model'
-
-
-def input_fn(data, content_type):
-    return data
-
-
-def predict_fn(data, model):
-    return b'output'
-
-
-def output_fn(prediction, accept):
-    return prediction
+def make_tarfile(script, model, output_path, filename="model.tar.gz"):
+    output_filename = os.path.join(output_path, filename)
+    with tarfile.open(output_filename, "w:gz") as tar:
+        tar.add(script, arcname=os.path.basename(script))
+        tar.add(model, arcname=os.path.basename(model))
+    return output_filename
