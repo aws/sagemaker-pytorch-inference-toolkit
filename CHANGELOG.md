@@ -1,5 +1,16 @@
 # Changelog
 
+## v1.4.0 (2020-04-06)
+
+### Features
+
+ * Remove unnecessary dependencies.
+
+### Bug Fixes and Other Changes
+
+ * upgrade awscli to fix pip check issue
+ * upgrade pillow at end of build
+
 ## v1.3.2 (2020-04-02)
 
 ### Bug Fixes and Other Changes
