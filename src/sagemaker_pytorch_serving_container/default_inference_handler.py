@@ -39,7 +39,8 @@ class DefaultPytorchInferenceHandler(default_inference_handler.DefaultInferenceH
             if not os.path.exists(model_path):
                 raise FileNotFoundError("Failed to load model with default model_fn: missing file {}."
                                         .format(DEFAULT_MODEL_FILENAME))
-            return torch.jit.load(model_path)
+            # Client-framework is CPU only. But model will run in Elastic Inference server with CUDA.
+            return torch.jit.load(model_path, map_location=torch.device('cpu'))
         else:
             raise NotImplementedError(textwrap.dedent("""
             Please provide a model_fn implementation.
