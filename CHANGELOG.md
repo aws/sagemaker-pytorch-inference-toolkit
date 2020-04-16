@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.4.1 (2020-04-16)
+
+### Bug Fixes and Other Changes
+
+ * load EI model to CPU by default in model_fn
+ * Update package versions to fix safety check vulnerabilities
+ * Change miniconda installation in dockerfiles
+
 ## v1.4.0 (2020-04-06)
 
 ### Features
