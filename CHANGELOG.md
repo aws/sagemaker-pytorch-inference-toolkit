@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.4.2 (2020-04-20)
+
+### Bug Fixes and Other Changes
+
+ * Install awscli in 1.3.1 eia from pypi instead of conda
+
 ## v1.4.1 (2020-04-16)
 
 ### Bug Fixes and Other Changes
