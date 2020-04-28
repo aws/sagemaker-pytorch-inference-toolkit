@@ -64,7 +64,7 @@ phases:
       - launch-ec2-instance --instance-type $instance_type --ami-name dlami-ubuntu
 
       # run cpu integration tests
-      - py3_cmd="tox -e py36 -- test/integration/local --region $AWS_DEFAULT_REGION --docker-base-name $PREPROD_IMAGE --framework-version $FRAMEWORK_VERSION --py-version $CPU_PY3_VERSION --processor cpu --tag $CPU_PY3_TAG"
+      - py3_cmd="IGNORE_COVERAGE=- tox -e py36 -- test/integration/local --region $AWS_DEFAULT_REGION --docker-base-name $PREPROD_IMAGE --framework-version $FRAMEWORK_VERSION --py-version $CPU_PY3_VERSION --processor cpu --tag $CPU_PY3_TAG"
       - execute-command-if-has-matching-changes "$py3_cmd" "test/" "docker/*" "buildspec.yml"
 
       # run gpu integration tests
