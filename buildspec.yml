@@ -32,7 +32,7 @@ phases:
       - tox -e flake8
 
       # install
-      - pip3 install -U -e .[test]
+      - pip3.6 install -U -e .[test]
 
       - cpu_dockerfile="Dockerfile.cpu"
       - gpu_dockerfile="Dockerfile.gpu"
