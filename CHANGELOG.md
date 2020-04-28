@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.4.3 (2020-04-28)
+
+### Bug Fixes and Other Changes
+
+ * Adding Dockerfile for PT1.5
+
 ## v1.4.2 (2020-04-20)
 
 ### Bug Fixes and Other Changes

@@ -2,12 +2,10 @@ version: 0.2
 
 env:
   variables:
-    FRAMEWORK_VERSION: '1.4.0'
+    FRAMEWORK_VERSION: '1.5.0'
     EIA_FRAMEWORK_VERSION: '1.3.1'
-    CPU_PY2_VERSION: '2'
     CPU_PY3_VERSION: '3'
     CPU_INSTANCE_TYPE: 'ml.c4.xlarge'
-    GPU_PY2_VERSION: '2'
     GPU_PY3_VERSION: '3'
     EIA_PY3_VERSION: '3'
     GPU_INSTANCE_TYPE: 'ml.p2.xlarge'
@@ -40,16 +38,6 @@ phases:
       - gpu_dockerfile="Dockerfile.gpu"
       - eia_dockerfile="Dockerfile.eia"
 
-      # build py2 images
-      - build_dir="docker/$FRAMEWORK_VERSION/py$CPU_PY2_VERSION"
-      - cp -r docker/build_artifacts/* $build_dir/
-      - CPU_PY2_TAG="$FRAMEWORK_VERSION-cpu-py2-$BUILD_ID"
-      - GPU_PY2_TAG="$FRAMEWORK_VERSION-gpu-py2-$BUILD_ID"
-      - build_cmd="docker build -f "$build_dir/$cpu_dockerfile" -t $PREPROD_IMAGE:$CPU_PY2_TAG $build_dir"
-      - execute-command-if-has-matching-changes "$build_cmd" "test/" "docker/*" "buildspec.yml"
-      - build_cmd="docker build -f "$build_dir/$gpu_dockerfile" -t $PREPROD_IMAGE:$GPU_PY2_TAG $build_dir"
-      - execute-command-if-has-matching-changes "$build_cmd" "test/" "docker/*" "buildspec.yml"
-
       # build py3 image
       - build_dir="docker/$FRAMEWORK_VERSION/py$GPU_PY3_VERSION"
       - cp -r docker/build_artifacts/* $build_dir/
@@ -67,11 +55,7 @@ phases:
 
       # push images to ecr
       - $(aws ecr get-login --registry-ids $ACCOUNT --no-include-email --region $AWS_DEFAULT_REGION)
-      - push_cmd="docker push $PREPROD_IMAGE:$CPU_PY2_TAG"
-      - execute-command-if-has-matching-changes "$push_cmd" "test/" "docker/*" "buildspec.yml"
       - push_cmd="docker push $PREPROD_IMAGE:$CPU_PY3_TAG"
-      - execute-command-if-has-matching-changes "$push_cmd" "test/" "docker/*" "buildspec.yml"
-      - push_cmd="docker push $PREPROD_IMAGE:$GPU_PY2_TAG"
       - execute-command-if-has-matching-changes "$push_cmd" "test/" "docker/*" "buildspec.yml"
       - push_cmd="docker push $PREPROD_IMAGE:$GPU_PY3_TAG"
       - execute-command-if-has-matching-changes "$push_cmd" "test/" "docker/*" "buildspec.yml"
@@ -86,9 +70,7 @@ phases:
 
       # run cpu integration tests
       - py3_cmd="tox -e py36 -- test/integration/local --region $AWS_DEFAULT_REGION --docker-base-name $PREPROD_IMAGE --framework-version $FRAMEWORK_VERSION --py-version $CPU_PY3_VERSION --processor cpu --tag $CPU_PY3_TAG"
-      - py2_cmd="tox -e py36 -- test/integration/local --region $AWS_DEFAULT_REGION --docker-base-name $PREPROD_IMAGE --framework-version $FRAMEWORK_VERSION --py-version $CPU_PY2_VERSION --processor cpu --tag $CPU_PY2_TAG"
       - execute-command-if-has-matching-changes "$py3_cmd" "test/" "docker/*" "buildspec.yml"
-      - execute-command-if-has-matching-changes "$py2_cmd" "test/" "docker/*" "buildspec.yml"
 
       # run gpu integration tests
       - printf "$SETUP_CMDS" > $SETUP_FILE
@@ -96,21 +78,13 @@ phases:
       - py3_cmd="remote-test --github-repo $GITHUB_REPO --test-cmd \"$py3_pytest_cmd\" --setup-file $SETUP_FILE --pr-number \"$PR_NUM\""
       - execute-command-if-has-matching-changes "$py3_cmd" "test/" "docker/*" "buildspec.yml"
 
-      - py2_pytest_cmd="pytest test/integration/local --region $AWS_DEFAULT_REGION --docker-base-name $PREPROD_IMAGE --framework-version $FRAMEWORK_VERSION --py-version $GPU_PY2_VERSION --processor gpu --tag $GPU_PY2_TAG"
-      - py2_cmd="remote-test --github-repo $GITHUB_REPO --test-cmd \"$py2_pytest_cmd\" --setup-file $SETUP_FILE --pr-number \"$PR_NUM\" --skip-setup"
-      - execute-command-if-has-matching-changes "$py2_cmd" "test/" "docker/*" "buildspec.yml"
-
       # run cpu sagemaker tests
       - py3_cmd="tox -e py36 -- test/integration/sagemaker --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $FRAMEWORK_VERSION --py-version $CPU_PY3_VERSION --processor cpu --instance-type $CPU_INSTANCE_TYPE --tag $CPU_PY3_TAG"
-      - py2_cmd="tox -e py36 -- test/integration/sagemaker --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $FRAMEWORK_VERSION --py-version $CPU_PY2_VERSION --processor cpu --instance-type $CPU_INSTANCE_TYPE --tag $CPU_PY2_TAG"
       - execute-command-if-has-matching-changes "$py3_cmd" "test/" "docker/*" "buildspec.yml"
-      - execute-command-if-has-matching-changes "$py2_cmd" "test/" "docker/*" "buildspec.yml"
 
       # run gpu sagemaker tests
       - py3_cmd="tox -e py36 -- test/integration/sagemaker --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $FRAMEWORK_VERSION --py-version $GPU_PY3_VERSION --processor gpu --instance-type $GPU_INSTANCE_TYPE --tag $GPU_PY3_TAG"
-      - py2_cmd="tox -e py36 -- test/integration/sagemaker --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $FRAMEWORK_VERSION --py-version $GPU_PY2_VERSION --processor gpu --instance-type $GPU_INSTANCE_TYPE --tag $GPU_PY2_TAG"
       - execute-command-if-has-matching-changes "$py3_cmd" "test/" "docker/*" "buildspec.yml"
-      - execute-command-if-has-matching-changes "$py2_cmd" "test/" "docker/*" "buildspec.yml"
 
       # run eia sagemaker tests
       - py3_cmd="tox -e py36 -- test/integration/sagemaker --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $EIA_FRAMEWORK_VERSION --py-version $EIA_PY3_VERSION --processor cpu --instance-type $CPU_INSTANCE_TYPE --accelerator-type $EIA_ACCELERATOR_TYPE --tag $EIA_PY3_TAG"
@@ -122,8 +96,6 @@ phases:
       - cleanup-key-pairs
 
       # remove ecr image
-      - aws ecr batch-delete-image --repository-name $ECR_REPO --region $AWS_DEFAULT_REGION --image-ids imageTag=$CPU_PY2_TAG
       - aws ecr batch-delete-image --repository-name $ECR_REPO --region $AWS_DEFAULT_REGION --image-ids imageTag=$CPU_PY3_TAG
-      - aws ecr batch-delete-image --repository-name $ECR_REPO --region $AWS_DEFAULT_REGION --image-ids imageTag=$GPU_PY2_TAG
       - aws ecr batch-delete-image --repository-name $ECR_REPO --region $AWS_DEFAULT_REGION --image-ids imageTag=$GPU_PY3_TAG
       - aws ecr batch-delete-image --repository-name $ECR_REPO --region $AWS_DEFAULT_REGION --image-ids imageTag=$EIA_PY3_TAG
