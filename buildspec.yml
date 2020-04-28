@@ -13,6 +13,8 @@ env:
     LOCAL_BASE_REPO: 'pytorch-base'
     ECR_REPO: 'sagemaker-test'
     GITHUB_REPO: 'sagemaker-pytorch-serving-container'
+    SETUP_FILE: 'setup_cmds.sh'
+    SETUP_CMDS: '#!/bin/bash\npython3.6 -m pip install --upgrade pip\npython3.6 -m pip install -U -e .\npython3.6 -m pip install -U -e .[test]'
 
 
 phases:
@@ -68,8 +70,9 @@ phases:
       - execute-command-if-has-matching-changes "$py3_cmd" "test/" "docker/*" "buildspec.yml"
 
       # run gpu integration tests
+      - printf "$SETUP_CMDS" > $SETUP_FILE
       - py3_pytest_cmd="IGNORE_COVERAGE=- tox -e py36 test/integration/local --region $AWS_DEFAULT_REGION --docker-base-name $PREPROD_IMAGE --framework-version $FRAMEWORK_VERSION --py-version $GPU_PY3_VERSION --processor gpu --tag $GPU_PY3_TAG"
-      - py3_cmd="remote-test --github-repo $GITHUB_REPO --test-cmd \"$py3_pytest_cmd\" --pr-number \"$PR_NUM\""
+      - py3_cmd="remote-test --github-repo $GITHUB_REPO --test-cmd \"$py3_pytest_cmd\" --setup-file $SETUP_FILE --pr-number \"$PR_NUM\""
       - execute-command-if-has-matching-changes "$py3_cmd" "test/" "docker/*" "buildspec.yml"
 
       # run cpu sagemaker tests
