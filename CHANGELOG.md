@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.4.4 (2020-05-04)
+
+### Bug Fixes and Other Changes
+
+ * Add code_dir to sys.path in HandlerService for MME
+
 ## v1.4.3.post0 (2020-04-30)
 
 ### Testing and Release Infrastructure
