@@ -19,7 +19,6 @@ from sagemaker.pytorch import PyTorchModel
 
 from integration import model_cpu_tar, model_gpu_tar, mnist_cpu_script, mnist_gpu_script, \
     model_eia_tar, mnist_eia_script
-from integration.sagemaker.timeout import timeout_and_delete_endpoint
 
 
 @pytest.mark.cpu_test
