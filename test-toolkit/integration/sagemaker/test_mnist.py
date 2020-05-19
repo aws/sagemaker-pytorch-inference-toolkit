@@ -19,6 +19,7 @@ from sagemaker.pytorch import PyTorchModel
 
 from integration import model_cpu_tar, model_gpu_tar, mnist_cpu_script, mnist_gpu_script, \
     model_eia_tar, mnist_eia_script
+from integration.sagemaker.timeout import timeout_and_delete_endpoint
 
 
 @pytest.mark.cpu_test
@@ -53,16 +54,17 @@ def _test_mnist_distributed(sagemaker_session, image_uri, instance_type, model_t
 
     pytorch = PyTorchModel(model_data=model_data, role='SageMakerRole', entry_point=mnist_script,
                            image=image_uri, sagemaker_session=sagemaker_session)
+    with timeout_and_delete_endpoint(endpoint_name, sagemaker_session, minutes=30):
+        # Use accelerator type to differentiate EI vs. CPU and GPU. Don't use processor value
+        if accelerator_type is not None:
+            predictor = pytorch.deploy(initial_instance_count=1, instance_type=instance_type,
+                                       accelerator_type=accelerator_type, endpoint_name=endpoint_name)
+        else:
+            predictor = pytorch.deploy(initial_instance_count=1, instance_type=instance_type,
+                                       endpoint_name=endpoint_name)
 
-    if accelerator_type is not None:
-        predictor = pytorch.deploy(initial_instance_count=1, instance_type=instance_type,
-                                   accelerator_type=accelerator_type, endpoint_name=endpoint_name)
-    else:
-        predictor = pytorch.deploy(initial_instance_count=1, instance_type=instance_type,
-                                   endpoint_name=endpoint_name)
+        batch_size = 100
+        data = np.random.rand(batch_size, 1, 28, 28).astype(np.float32)
+        output = predictor.predict(data)
 
-    batch_size = 100
-    data = np.random.rand(batch_size, 1, 28, 28).astype(np.float32)
-    output = predictor.predict(data)
-
-    assert output.shape == (batch_size, 10)
+        assert output.shape == (batch_size, 10)
