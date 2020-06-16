@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.5.1 (2020-06-16)
+
+### Bug Fixes and Other Changes
+
+ * upgrade dependency versions
+
 ## v1.5.0 (2020-05-12)
 
 ### Features
