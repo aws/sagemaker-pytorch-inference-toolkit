@@ -53,7 +53,7 @@ def pytest_addoption(parser):
     parser.addoption('--accelerator-type')
     parser.addoption('--docker-base-name', default='sagemaker-pytorch-inference')
     parser.addoption('--region', default='us-west-2')
-    parser.addoption('--framework-version', default="1.4.0")
+    parser.addoption('--framework-version', default="1.5.0")
     parser.addoption('--py-version', choices=['2', '3'], default='3')
     # Processor is still "cpu" for EIA tests
     parser.addoption('--processor', choices=['gpu', 'cpu'], default='cpu')
