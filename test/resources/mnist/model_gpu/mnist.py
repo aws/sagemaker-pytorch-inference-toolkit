@@ -16,7 +16,6 @@ import logging
 import os
 import sys
 
-import cv2 as cv
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -26,9 +25,6 @@ import torch.utils.data.distributed
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 logger.addHandler(logging.StreamHandler(sys.stdout))
-
-# test opencv
-print(cv.__version__)
 
 
 # Based on https://github.com/pytorch/examples/blob/master/mnist/main.py
