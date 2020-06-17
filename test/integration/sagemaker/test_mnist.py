@@ -17,33 +17,33 @@ import pytest
 import sagemaker
 from sagemaker.pytorch import PyTorchModel
 
-from test.integration import model_cpu_tar, mnist_cpu_script, model_gpu_tar, mnist_gpu_script, \
+from integration import model_cpu_tar, model_gpu_tar, mnist_cpu_script, mnist_gpu_script, \
     model_eia_tar, mnist_eia_script
-from test.integration.sagemaker.timeout import timeout_and_delete_endpoint
+from integration.sagemaker.timeout import timeout_and_delete_endpoint
 
 
 @pytest.mark.cpu_test
-def test_mnist_distributed_cpu(sagemaker_session, ecr_image, instance_type):
+def test_mnist_cpu(sagemaker_session, image_uri, instance_type):
     instance_type = instance_type or 'ml.c4.xlarge'
-    _test_mnist_distributed(sagemaker_session, ecr_image, instance_type, model_cpu_tar, mnist_cpu_script)
+    _test_mnist_distributed(sagemaker_session, image_uri, instance_type, model_cpu_tar, mnist_cpu_script)
 
 
 @pytest.mark.gpu_test
-def test_mnist_distributed_gpu(sagemaker_session, ecr_image, instance_type):
+def test_mnist_gpu(sagemaker_session, image_uri, instance_type):
     instance_type = instance_type or 'ml.p2.xlarge'
-    _test_mnist_distributed(sagemaker_session, ecr_image, instance_type, model_gpu_tar, mnist_gpu_script)
+    _test_mnist_distributed(sagemaker_session, image_uri, instance_type, model_gpu_tar, mnist_gpu_script)
 
 
 @pytest.mark.eia_test
-def test_mnist_eia(sagemaker_session, ecr_image, instance_type, accelerator_type):
+def test_mnist_eia(sagemaker_session, image_uri, instance_type, accelerator_type):
     instance_type = instance_type or 'ml.c4.xlarge'
     # Scripted model is serialized with torch.jit.save().
     # Inference test for EIA doesn't need to instantiate model definition then load state_dict
-    _test_mnist_distributed(sagemaker_session, ecr_image, instance_type, model_eia_tar, mnist_eia_script,
+    _test_mnist_distributed(sagemaker_session, image_uri, instance_type, model_eia_tar, mnist_eia_script,
                             accelerator_type=accelerator_type)
 
 
-def _test_mnist_distributed(sagemaker_session, ecr_image, instance_type, model_tar, mnist_script,
+def _test_mnist_distributed(sagemaker_session, image_uri, instance_type, model_tar, mnist_script,
                             accelerator_type=None):
     endpoint_name = sagemaker.utils.unique_name_from_base("sagemaker-pytorch-serving")
 
@@ -53,8 +53,7 @@ def _test_mnist_distributed(sagemaker_session, ecr_image, instance_type, model_t
     )
 
     pytorch = PyTorchModel(model_data=model_data, role='SageMakerRole', entry_point=mnist_script,
-                           image=ecr_image, sagemaker_session=sagemaker_session)
-
+                           image=image_uri, sagemaker_session=sagemaker_session)
     with timeout_and_delete_endpoint(endpoint_name, sagemaker_session, minutes=30):
         # Use accelerator type to differentiate EI vs. CPU and GPU. Don't use processor value
         if accelerator_type is not None:

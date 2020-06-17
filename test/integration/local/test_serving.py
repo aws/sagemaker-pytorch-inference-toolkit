@@ -25,10 +25,10 @@ from sagemaker.predictor import BytesDeserializer, csv_deserializer, csv_seriali
 from sagemaker_containers.beta.framework import content_types
 from torchvision import datasets, transforms
 
-from test.integration import training_dir, mnist_1d_script, model_cpu_tar, mnist_cpu_script, \
+from integration import training_dir, mnist_1d_script, model_cpu_tar, mnist_cpu_script, \
     model_gpu_tar, mnist_gpu_script, model_cpu_1d_tar, call_model_fn_once_script, ROLE, \
     call_model_fn_once_tar
-from test.utils import local_mode_utils
+from utils import local_mode_utils
 
 CONTENT_TYPE_TO_SERIALIZER_MAP = {
     content_types.CSV: csv_serializer,
@@ -49,33 +49,32 @@ def fixture_test_loader():
     return _get_test_data_loader(batch_size=300)
 
 
-def test_serve_json_npy(test_loader, use_gpu, docker_image, sagemaker_local_session, instance_type):
-    model_dir = model_gpu_tar if use_gpu else model_cpu_tar
+def test_serve_json_npy(test_loader, use_gpu, image_uri, sagemaker_local_session, instance_type):
+    model_tar = model_gpu_tar if use_gpu else model_cpu_tar
     mnist_script = mnist_gpu_script if use_gpu else mnist_cpu_script
-    with _predictor(model_dir, mnist_script, docker_image, sagemaker_local_session,
+    with _predictor(model_tar, mnist_script, image_uri, sagemaker_local_session,
                     instance_type) as predictor:
         for content_type in (content_types.JSON, content_types.NPY):
             for accept in (content_types.JSON, content_types.CSV, content_types.NPY):
                 _assert_prediction_npy_json(predictor, test_loader, content_type, accept)
 
 
-def test_serve_csv(test_loader, use_gpu, docker_image, sagemaker_local_session, instance_type):
-    with _predictor(model_cpu_1d_tar, mnist_1d_script, docker_image, sagemaker_local_session,
+def test_serve_csv(test_loader, use_gpu, image_uri, sagemaker_local_session, instance_type):
+    with _predictor(model_cpu_1d_tar, mnist_1d_script, image_uri, sagemaker_local_session,
                     instance_type) as predictor:
         for accept in (content_types.JSON, content_types.CSV, content_types.NPY):
             _assert_prediction_csv(predictor, test_loader, accept)
 
 
 @pytest.mark.skip_cpu
-def test_serve_cpu_model_on_gpu(test_loader, docker_image, sagemaker_local_session, instance_type):
-    with _predictor(model_cpu_1d_tar, mnist_1d_script, docker_image, sagemaker_local_session,
+def test_serve_cpu_model_on_gpu(test_loader, image_uri, sagemaker_local_session, instance_type):
+    with _predictor(model_cpu_1d_tar, mnist_1d_script, image_uri, sagemaker_local_session,
                     instance_type) as predictor:
         _assert_prediction_npy_json(predictor, test_loader, content_types.NPY, content_types.JSON)
 
 
-@pytest.mark.skip_gpu_py2
-def test_serving_calls_model_fn_once(docker_image, sagemaker_local_session, instance_type):
-    with _predictor(call_model_fn_once_tar, call_model_fn_once_script, docker_image, sagemaker_local_session,
+def test_serving_calls_model_fn_once(image_uri, sagemaker_local_session, instance_type):
+    with _predictor(call_model_fn_once_tar, call_model_fn_once_script, image_uri, sagemaker_local_session,
                     instance_type, model_server_workers=2) as predictor:
         predictor.accept = None
         predictor.deserializer = BytesDeserializer()
@@ -88,9 +87,9 @@ def test_serving_calls_model_fn_once(docker_image, sagemaker_local_session, inst
 
 
 @contextmanager
-def _predictor(model_dir, script, image, sagemaker_local_session, instance_type,
+def _predictor(model_tar, script, image, sagemaker_local_session, instance_type,
                model_server_workers=None):
-    model = PyTorchModel('file://{}'.format(model_dir),
+    model = PyTorchModel('file://{}'.format(model_tar),
                          ROLE,
                          script,
                          image=image,

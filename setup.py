@@ -35,6 +35,7 @@ setup(
 
     long_description=read('README.rst'),
     author='Amazon Web Services',
+    url='https://github.com/aws/sagemaker-pytorch-inference-toolkit',
     license='Apache License 2.0',
 
     classifiers=[

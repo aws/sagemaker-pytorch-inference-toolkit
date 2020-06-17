@@ -14,7 +14,7 @@ from __future__ import absolute_import
 
 import os
 
-from test.utils import file_utils
+from utils import file_utils
 
 resources_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'resources'))
 mnist_path = os.path.join(resources_path, 'mnist')
