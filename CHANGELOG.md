@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.5.1.post0 (2020-06-18)
+
+### Testing and Release Infrastructure
+
+ * Make docker folder read only, remove unused tests, update reponame, remove incorrect documentation.
+
 ## v1.5.1 (2020-06-16)
 
 ### Bug Fixes and Other Changes
