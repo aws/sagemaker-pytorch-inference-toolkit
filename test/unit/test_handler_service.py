@@ -12,10 +12,10 @@
 # language governing permissions and limitations under the License.
 from __future__ import absolute_import
 
-from mock import patch
+from mock import patch, Mock
 
 
-@patch('sagemaker_pytorch_serving_container.default_inference_handler.DefaultPytorchInferenceHandler')
+@patch('sagemaker_pytorch_serving_container.default_pytorch_inference_handler.DefaultPytorchInferenceHandler')
 @patch('sagemaker_inference.transformer.Transformer')
 def test_hosting_start(Transformer, DefaultPytorchInferenceHandler):
     from sagemaker_pytorch_serving_container import handler_service
@@ -23,3 +23,16 @@ def test_hosting_start(Transformer, DefaultPytorchInferenceHandler):
     handler_service.HandlerService()
 
     Transformer.assert_called_with(default_inference_handler=DefaultPytorchInferenceHandler())
+
+
+@patch('sagemaker_pytorch_serving_container.default_pytorch_inference_handler.DefaultPytorchInferenceHandler')
+@patch('sagemaker_inference.transformer.Transformer')
+def test_hosting_start_enable_multi_model(Transformer, DefaultPytorchInferenceHandler):
+    from sagemaker_pytorch_serving_container import handler_service
+
+    context = Mock()
+    context.system_properties.get.return_value ="/"
+    handler_service.ENABLE_MULTI_MODEL=True
+    handler = handler_service.HandlerService()
+    handler.initialize(context)
+    handler_service.ENABLE_MULTI_MODEL=False

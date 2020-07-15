@@ -31,6 +31,7 @@ setup(
 
     packages=find_packages(where='src', exclude=('test',)),
     package_dir={'': 'src'},
+    package_data={'': ["etc/*"]},
     py_modules=[splitext(basename(path))[0] for path in glob('src/*.py')],
 
     long_description=read('README.rst'),
