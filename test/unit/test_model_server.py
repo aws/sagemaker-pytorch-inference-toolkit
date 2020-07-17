@@ -205,32 +205,30 @@ def test_create_torchserve_config_file(write_file, generate_ts_config_props):
 @patch("sagemaker_inference.utils.read_file", return_value=DEFAULT_CONFIGURATION)
 @patch("sagemaker_inference.environment.Environment")
 def test_generate_ts_config_properties(env, read_file):
-    model_sever_timeout = "torchserve_timeout"
-    torchserve_workers = "torchserve_workers"
+    model_server_timeout = "torchserve_timeout"
+    model_server_workers = "torchserve_workers"
     http_port = "http_port"
 
-    env.return_value.model_sever_timeout = torchserve_timeout
-    env.return_value.torchserve_workers = torchserve_workers
+    env.return_value.model_server_timeout = model_server_timeout
+    env.return_value.model_sever_workerse = model_server_workers
     env.return_value.inference_http_port = http_port
 
     ts_config_properties = torchserve._generate_ts_config_properties()
 
     inference_address = "inference_address=http://0.0.0.0:{}\n".format(http_port)
-    server_timeout = "default_response_timeout={}\n".format(model_sever_timeout)
-    workers = "default_workers_per_model={}\n".format(torchserve_workers)
+    server_timeout = "default_response_timeout={}\n".format(model_server_timeout)
 
     read_file.assert_called_once_with(torchserve.DEFAULT_TS_CONFIG_FILE)
 
     assert ts_config_properties.startswith(DEFAULT_CONFIGURATION)
     assert inference_address in ts_config_properties
     assert server_timeout in ts_config_properties
-    assert workers in ts_config_properties
 
 
 @patch("sagemaker_inference.utils.read_file", return_value=DEFAULT_CONFIGURATION)
 @patch("sagemaker_inference.environment.Environment")
 def test_generate_ts_config_properties_default_workers(env, read_file):
-    env.return_value.torchserve_workers = None
+    env.return_value.model_server_workers = None
 
     ts_config_properties = torchserve._generate_ts_config_properties()
 
@@ -245,7 +243,7 @@ def test_generate_ts_config_properties_default_workers(env, read_file):
 @patch("sagemaker_inference.utils.read_file", return_value=DEFAULT_CONFIGURATION)
 @patch("sagemaker_inference.environment.Environment")
 def test_generate_ts_config_properties_multi_model(env, read_file):
-    env.return_value.torchserve_workers = None
+    env.return_value.model_server_workers = None
 
     torchserve.ENABLE_MULTI_MODEL = True
     ts_config_properties = torchserve._generate_ts_config_properties()
