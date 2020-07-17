@@ -10,6 +10,7 @@
 # distributed on an 'AS IS' BASIS, WITHOUT WARRANTIES OR CONDITIONS OF
 # ANY KIND, either express or implied. See the License for the specific
 # language governing permissions and limitations under the License.
+from __future__ import absolute_import
 import os
 import signal
 import subprocess
@@ -86,11 +87,9 @@ def test_start_torchserve_default_service_handler_multi_model(
     subprocess_popen,
     subprocess_call,
 ):
-    torchserve.ENABLE_MULTI_MODEL=True
+    torchserve.ENABLE_MULTI_MODEL = True
     torchserve.start_torchserve()
-    torchserve.ENABLE_MULTI_MODEL=False
-
-    #adapt.assert_called_once_with(torchserve.DEFAULT_HANDLER_SERVICE)
+    torchserve.ENABLE_MULTI_MODEL = False
     create_config.assert_called_once_with()
     exists.assert_called_once_with(REQUIREMENTS_PATH)
     install_requirements.assert_called_once_with()
@@ -110,50 +109,6 @@ def test_start_torchserve_default_service_handler_multi_model(
 
     subprocess_popen.assert_called_once_with(ts_model_server_cmd)
     sigterm.assert_called_once_with(retrieve.return_value)
-
-
-@patch("subprocess.call")
-@patch("subprocess.Popen")
-@patch("sagemaker_pytorch_serving_container.torchserve._retrieve_ts_server_process")
-@patch("sagemaker_pytorch_serving_container.torchserve._add_sigterm_handler")
-@patch("sagemaker_pytorch_serving_container.torchserve._install_requirements")
-@patch("os.path.exists", return_value=True)
-@patch("sagemaker_pytorch_serving_container.torchserve._create_torchserve_config_file")
-@patch("sagemaker_pytorch_serving_container.torchserve._adapt_to_ts_format")
-def test_start_torchserve_default_service_handler(
-    adapt,
-    create_config,
-    exists,
-    install_requirements,
-    sigterm,
-    retrieve,
-    subprocess_popen,
-    subprocess_call,
-):
-    torchserve.start_torchserve()
-
-    adapt.assert_called_once_with(torchserve.DEFAULT_HANDLER_SERVICE)
-    create_config.assert_called_once_with()
-    exists.assert_called_once_with(REQUIREMENTS_PATH)
-    install_requirements.assert_called_once_with()
-
-    ts_model_server_cmd = [
-        "torchserve",
-        "--start",
-        "--model-store",
-        torchserve.MODEL_STORE,
-        "--ts-config",
-        torchserve.TS_CONFIG_FILE,
-        "--log-config",
-        torchserve.DEFAULT_TS_LOG_FILE,
-        "--models",
-        "model.mar"
-    ]
-
-    subprocess_popen.assert_called_once_with(ts_model_server_cmd)
-    sigterm.assert_called_once_with(retrieve.return_value)
-
-
 
 
 @patch("subprocess.call")
@@ -190,7 +145,6 @@ def test_adapt_to_ts_format(path_exists, make_dir, subprocess_check_call, set_py
         torchserve.DEFAULT_TS_MODEL_NAME,
         "--handler",
         handler_service,
-        #importlib.import_module(DEFAULT_TS_HANDLER_SERVICE).__file__,
         "--serialized-file",
         os.path.join(environment.model_dir, torchserve.DEFAULT_TS_MODEL_SERIALIZED_FILE),
         "--export-path",
@@ -288,15 +242,14 @@ def test_generate_ts_config_properties_default_workers(env, read_file):
     assert workers not in ts_config_properties
 
 
-
 @patch("sagemaker_inference.utils.read_file", return_value=DEFAULT_CONFIGURATION)
 @patch("sagemaker_inference.environment.Environment")
 def test_generate_ts_config_properties_multi_model(env, read_file):
     env.return_value.torchserve_workers = None
 
-    torchserve.ENABLE_MULTI_MODEL=True
+    torchserve.ENABLE_MULTI_MODEL = True
     ts_config_properties = torchserve._generate_ts_config_properties()
-    torchserve.ENABLE_MULTI_MODEL=False
+    torchserve.ENABLE_MULTI_MODEL = False
 
     workers = "default_workers_per_model={}".format(None)
 
@@ -304,7 +257,6 @@ def test_generate_ts_config_properties_multi_model(env, read_file):
 
     assert ts_config_properties.startswith(DEFAULT_CONFIGURATION)
     assert workers not in ts_config_properties
-
 
 
 @patch("signal.signal")

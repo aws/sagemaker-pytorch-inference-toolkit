@@ -31,8 +31,8 @@ def test_hosting_start_enable_multi_model(Transformer, DefaultPytorchInferenceHa
     from sagemaker_pytorch_serving_container import handler_service
 
     context = Mock()
-    context.system_properties.get.return_value ="/"
-    handler_service.ENABLE_MULTI_MODEL=True
+    context.system_properties.get.return_value = "/"
+    handler_service.ENABLE_MULTI_MODEL = True
     handler = handler_service.HandlerService()
     handler.initialize(context)
-    handler_service.ENABLE_MULTI_MODEL=False
+    handler_service.ENABLE_MULTI_MODEL = False

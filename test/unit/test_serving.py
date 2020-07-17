@@ -22,6 +22,7 @@ def test_hosting_start(start_torchserve):
     serving.main()
     start_torchserve.assert_called()
 
+
 def test_retry_if_error():
     from sagemaker_pytorch_serving_container import serving
     serving._retry_if_error(Exception)
