@@ -137,12 +137,10 @@ def _set_python_path():
     # to the model archiver, to the PYTHONPATH env var.
     # The code_dir has to be added to the PYTHONPATH otherwise the
     # user provided module can not be imported properly.
-    code_dir_path = "{}:".format(environment.code_dir)
-
     if PYTHON_PATH_ENV in os.environ:
-        os.environ[PYTHON_PATH_ENV] = code_dir_path + os.environ[PYTHON_PATH_ENV]
+        os.environ[PYTHON_PATH_ENV] = "{}:{}".format(environment.code_dir, os.environ[PYTHON_PATH_ENV])
     else:
-        os.environ[PYTHON_PATH_ENV] = code_dir_path
+        os.environ[PYTHON_PATH_ENV] = environment.code_dir
 
 
 def _create_torchserve_config_file():
