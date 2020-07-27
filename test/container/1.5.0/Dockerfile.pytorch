@@ -18,7 +18,7 @@ RUN apt-get update \
     libsm6 \
     libxext6 \
     libxrender-dev \
-    openjdk-11-jdk \
+    openjdk-11-jdk-headless \
     && rm -rf /var/lib/apt/lists/*
 
 RUN conda install -c conda-forge opencv==4.0.1 \
