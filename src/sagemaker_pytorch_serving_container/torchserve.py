@@ -207,7 +207,7 @@ def _retrieve_ts_server_process():
             ts_server_processes.append(process)
 
     if not ts_server_processes:
-        raise Exception("ts model server was unsuccessfully started")
+        raise Exception("Torchserve model server was unsuccessfully started")
 
     if len(ts_server_processes) > 1:
         raise Exception("multiple ts model servers are not supported")
