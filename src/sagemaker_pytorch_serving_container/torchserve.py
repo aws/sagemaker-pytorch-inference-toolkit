@@ -40,7 +40,7 @@ MME_TS_CONFIG_FILE = pkg_resources.resource_filename(
 DEFAULT_TS_LOG_FILE = pkg_resources.resource_filename(
     sagemaker_pytorch_serving_container.__name__, "/etc/log4j.properties"
 )
-DEFAULT_TS_MODEL_DIRECTORY = os.path.join(os.getcwd(), ".sagemaker/ts/models")
+DEFAULT_TS_MODEL_DIRECTORY = os.path.join(os.getcwd(), ".sagemaker", "ts", "models")
 DEFAULT_TS_MODEL_NAME = "model"
 DEFAULT_TS_MODEL_SERIALIZED_FILE = "model.pth"
 DEFAULT_HANDLER_SERVICE = "sagemaker_pytorch_serving_container.handler_service"
