@@ -179,6 +179,7 @@ def test_default_output_fn_gpu(inference_handler):
 
     assert "1,2,3\n4,5,6\n".encode("utf-8") == output
 
+
 def test_eia_default_model_fn(eia_inference_handler):
     with mock.patch("sagemaker_pytorch_serving_container.default_pytorch_inference_handler.os") as mock_os:
         mock_os.getenv.return_value = "true"
