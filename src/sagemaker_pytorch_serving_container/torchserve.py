@@ -57,7 +57,7 @@ def start_torchserve(handler_service=DEFAULT_HANDLER_SERVICE):
     """Configure and start the model server.
 
     Args:
-        handler_service (str): python path pointing to a module that defines
+        handler_service (str): Python path pointing to a module that defines
             a class with the following:
 
                 - A ``handle`` method, which is invoked for all incoming inference
