@@ -193,7 +193,7 @@ def _install_requirements():
     try:
         subprocess.check_call(pip_install_cmd)
     except subprocess.CalledProcessError:
-        logger.error("failed to install required packages, exiting")
+        logger.exception("failed to install required packages, exiting")
         raise ValueError("failed to install required packages")
 
 
