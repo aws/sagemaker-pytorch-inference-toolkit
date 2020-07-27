@@ -178,9 +178,9 @@ def test_adapt_to_ts_format_existing_path(
 def test_set_existing_python_path():
     torchserve._set_python_path()
 
-    code_dir_path = "{}:".format(environment.code_dir)
+    code_dir_path = "{}:{}".format(environment.code_dir, PYTHON_PATH)
 
-    assert os.environ[torchserve.PYTHON_PATH_ENV] == code_dir_path + PYTHON_PATH
+    assert os.environ[torchserve.PYTHON_PATH_ENV] == code_dir_path
 
 
 @patch.dict(os.environ, {}, clear=True)
