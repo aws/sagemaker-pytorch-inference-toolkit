@@ -70,7 +70,7 @@ def start_torchserve(handler_service=DEFAULT_HANDLER_SERVICE):
     """
 
     if ENABLE_MULTI_MODEL:
-        if not os.getenv("SAGEMAKER_HANDLER"):
+        if "SAGEMAKER_HANDLER" not in os.environ:
             os.environ["SAGEMAKER_HANDLER"] = handler_service
         _set_python_path()
     else:
