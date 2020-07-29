@@ -275,10 +275,11 @@ def test_add_sigterm_handler(signal_call):
 @patch("subprocess.check_call")
 def test_install_requirements(check_call):
     torchserve._install_requirements()
-    for i in  ['pip', 'install', '-r', '/opt/ml/model/code/requirements.txt']:
+    for i in ['pip', 'install', '-r', '/opt/ml/model/code/requirements.txt']:
         assert i in check_call.call_args.args[0]
 
-@patch("subprocess.check_call", side_effect=subprocess.CalledProcessError(0, "cmd"))
+
+        @patch("subprocess.check_call", side_effect=subprocess.CalledProcessError(0, "cmd"))
 def test_install_requirements_installation_failed(check_call):
     with pytest.raises(ValueError) as e:
         torchserve._install_requirements()
