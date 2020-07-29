@@ -187,7 +187,7 @@ def test_set_existing_python_path():
 def test_new_python_path():
     torchserve._set_python_path()
 
-    code_dir_path = "{}:".format(environment.code_dir)
+    code_dir_path = environment.code_dir
 
     assert os.environ[torchserve.PYTHON_PATH_ENV] == code_dir_path
 
@@ -275,7 +275,8 @@ def test_add_sigterm_handler(signal_call):
 @patch("subprocess.check_call")
 def test_install_requirements(check_call):
     torchserve._install_requirements()
-
+    for i in  ['pip', 'install', '-r', '/opt/ml/model/code/requirements.txt']:
+        assert i in check_call.call_args.args[0]
 
 @patch("subprocess.check_call", side_effect=subprocess.CalledProcessError(0, "cmd"))
 def test_install_requirements_installation_failed(check_call):
@@ -307,7 +308,7 @@ def test_retrieve_ts_server_process_no_server(process_iter, retry):
     with pytest.raises(Exception) as e:
         torchserve._retrieve_ts_server_process()
 
-    assert "ts model server was unsuccessfully started" in str(e.value)
+    assert "Torchserve model server was unsuccessfully started" in str(e.value)
 
 
 @patch("retrying.Retrying.should_reject", return_value=False)
