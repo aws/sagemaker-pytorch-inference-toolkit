@@ -57,7 +57,7 @@ setup(
         'test': ['boto3==1.10.32', 'coverage==4.5.3', 'docker-compose==1.23.2', 'flake8==3.7.7', 'Flask==1.1.1',
                  'mock==2.0.0', 'pytest==4.4.0', 'pytest-cov==2.7.1', 'pytest-xdist==1.28.0', 'PyYAML==3.10',
                  'sagemaker==1.56.3', 'sagemaker-containers>=2.5.4', 'six==1.12.0', 'requests==2.20.0',
-                 'requests_mock==1.6.0', 'torch==1.5.0', 'torchvision==0.6.0', 'tox==3.7.0']
+                 'requests_mock==1.6.0', 'torch==1.6.0', 'torchvision==0.7.0', 'tox==3.7.0']
     },
 
     entry_points={
