@@ -34,7 +34,7 @@ def test_mnist_gpu(sagemaker_session, image_uri, instance_type):
     _test_mnist_distributed(sagemaker_session, image_uri, instance_type, model_gpu_tar, mnist_gpu_script)
 
 
-@pytest.mark.xfail
+@pytest.mark.skip(reason="Latest EIA version is too old - 1.3.1. Remove this after a new DLC release.")
 @pytest.mark.eia_test
 def test_mnist_eia(sagemaker_session, image_uri, instance_type, accelerator_type):
     instance_type = instance_type or 'ml.c4.xlarge'
