@@ -15,11 +15,14 @@ from __future__ import absolute_import
 from mock import patch
 
 
-@patch('sagemaker_inference.model_server.start_model_server')
-def test_hosting_start(start_model_server):
+@patch('sagemaker_pytorch_serving_container.torchserve.start_torchserve')
+def test_hosting_start(start_torchserve):
     from sagemaker_pytorch_serving_container import serving
 
     serving.main()
+    start_torchserve.assert_called()
 
-    start_model_server.assert_called_with(
-        handler_service='sagemaker_pytorch_serving_container.handler_service')
+
+def test_retry_if_error():
+    from sagemaker_pytorch_serving_container import serving
+    serving._retry_if_error(Exception)

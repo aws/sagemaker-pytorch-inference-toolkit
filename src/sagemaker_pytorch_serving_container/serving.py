@@ -15,11 +15,10 @@ from __future__ import absolute_import
 from subprocess import CalledProcessError
 
 from retrying import retry
-from sagemaker_inference import model_server
-
+from sagemaker_pytorch_serving_container import torchserve
 from sagemaker_pytorch_serving_container import handler_service
 
-HANDLER_SERVICE = handler_service.__name__
+HANDLER_SERVICE = handler_service.__file__
 
 
 def _retry_if_error(exception):
@@ -28,12 +27,12 @@ def _retry_if_error(exception):
 
 @retry(stop_max_delay=1000 * 30,
        retry_on_exception=_retry_if_error)
-def _start_model_server():
+def _start_torchserve():
     # there's a race condition that causes the model server command to
     # sometimes fail with 'bad address'. more investigation needed
     # retry starting mms until it's ready
-    model_server.start_model_server(handler_service=HANDLER_SERVICE)
+    torchserve.start_torchserve(handler_service=HANDLER_SERVICE)
 
 
 def main():
-    _start_model_server()
+    _start_torchserve()

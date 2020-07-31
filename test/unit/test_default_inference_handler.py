@@ -24,7 +24,7 @@ from sagemaker_inference import content_types, errors
 from six import StringIO, BytesIO
 from torch.autograd import Variable
 
-from sagemaker_pytorch_serving_container import default_inference_handler
+from sagemaker_pytorch_serving_container import default_pytorch_inference_handler
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -49,12 +49,12 @@ def fixture_tensor():
 
 @pytest.fixture()
 def inference_handler():
-    return default_inference_handler.DefaultPytorchInferenceHandler()
+    return default_pytorch_inference_handler.DefaultPytorchInferenceHandler()
 
 
 @pytest.fixture()
 def eia_inference_handler():
-    return default_inference_handler.DefaultPytorchInferenceHandler()
+    return default_pytorch_inference_handler.DefaultPytorchInferenceHandler()
 
 
 def test_default_model_fn(inference_handler):
@@ -181,7 +181,7 @@ def test_default_output_fn_gpu(inference_handler):
 
 
 def test_eia_default_model_fn(eia_inference_handler):
-    with mock.patch("sagemaker_pytorch_serving_container.default_inference_handler.os") as mock_os:
+    with mock.patch("sagemaker_pytorch_serving_container.default_pytorch_inference_handler.os") as mock_os:
         mock_os.getenv.return_value = "true"
         mock_os.path.join.return_value = "model_dir"
         mock_os.path.exists.return_value = True
@@ -192,7 +192,7 @@ def test_eia_default_model_fn(eia_inference_handler):
 
 
 def test_eia_default_model_fn_error(eia_inference_handler):
-    with mock.patch("sagemaker_pytorch_serving_container.default_inference_handler.os") as mock_os:
+    with mock.patch("sagemaker_pytorch_serving_container.default_pytorch_inference_handler.os") as mock_os:
         mock_os.getenv.return_value = "true"
         mock_os.path.join.return_value = "model_dir"
         mock_os.path.exists.return_value = False
@@ -202,7 +202,7 @@ def test_eia_default_model_fn_error(eia_inference_handler):
 
 def test_eia_default_predict_fn(eia_inference_handler, tensor):
     model = DummyModel()
-    with mock.patch("sagemaker_pytorch_serving_container.default_inference_handler.os") as mock_os:
+    with mock.patch("sagemaker_pytorch_serving_container.default_pytorch_inference_handler.os") as mock_os:
         mock_os.getenv.return_value = "true"
         with mock.patch("torch.jit.optimized_execution") as mock_torch:
             mock_torch.__enter__.return_value = "dummy"
