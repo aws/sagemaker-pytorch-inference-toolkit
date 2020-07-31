@@ -20,13 +20,14 @@ import sys
 
 import pkg_resources
 import psutil
+import logging
 from retrying import retry
 
 import sagemaker_pytorch_serving_container
-from sagemaker_inference import default_handler_service, environment, logging, utils
+from sagemaker_inference import default_handler_service, environment, utils
 from sagemaker_inference.environment import code_dir
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 
 TS_CONFIG_FILE = os.path.join("/etc", "sagemaker-ts.properties")
 DEFAULT_HANDLER_SERVICE = default_handler_service.__name__
