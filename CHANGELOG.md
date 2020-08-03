@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.0.0 (2020-08-03)
+
+### Breaking Changes
+
+ * Change Model server to Torchserve for PyTorch Inference
+
 ## v1.5.1.post1 (2020-06-25)
 
 ### Testing and Release Infrastructure
