@@ -16,7 +16,14 @@ import os
 import textwrap
 
 import torch
-from sagemaker_inference import content_types, decoder, default_inference_handler, encoder
+from sagemaker_inference import (
+    content_types,
+    decoder,
+    default_inference_handler,
+    encoder,
+    errors,
+    utils,
+)
 
 INFERENCE_ACCELERATOR_PRESENT_ENV = "SAGEMAKER_INFERENCE_ACCELERATOR_PRESENT"
 DEFAULT_MODEL_FILENAME = "model.pt"
@@ -101,8 +108,12 @@ class DefaultPytorchInferenceHandler(default_inference_handler.DefaultInferenceH
         """
         if type(prediction) == torch.Tensor:
             prediction = prediction.detach().cpu().numpy().tolist()
-        encoded_prediction = encoder.encode(prediction, accept)
-        if accept == content_types.CSV:
-            encoded_prediction = encoded_prediction.encode("utf-8")
 
-        return encoded_prediction
+        for content_type in utils.parse_accept(accept):
+            if content_type in encoder.SUPPORTED_CONTENT_TYPES:
+                encoded_prediction = encoder.encode(prediction, content_type)
+                if content_type == content_types.CSV:
+                    encoded_prediction = encoded_prediction.encode("utf-8")
+                return encoded_prediction
+
+        raise errors.UnsupportedFormatError(accept)
