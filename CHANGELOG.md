@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.0.1 (2020-08-06)
+
+### Bug Fixes and Other Changes
+
+ * Pin sagemaker dependency version to before version 2
+
 ## v2.0.0 (2020-08-03)
 
 ### Breaking Changes
