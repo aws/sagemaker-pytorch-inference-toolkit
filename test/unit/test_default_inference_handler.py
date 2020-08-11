@@ -166,6 +166,13 @@ def test_default_output_fn_csv_float(inference_handler):
     assert '1.0,2.0,3.0\n4.0,5.0,6.0\n'.encode("utf-8") == output
 
 
+def test_default_output_fn_multiple_content_types(inference_handler, tensor):
+    accept = ", ".join(["application/unsupported", content_types.JSON, content_types.CSV])
+    output = inference_handler.default_output_fn(tensor, accept)
+
+    assert json.dumps(tensor.cpu().numpy().tolist()) == output
+
+
 def test_default_output_fn_bad_accept(inference_handler):
     with pytest.raises(errors.UnsupportedFormatError):
         inference_handler.default_output_fn("", "application/not_supported")
