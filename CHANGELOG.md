@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.0.3 (2020-08-24)
+
+### Bug Fixes and Other Changes
+
+ * Add MMS Config for TS
+
 ## v2.0.2 (2020-08-12)
 
 ### Bug Fixes and Other Changes
