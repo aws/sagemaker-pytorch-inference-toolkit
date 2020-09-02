@@ -150,7 +150,8 @@ def test_adapt_to_ts_format(path_exists, make_dir, subprocess_check_call, set_py
         "--export-path",
         torchserve.DEFAULT_TS_MODEL_DIRECTORY,
         "--extra-files",
-        os.path.join(environment.model_dir, torchserve.DEFAULT_TS_CODE_DIR, environment.Environment().module_name + ".py"),
+        os.path.join(environment.model_dir, \
+                torchserve.DEFAULT_TS_CODE_DIR, environment.Environment().module_name + ".py"),
         "--version",
         "1",
     ]
