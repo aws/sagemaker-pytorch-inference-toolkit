@@ -43,7 +43,7 @@ model_gpu_tar = file_utils.make_tarfile(mnist_gpu_script,
                                         model_gpu_dir)
 
 model_eia_dir = os.path.join(mnist_path, eia_sub_dir)
-mnist_eia_script = os.path.join(model_eia_dir, 'code/mnist.py')
+mnist_eia_script = os.path.join(model_eia_dir, 'mnist.py')
 model_eia_tar = file_utils.make_tarfile(mnist_eia_script,
                                         os.path.join(model_eia_dir, "model.pth"),
                                         model_eia_dir)
