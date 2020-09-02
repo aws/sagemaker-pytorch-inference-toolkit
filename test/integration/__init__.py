@@ -23,24 +23,28 @@ training_dir = os.path.join(data_dir, 'training')
 cpu_sub_dir = 'model_cpu'
 gpu_sub_dir = 'model_gpu'
 eia_sub_dir = 'model_eia'
+code_sub_dir = 'code'
 
 model_cpu_dir = os.path.join(mnist_path, cpu_sub_dir)
-mnist_cpu_script = os.path.join(model_cpu_dir, 'mnist.py')
+mnist_cpu_script = os.path.join(model_cpu_dir, code_sub_dir, 'mnist.py')
 model_cpu_tar = file_utils.make_tarfile(mnist_cpu_script,
                                         os.path.join(model_cpu_dir, "model.pth"),
-                                        model_cpu_dir)
+                                        model_cpu_dir,
+                                        script_path="code")
 
 model_cpu_1d_dir = os.path.join(model_cpu_dir, '1d')
-mnist_1d_script = os.path.join(model_cpu_1d_dir, 'mnist_1d.py')
+mnist_1d_script = os.path.join(model_cpu_1d_dir, code_sub_dir, 'mnist_1d.py')
 model_cpu_1d_tar = file_utils.make_tarfile(mnist_1d_script,
                                            os.path.join(model_cpu_1d_dir, "model.pth"),
-                                           model_cpu_1d_dir)
+                                           model_cpu_1d_dir,
+                                           script_path="code")
 
 model_gpu_dir = os.path.join(mnist_path, gpu_sub_dir)
-mnist_gpu_script = os.path.join(model_gpu_dir, 'mnist.py')
+mnist_gpu_script = os.path.join(model_gpu_dir, code_sub_dir, 'mnist.py')
 model_gpu_tar = file_utils.make_tarfile(mnist_gpu_script,
                                         os.path.join(model_gpu_dir, "model.pth"),
-                                        model_gpu_dir)
+                                        model_gpu_dir,
+                                        script_path="code")
 
 model_eia_dir = os.path.join(mnist_path, eia_sub_dir)
 mnist_eia_script = os.path.join(model_eia_dir, 'mnist.py')
@@ -48,11 +52,12 @@ model_eia_tar = file_utils.make_tarfile(mnist_eia_script,
                                         os.path.join(model_eia_dir, "model.pth"),
                                         model_eia_dir)
 
-call_model_fn_once_script = os.path.join(model_cpu_dir, 'call_model_fn_once.py')
+call_model_fn_once_script = os.path.join(model_cpu_dir, code_sub_dir, 'call_model_fn_once.py')
 call_model_fn_once_tar = file_utils.make_tarfile(call_model_fn_once_script,
                                                  os.path.join(model_cpu_dir, "model.pth"),
                                                  model_cpu_dir,
-                                                 "model_call_model_fn_once.tar.gz")
+                                                 "model_call_model_fn_once.tar.gz",
+                                                 script_path="code")
 
 ROLE = 'dummy/unused-role'
 DEFAULT_TIMEOUT = 20
