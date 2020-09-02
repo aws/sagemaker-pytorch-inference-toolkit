@@ -43,6 +43,7 @@ DEFAULT_TS_LOG_FILE = pkg_resources.resource_filename(
 DEFAULT_TS_MODEL_DIRECTORY = os.path.join(os.getcwd(), ".sagemaker", "ts", "models")
 DEFAULT_TS_MODEL_NAME = "model"
 DEFAULT_TS_MODEL_SERIALIZED_FILE = "model.pth"
+DEFAULT_TS_CODE_DIR = "code"
 DEFAULT_HANDLER_SERVICE = "sagemaker_pytorch_serving_container.handler_service"
 
 ENABLE_MULTI_MODEL = os.getenv("SAGEMAKER_MULTI_MODEL", "false") == "true"
@@ -121,7 +122,7 @@ def _adapt_to_ts_format(handler_service):
         "--export-path",
         DEFAULT_TS_MODEL_DIRECTORY,
         "--extra-files",
-        os.path.join(environment.model_dir, environment.Environment().module_name + ".py"),
+        os.path.join(environment.model_dir, DEFAULT_TS_CODE_DIR, environment.Environment().module_name + ".py"),
         "--version",
         "1",
     ]
