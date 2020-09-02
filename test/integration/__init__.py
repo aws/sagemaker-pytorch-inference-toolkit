@@ -30,21 +30,21 @@ mnist_cpu_script = os.path.join(model_cpu_dir, code_sub_dir, 'mnist.py')
 model_cpu_tar = file_utils.make_tarfile(mnist_cpu_script,
                                         os.path.join(model_cpu_dir, "model.pth"),
                                         model_cpu_dir,
-                                        True)
+                                        preserve_script_path=True)
 
 model_cpu_1d_dir = os.path.join(model_cpu_dir, '1d')
 mnist_1d_script = os.path.join(model_cpu_1d_dir, code_sub_dir, 'mnist_1d.py')
 model_cpu_1d_tar = file_utils.make_tarfile(mnist_1d_script,
                                            os.path.join(model_cpu_1d_dir, "model.pth"),
                                            model_cpu_1d_dir,
-                                           True)
+                                           preserve_script_path=True)
 
 model_gpu_dir = os.path.join(mnist_path, gpu_sub_dir)
 mnist_gpu_script = os.path.join(model_gpu_dir, code_sub_dir, 'mnist.py')
 model_gpu_tar = file_utils.make_tarfile(mnist_gpu_script,
                                         os.path.join(model_gpu_dir, "model.pth"),
                                         model_gpu_dir,
-                                        True)
+                                        preserve_script_path=True)
 
 model_eia_dir = os.path.join(mnist_path, eia_sub_dir)
 mnist_eia_script = os.path.join(model_eia_dir, 'mnist.py')
@@ -57,7 +57,7 @@ call_model_fn_once_tar = file_utils.make_tarfile(call_model_fn_once_script,
                                                  os.path.join(model_cpu_dir, "model.pth"),
                                                  model_cpu_dir,
                                                  "model_call_model_fn_once.tar.gz",
-                                                 True)
+                                                 preserve_script_path=True)
 
 ROLE = 'dummy/unused-role'
 DEFAULT_TIMEOUT = 20
