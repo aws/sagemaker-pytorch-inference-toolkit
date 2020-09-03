@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.0.4 (2020-09-03)
+
+### Bug Fixes and Other Changes
+
+ * construct correct code path and correctly tar up contents
+
 ## v2.0.3 (2020-08-24)
 
 ### Bug Fixes and Other Changes
