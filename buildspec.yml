@@ -3,7 +3,7 @@ version: 0.2
 env:
   variables:
     FRAMEWORK_VERSION: '1.6.0'
-    EIA_FRAMEWORK_VERSION: '1.3.1'
+    EIA_FRAMEWORK_VERSION: '1.5.1'
     CPU_INSTANCE_TYPE: 'ml.c4.xlarge'
     GPU_INSTANCE_TYPE: 'ml.p2.8xlarge'
     EIA_ACCELERATOR_TYPE: 'ml.eia2.medium'

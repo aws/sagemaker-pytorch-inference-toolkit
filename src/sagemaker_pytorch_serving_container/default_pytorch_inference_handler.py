@@ -28,6 +28,7 @@ from sagemaker_inference import (
 INFERENCE_ACCELERATOR_PRESENT_ENV = "SAGEMAKER_INFERENCE_ACCELERATOR_PRESENT"
 DEFAULT_MODEL_FILENAME = "model.pt"
 
+VERSIONS_USE_NEW_API = ["1.5.1"]
 
 class DefaultPytorchInferenceHandler(default_inference_handler.DefaultInferenceHandler):
     VALID_CONTENT_TYPES = (content_types.JSON, content_types.NPY)
@@ -86,8 +87,15 @@ class DefaultPytorchInferenceHandler(default_inference_handler.DefaultInferenceH
                 model = model.to(device)
                 input_data = data.to(device)
                 model.eval()
-                with torch.jit.optimized_execution(True, {"target_device": "eia:0"}):
-                    output = model(input_data)
+                if torch.__version__ in VERSIONS_USE_NEW_API:
+                    import torcheia
+                    torch._C._jit_set_profiling_executor(False)
+                    model = torcheia.jit.attach_eia(model, 0)
+                    with torch.jit.optimized_execution(True):
+                        return model.forward(input_data)
+                else:
+                    with torch.jit.optimized_execution(True, {"target_device": "eia:0"}):
+                        output = model(input_data)
             else:
                 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
                 model = model.to(device)
