@@ -30,6 +30,7 @@ DEFAULT_MODEL_FILENAME = "model.pt"
 
 VERSIONS_USE_NEW_API = ["1.5.1"]
 
+
 class DefaultPytorchInferenceHandler(default_inference_handler.DefaultInferenceHandler):
     VALID_CONTENT_TYPES = (content_types.JSON, content_types.NPY)
 
