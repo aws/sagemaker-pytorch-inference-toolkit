@@ -31,6 +31,7 @@ def predict_fn(input_data, model):
     input_data = input_data.to(device)
     model = model.eval() 
     with torch.no_grad():
+        print("current torch version is: ", torch.__version__)
         if torch.__version__ in VERSIONS_USE_NEW_API:
             import torcheia
             # we need to set the profiling executor for EIA

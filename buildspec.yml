@@ -89,9 +89,9 @@ phases:
       - execute-command-if-has-matching-changes "$test_cmd" "test/" "src/*.py" "setup.py" "setup.cfg" "buildspec-toolkit.yml" "artifacts/*"
 
     finally:
-      # # shut down remote GPU instance
-      # - cleanup-gpu-instances
-      # - cleanup-key-pairs
+      # shut down remote GPU instance
+      - cleanup-gpu-instances
+      - cleanup-key-pairs
 
       # # remove ECR image
       # - aws ecr batch-delete-image --repository-name $ECR_REPO --region $AWS_DEFAULT_REGION --image-ids imageTag=$GENERIC_TAG
