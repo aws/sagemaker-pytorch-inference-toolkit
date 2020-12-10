@@ -86,6 +86,7 @@ class DefaultPytorchInferenceHandler(default_inference_handler.DefaultInferenceH
                 model = model.to(device)
                 input_data = data.to(device)
                 model.eval()
+                print("torch version is: ", torch.__version__)
                 with torch.jit.optimized_execution(True, {"target_device": "eia:0"}):
                     output = model(input_data)
             else:

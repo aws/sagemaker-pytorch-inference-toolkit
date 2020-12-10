@@ -29,6 +29,7 @@ def predict_fn(input_data, model):
     mdoel = model.to(device)
     input_data = input_data.to(device)
     with torch.no_grad():
+        print("torch version is: ", torch.__version__)
         # Set the target device to the accelerator ordinal
         with torch.jit.optimized_execution(True, {'target_device': 'eia:0'}):
             return model(input_data)
