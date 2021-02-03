@@ -53,7 +53,6 @@ class DefaultPytorchInferenceHandler(default_inference_handler.DefaultInferenceH
             model = torch.jit.load(model_path, map_location=torch.device('cpu'))
             model.eval()
             model = model.to(torch.device('cpu'))
-
             # attach_eia() is introduced in PyTorch Elastic Inference 1.5.1
             if torch.__version__ != '1.3.1':
                 import torcheia
@@ -97,6 +96,7 @@ class DefaultPytorchInferenceHandler(default_inference_handler.DefaultInferenceH
                 device = torch.device("cpu")
                 input_data = data.to(device)
 
+                print(torch.))
                 if torch.__version__ == '1.3.1':
                     with torch.jit.optimized_execution(True, {"target_device": "eia:0"}):
                         output = model(input_data)
