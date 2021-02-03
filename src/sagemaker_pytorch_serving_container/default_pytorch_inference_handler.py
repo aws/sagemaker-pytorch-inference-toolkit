@@ -31,6 +31,7 @@ DEFAULT_MODEL_FILENAME = "model.pt"
 if os.getenv(INFERENCE_ACCELERATOR_PRESENT_ENV) == "true" and torch.__version__ != '1.3.1':
     torch._C._jit_set_profiling_executor(False)
 
+
 class DefaultPytorchInferenceHandler(default_inference_handler.DefaultInferenceHandler):
     VALID_CONTENT_TYPES = (content_types.JSON, content_types.NPY)
 
@@ -51,7 +52,7 @@ class DefaultPytorchInferenceHandler(default_inference_handler.DefaultInferenceH
             # Client-framework is CPU only. But model will run in Elastic Inference server with CUDA.
             model = torch.jit.load(model_path, map_location=torch.device('cpu'))
             model.eval()
-            model = model.to(device)
+            model = model.to(torch.device('cpu'))
 
             # attach_eia() is introduced in PyTorch Elastic Inference 1.5.1
             if torch.__version__ != '1.3.1':
