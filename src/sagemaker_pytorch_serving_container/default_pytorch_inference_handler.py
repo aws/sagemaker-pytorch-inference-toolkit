@@ -28,9 +28,8 @@ from sagemaker_inference import (
 INFERENCE_ACCELERATOR_PRESENT_ENV = "SAGEMAKER_INFERENCE_ACCELERATOR_PRESENT"
 DEFAULT_MODEL_FILENAME = "model.pt"
 
-torch._C._jit_set_profiling_executor(False) if
-    os.getenv(INFERENCE_ACCELERATOR_PRESENT_ENV) == "true" and
-    torch.__version__ != '1.3.1'
+if os.getenv(INFERENCE_ACCELERATOR_PRESENT_ENV) == "true" and torch.__version__ != '1.3.1':
+    torch._C._jit_set_profiling_executor(False)
 
 class DefaultPytorchInferenceHandler(default_inference_handler.DefaultInferenceHandler):
     VALID_CONTENT_TYPES = (content_types.JSON, content_types.NPY)
