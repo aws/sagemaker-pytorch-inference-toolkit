@@ -28,6 +28,9 @@ from sagemaker_inference import (
 INFERENCE_ACCELERATOR_PRESENT_ENV = "SAGEMAKER_INFERENCE_ACCELERATOR_PRESENT"
 DEFAULT_MODEL_FILENAME = "model.pt"
 
+torch._C._jit_set_profiling_executor(False) if
+    os.getenv(INFERENCE_ACCELERATOR_PRESENT_ENV) == "true" and
+    torch.__version__ != '1.3.1'
 
 class DefaultPytorchInferenceHandler(default_inference_handler.DefaultInferenceHandler):
     VALID_CONTENT_TYPES = (content_types.JSON, content_types.NPY)
@@ -47,7 +50,16 @@ class DefaultPytorchInferenceHandler(default_inference_handler.DefaultInferenceH
                 raise FileNotFoundError("Failed to load model with default model_fn: missing file {}."
                                         .format(DEFAULT_MODEL_FILENAME))
             # Client-framework is CPU only. But model will run in Elastic Inference server with CUDA.
-            return torch.jit.load(model_path, map_location=torch.device('cpu'))
+            model = torch.jit.load(model_path, map_location=torch.device('cpu'))
+            model.eval()
+            model = model.to(device)
+
+            # attach_eia() is introduced in PyTorch Elastic Inference 1.5.1
+            if torch.__version__ != '1.3.1':
+                import torcheia
+                model = torcheia.jit.attach_eia(model, 0)
+
+            return model
         else:
             raise NotImplementedError(textwrap.dedent("""
             Please provide a model_fn implementation.
@@ -83,11 +95,14 @@ class DefaultPytorchInferenceHandler(default_inference_handler.DefaultInferenceH
         with torch.no_grad():
             if os.getenv(INFERENCE_ACCELERATOR_PRESENT_ENV) == "true":
                 device = torch.device("cpu")
-                model = model.to(device)
                 input_data = data.to(device)
-                model.eval()
-                with torch.jit.optimized_execution(True, {"target_device": "eia:0"}):
-                    output = model(input_data)
+
+                if torch.__version__ == '1.3.1':
+                    with torch.jit.optimized_execution(True, {"target_device": "eia:0"}):
+                        output = model(input_data)
+                else:
+                    with torch.jit.optimized_execution(True):
+                        output = model.forward(input_data)
             else:
                 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
                 model = model.to(device)
