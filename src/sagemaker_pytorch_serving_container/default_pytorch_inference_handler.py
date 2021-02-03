@@ -96,7 +96,8 @@ class DefaultPytorchInferenceHandler(default_inference_handler.DefaultInferenceH
                 device = torch.device("cpu")
                 input_data = data.to(device)
 
-                print(torch.))
+                print('PRINT VERSION')
+                print(torch.__version__)
                 if torch.__version__ == '1.3.1':
                     with torch.jit.optimized_execution(True, {"target_device": "eia:0"}):
                         output = model(input_data)
