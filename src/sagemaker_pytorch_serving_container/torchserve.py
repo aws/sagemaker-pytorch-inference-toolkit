@@ -114,10 +114,8 @@ def _adapt_to_ts_format(handler_service):
     extra_files = []
     extra_files.append(os.path.join(environment.model_dir, DEFAULT_TS_CODE_DIR, environment.Environment().module_name + ".py"))
     extra_files+= [os.path.join(environment.model_dir, file) for file
-                                        in os.listdir(environment.model_dir)
-                                        if os.path.isfile(os.path.join(environment.model_dir, file))]
-    extra_files.remove(os.path.join(environment.model_dir, DEFAULT_TS_MODEL_SERIALIZED_FILE))
-    logger.info(extra_files)
+                                    in os.listdir(environment.model_dir)
+                                    if os.path.isfile(os.path.join(environment.model_dir, file)) and file != DEFAULT_TS_MODEL_SERIALIZED_FILE ]
     
     model_archiver_cmd = [
         "torch-model-archiver",
