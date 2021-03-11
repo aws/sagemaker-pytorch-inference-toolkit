@@ -38,7 +38,7 @@ RUN useradd -m model-server \
 COPY artifacts/ts-entrypoint.py /usr/local/bin/dockerd-entrypoint.py
 COPY artifacts/config.properties /home/model-server
 
-RUN apt-get install -y git
+RUN apt-get update && apt-get install -y git
 RUN cd /tmp/ && git clone https://github.com/pytorch/serve/ && cd serve/model-archiver/ && git checkout patch_release_0_3_1 && pip install . && cd -
 
 RUN chmod +x /usr/local/bin/dockerd-entrypoint.py

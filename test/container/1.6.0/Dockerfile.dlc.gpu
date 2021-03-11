@@ -1,7 +1,7 @@
 ARG region
 FROM 763104351884.dkr.ecr.$region.amazonaws.com/pytorch-inference:1.6.0-gpu-py3
 
-RUN apt-get install -y git
+RUN apt-get update && apt-get install -y git
 
 RUN cd /tmp/ && git clone https://github.com/pytorch/serve/ && cd serve/model-archiver/ && git checkout patch_release_0_3_1 && pip install . && cd -
 
