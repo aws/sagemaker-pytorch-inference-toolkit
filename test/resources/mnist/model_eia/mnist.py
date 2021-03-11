@@ -38,11 +38,11 @@ def model_fn(model_dir):
     logger.info('model_fn: Loading model with TorchScript from {}'.format(model_dir))
     # Scripted model is serialized with torch.jit.save().
     # No need to instantiate model definition then load state_dict
-    model = torch.jit.load('model.pth')
+    model = torch.jit.load('torch_model.pth')
     return model
 
 
 def save_model(model, model_dir):
     logger.info("Saving the model to {}.".format(model_dir))
-    path = os.path.join(model_dir, 'model.pth')
+    path = os.path.join(model_dir, 'torch_model.pth')
     torch.jit.save(model, path)

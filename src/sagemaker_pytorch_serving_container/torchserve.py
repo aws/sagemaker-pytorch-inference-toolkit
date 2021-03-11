@@ -42,7 +42,6 @@ DEFAULT_TS_LOG_FILE = pkg_resources.resource_filename(
 )
 DEFAULT_TS_MODEL_DIRECTORY = os.path.join(os.getcwd(), ".sagemaker", "ts", "models")
 DEFAULT_TS_MODEL_NAME = "model"
-DEFAULT_TS_MODEL_SERIALIZED_FILE = "model.pth"
 DEFAULT_TS_CODE_DIR = "code"
 DEFAULT_HANDLER_SERVICE = "sagemaker_pytorch_serving_container.handler_service"
 
@@ -117,12 +116,8 @@ def _adapt_to_ts_format(handler_service):
         DEFAULT_TS_MODEL_NAME,
         "--handler",
         handler_service,
-        "--serialized-file",
-        os.path.join(environment.model_dir, DEFAULT_TS_MODEL_SERIALIZED_FILE),
         "--export-path",
         DEFAULT_TS_MODEL_DIRECTORY,
-        "--extra-files",
-        os.path.join(environment.model_dir, DEFAULT_TS_CODE_DIR, environment.Environment().module_name + ".py"),
         "--version",
         "1",
     ]
