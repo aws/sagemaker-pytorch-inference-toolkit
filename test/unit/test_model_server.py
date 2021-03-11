@@ -149,6 +149,8 @@ def test_adapt_to_ts_format(path_exists, make_dir, subprocess_check_call, set_py
         torchserve.DEFAULT_TS_MODEL_DIRECTORY,
         "--version",
         "1",
+        "--extra-files",
+        environment.model_dir
     ]
 
     subprocess_check_call.assert_called_once_with(model_archiver_cmd)
