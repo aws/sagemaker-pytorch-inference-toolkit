@@ -120,6 +120,8 @@ def _adapt_to_ts_format(handler_service):
         DEFAULT_TS_MODEL_DIRECTORY,
         "--version",
         "1",
+        "--extra-files",
+        os.path.join(environment.model_dir)
     ]
 
     logger.info(model_archiver_cmd)
