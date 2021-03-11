@@ -35,6 +35,7 @@ class HandlerService(DefaultHandlerService):
     Based on: https://github.com/awslabs/mxnet-model-server/blob/master/docs/custom_service.md
 
     """
+    
     def __init__(self):
         self._initialized = False
 
