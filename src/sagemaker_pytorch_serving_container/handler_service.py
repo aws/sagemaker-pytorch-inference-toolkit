@@ -32,7 +32,7 @@ class HandlerService(DefaultHandlerService):
         - The ``handle`` method is invoked for all incoming inference requests to the model server.
         - The ``initialize`` method is invoked at model server start up.
 
-    Based on: https://github.com/awslabs/mxnet-model-server/blob/master/docs/custom_service.md
+    Based on: https://github.com/awslabs/mxnet-model-server/blob/master/docs/custom_service.mdd
 
     """
     def __init__(self):
