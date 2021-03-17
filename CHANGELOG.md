@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.0.5 (2021-03-17)
+
+### Bug Fixes and Other Changes
+
+ * Update TS Archiver to v0.3.1 / Integ tests
+
 ## v2.0.4 (2020-09-03)
 
 ### Bug Fixes and Other Changes
