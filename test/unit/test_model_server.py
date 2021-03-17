@@ -145,16 +145,12 @@ def test_adapt_to_ts_format(path_exists, make_dir, subprocess_check_call, set_py
         torchserve.DEFAULT_TS_MODEL_NAME,
         "--handler",
         handler_service,
-        "--serialized-file",
-        os.path.join(environment.model_dir, torchserve.DEFAULT_TS_MODEL_SERIALIZED_FILE),
         "--export-path",
         torchserve.DEFAULT_TS_MODEL_DIRECTORY,
-        "--extra-files",
-        os.path.join(environment.model_dir,
-                     torchserve.DEFAULT_TS_CODE_DIR,
-                     environment.Environment().module_name + ".py"),
         "--version",
         "1",
+        "--extra-files",
+        environment.model_dir
     ]
 
     subprocess_check_call.assert_called_once_with(model_archiver_cmd)
