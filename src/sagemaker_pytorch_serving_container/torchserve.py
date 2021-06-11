@@ -82,10 +82,13 @@ def start_torchserve(handler_service=DEFAULT_HANDLER_SERVICE):
     if os.path.exists(REQUIREMENTS_PATH):
         _install_requirements()
 
+    print(f"Checking {LOG4J_OVERRIDE_PATH}")
     if os.path.exists(LOG4J_OVERRIDE_PATH):
         log4j_path = LOG4J_OVERRIDE_PATH
+        print("Exists!")
     else:
         log4j_path = DEFAULT_TS_LOG_FILE
+        print("Doesn't exist :-(")
 
     ts_torchserve_cmd = [
         "torchserve",
