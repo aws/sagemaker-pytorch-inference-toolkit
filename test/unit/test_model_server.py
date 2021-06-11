@@ -21,7 +21,9 @@ import pytest
 
 from sagemaker_inference import environment
 from sagemaker_pytorch_serving_container import torchserve
-from sagemaker_pytorch_serving_container.torchserve import TS_NAMESPACE, REQUIREMENTS_PATH
+from sagemaker_pytorch_serving_container.torchserve import (
+    TS_NAMESPACE, REQUIREMENTS_PATH, LOG4J_OVERRIDE_PATH
+)
 
 PYTHON_PATH = "python_path"
 DEFAULT_CONFIGURATION = "default_configuration"
@@ -49,7 +51,8 @@ def test_start_torchserve_default_service_handler(
 
     adapt.assert_called_once_with(torchserve.DEFAULT_HANDLER_SERVICE)
     create_config.assert_called_once_with()
-    exists.assert_called_once_with(REQUIREMENTS_PATH)
+    exists.assert_any_call(REQUIREMENTS_PATH)
+    exists.assert_any_call(LOG4J_OVERRIDE_PATH)
     install_requirements.assert_called_once_with()
 
     ts_model_server_cmd = [
@@ -91,7 +94,8 @@ def test_start_torchserve_default_service_handler_multi_model(
     torchserve.start_torchserve()
     torchserve.ENABLE_MULTI_MODEL = False
     create_config.assert_called_once_with()
-    exists.assert_called_once_with(REQUIREMENTS_PATH)
+    exists.assert_any_call(REQUIREMENTS_PATH)
+    exists.assert_any_call(LOG4J_OVERRIDE_PATH)
     install_requirements.assert_called_once_with()
 
     ts_model_server_cmd = [
