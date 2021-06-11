@@ -34,7 +34,7 @@ DEFAULT_CONFIGURATION = "default_configuration"
 @patch("sagemaker_pytorch_serving_container.torchserve._retrieve_ts_server_process")
 @patch("sagemaker_pytorch_serving_container.torchserve._add_sigterm_handler")
 @patch("sagemaker_pytorch_serving_container.torchserve._install_requirements")
-@patch("os.path.exists", return_value=True)
+@patch("os.path.exists", side_effect=[True, False])
 @patch("sagemaker_pytorch_serving_container.torchserve._create_torchserve_config_file")
 @patch("sagemaker_pytorch_serving_container.torchserve._adapt_to_ts_format")
 def test_start_torchserve_default_service_handler(
@@ -77,7 +77,7 @@ def test_start_torchserve_default_service_handler(
 @patch("sagemaker_pytorch_serving_container.torchserve._retrieve_ts_server_process")
 @patch("sagemaker_pytorch_serving_container.torchserve._add_sigterm_handler")
 @patch("sagemaker_pytorch_serving_container.torchserve._install_requirements")
-@patch("os.path.exists", return_value=True)
+@patch("os.path.exists", side_effect=[True, False])
 @patch("sagemaker_pytorch_serving_container.torchserve._create_torchserve_config_file")
 @patch("sagemaker_pytorch_serving_container.torchserve._adapt_to_ts_format")
 def test_start_torchserve_default_service_handler_multi_model(
