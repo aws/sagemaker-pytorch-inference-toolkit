@@ -50,6 +50,7 @@ MODEL_STORE = "/" if ENABLE_MULTI_MODEL else DEFAULT_TS_MODEL_DIRECTORY
 
 PYTHON_PATH_ENV = "PYTHONPATH"
 REQUIREMENTS_PATH = os.path.join(code_dir, "requirements.txt")
+LOG4J_OVERRIDE_PATH = os.path.join(code_dir, "log4j.properties")
 TS_NAMESPACE = "org.pytorch.serve.ModelServer"
 
 
@@ -81,6 +82,11 @@ def start_torchserve(handler_service=DEFAULT_HANDLER_SERVICE):
     if os.path.exists(REQUIREMENTS_PATH):
         _install_requirements()
 
+    if os.path.exists(LOG4J_OVERRIDE_PATH):
+        log4j_path = LOG4J_OVERRIDE_PATH
+    else:
+        log4j_path = DEFAULT_TS_LOG_FILE
+
     ts_torchserve_cmd = [
         "torchserve",
         "--start",
@@ -89,7 +95,7 @@ def start_torchserve(handler_service=DEFAULT_HANDLER_SERVICE):
         "--ts-config",
         TS_CONFIG_FILE,
         "--log-config",
-        DEFAULT_TS_LOG_FILE,
+        log4j_path,
         "--models",
         "model.mar"
     ]
