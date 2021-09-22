@@ -151,7 +151,15 @@ def _create_torchserve_config_file():
 
 def _generate_ts_config_properties():
     env = environment.Environment()
+    user_defined_configuration = {
+        "default_response_timeout": env.model_server_timeout,
+        "default_workers_per_model": env.model_server_workers,
+        "inference_address": "http://0.0.0.0:{}".format(env.inference_http_port),
+        "management_address": "http://0.0.0.0:{}".format(env.management_http_port),
+    }
+
     ts_env = ts_environment.TorchServeEnvironment()
+
     models = {
         DEFAULT_TS_MODEL_NAME: {
             "1.0": {
@@ -166,13 +174,8 @@ def _generate_ts_config_properties():
         }
     }
 
-    user_defined_configuration = {
-        "models": json.dumps(models),
-        "default_response_timeout": env.model_server_timeout,
-        "default_workers_per_model": env.model_server_workers,
-        "inference_address": "http://0.0.0.0:{}".format(env.inference_http_port),
-        "management_address": "http://0.0.0.0:{}".format(env.management_http_port),
-    }
+    if ts_env.is_env_set():
+        user_defined_configuration["models"] = json.dumps(models)
 
     custom_configuration = str()
 

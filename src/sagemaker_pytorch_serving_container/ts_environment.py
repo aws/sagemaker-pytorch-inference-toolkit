@@ -45,11 +45,20 @@ class TorchServeEnvironment():
     """
     def __init__(self):
         self._batch_size = int(os.environ.get(ts_parameters.MODEL_SERVER_BATCH_SIZE, DEFAULT_TS_BATCH_SIZE))
-        self._max_batch_delay = int(os.environ.get(ts_parameters.MODEL_SERVER_MAX_BATCH_DELAY, DEFAULT_TS_MAX_BATCH_DELAY))
+        self._max_batch_delay = int(os.environ.get(ts_parameters.MODEL_SERVER_MAX_BATCH_DELAY,
+                                    DEFAULT_TS_MAX_BATCH_DELAY))
         self._min_workers = int(os.environ.get(ts_parameters.MODEL_SERVER_MIN_WORKERS, DEFAULT_TS_MIN_WORKERS))
         self._max_workers = int(os.environ.get(ts_parameters.MODEL_SERVER_MAX_WORKERS, DEFAULT_TS_MAX_WORKERS))
         self._response_timeout = int(os.environ.get(ts_parameters.MODEL_SERVER_RESPONSE_TIMEOUT,
-                                                DEFAULT_TS_RESPONSE_TIMEOUT))
+                                                    DEFAULT_TS_RESPONSE_TIMEOUT))
+
+    def is_env_set(self):  # type: () -> bool
+        """bool: whether or not the environment variables have been set"""
+        ts_env_list = [ts_parameters.MODEL_SERVER_BATCH_SIZE, ts_parameters.MODEL_SERVER_MAX_BATCH_DELAY,
+                       ts_parameters.MODEL_SERVER_MIN_WORKERS, ts_parameters.MODEL_SERVER_MAX_WORKERS,
+                       ts_parameters.MODEL_SERVER_RESPONSE_TIMEOUT]
+        if any(env in ts_env_list for env in os.environ):
+            return True
 
     @property
     def batch_size(self):  # type: () -> int
