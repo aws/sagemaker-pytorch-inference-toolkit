@@ -175,6 +175,7 @@ def _generate_ts_config_properties():
             }
         }
         user_defined_configuration["models"] = json.dumps(models)
+        user_defined_configuration["load_models"] = f"{DEFAULT_TS_MODEL_NAME}.mar"
 
     custom_configuration = str()
 
