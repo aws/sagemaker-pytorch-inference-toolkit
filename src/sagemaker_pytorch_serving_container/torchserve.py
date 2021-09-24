@@ -164,7 +164,7 @@ def _generate_ts_config_properties():
         models = {
             DEFAULT_TS_MODEL_NAME: {
                 "1.0": {
-                    "defaultVersion": "true",
+                    "defaultVersion": True,
                     "marName": f"{DEFAULT_TS_MODEL_NAME}.mar",
                     "minWorkers": ts_env._min_workers,
                     "maxWorkers": ts_env._max_workers,
