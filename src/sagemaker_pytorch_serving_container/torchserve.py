@@ -174,8 +174,8 @@ def _generate_ts_config_properties():
         }
     }
 
-    if ts_env.is_env_set():
-        user_defined_configuration["models"] = json.dumps(models)
+    # if ts_env.is_env_set():
+    #    user_defined_configuration["models"] = json.dumps(models)
 
     custom_configuration = str()
 
