@@ -160,22 +160,21 @@ def _generate_ts_config_properties():
 
     ts_env = ts_environment.TorchServeEnvironment()
 
-    models = {
-        DEFAULT_TS_MODEL_NAME: {
-            "1.0": {
-                "defaultVersion": "true",
-                "marName": f"{DEFAULT_TS_MODEL_NAME}.mar",
-                "minWorkers": ts_env._min_workers,
-                "maxWorkers": ts_env._max_workers,
-                "batchSize": ts_env._batch_size,
-                "maxBatchDelay": ts_env._max_batch_delay,
-                "responseTimeout": ts_env._response_timeout
+    if ts_env.is_env_set():
+        models = {
+            DEFAULT_TS_MODEL_NAME: {
+                "1.0": {
+                    "defaultVersion": "true",
+                    "marName": f"{DEFAULT_TS_MODEL_NAME}.mar",
+                    "minWorkers": str(ts_env._min_workers),
+                    "maxWorkers": str(ts_env._max_workers),
+                    "batchSize": str(ts_env._batch_size),
+                    "maxBatchDelay": str(ts_env._max_batch_delay),
+                    "responseTimeout": str(ts_env._response_timeout)
+                }
             }
         }
-    }
-
-    # if ts_env.is_env_set():
-    #    user_defined_configuration["models"] = json.dumps(models)
+        user_defined_configuration["models"] = json.dumps(models)
 
     custom_configuration = str()
 
