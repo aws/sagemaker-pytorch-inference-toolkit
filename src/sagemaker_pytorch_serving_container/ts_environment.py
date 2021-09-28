@@ -27,7 +27,7 @@ DEFAULT_TS_BATCH_SIZE = 1
 DEFAULT_TS_MAX_BATCH_DELAY = 100
 DEFAULT_TS_MIN_WORKERS = 1
 DEFAULT_TS_MAX_WORKERS = 1
-DEFAULT_TS_RESPONSE_TIMEOUT = 120
+DEFAULT_TS_RESPONSE_TIMEOUT = 60
 
 
 class TorchServeEnvironment():
@@ -42,6 +42,9 @@ class TorchServeEnvironment():
         max_batch_delay (int): This is the maximum batch delay time TorchServe waits to receive
         batch_size number of requests. If TorchServe doesn’t receive batch_size number of requests
         before this timer time’s out, it sends what ever requests that were received to the model handler
+        min_workers (int): Minimum number of workers that torchserve is allowed to scale down to.
+        max_workers (int): Minimum number of workers that torchserve is allowed to scale up to.
+        response_timeout (int): Time delay after which inference will timeout in absence of a response 
     """
     def __init__(self):
         self._batch_size = int(os.environ.get(ts_parameters.MODEL_SERVER_BATCH_SIZE, DEFAULT_TS_BATCH_SIZE))
