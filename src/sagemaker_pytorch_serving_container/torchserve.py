@@ -172,9 +172,9 @@ def _generate_ts_config_properties():
                 "batchSize": {ts_env._batch_size},\\
                 "maxBatchDelay": {ts_env._max_batch_delay},\\
                 "responseTimeout": {ts_env._response_timeout}\\
+                }}\\
             }}\\
-        }}\\
-    }}'''
+        }}'''
         user_defined_configuration["models"] = models_string
         logger.warn("Sagemaker TS environment variables have been set and will be used "
                     "for single model endpoint.")
