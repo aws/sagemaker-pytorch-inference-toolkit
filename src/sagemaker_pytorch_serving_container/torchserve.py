@@ -162,19 +162,19 @@ def _generate_ts_config_properties():
     ts_env = ts_environment.TorchServeEnvironment()
 
     if ts_env.is_env_set() and not ENABLE_MULTI_MODEL:
-        models_string = f'''{{\\\n'
-        '{DEFAULT_TS_MODEL_NAME}: {{\\\n'
-        '"1.0": {{\\\n'
-        '"defaultVersion": True,\\\n'
-        '"marName": {DEFAULT_TS_MODEL_NAME}.mar,\\\n'
-        '"minWorkers": ts_env._min_workers,\\\n'
-        '"maxWorkers": ts_env._max_workers,\\\n'
-        '"batchSize": ts_env._batch_size,\\\n'
-        '"maxBatchDelay": ts_env._max_batch_delay,\\\n'
-        '"responseTimeout": ts_env._response_timeout,\\\n'
-        '}}\\\n'
-        '}}\\\n'
-        '}}'''
+        models_string = f'''{{\\\n
+        {DEFAULT_TS_MODEL_NAME}: {{\\\n
+            "1.0": {{\\\n
+                "defaultVersion": True,\\\n
+                "marName": {DEFAULT_TS_MODEL_NAME}.mar,\\\n
+                "minWorkers": ts_env._min_workers,\\\n
+                "maxWorkers": ts_env._max_workers,\\\n
+                "batchSize": ts_env._batch_size,\\\n
+                "maxBatchDelay": ts_env._max_batch_delay,\\\n
+                "responseTimeout": ts_env._response_timeout,\\\n
+            }}\\\n
+        }}\\\n
+    }}'''
         user_defined_configuration["models"] = models_string
         logger.warn("Sagemaker TS environment variables have been set and will be used "
                     "for single model endpoint.")
