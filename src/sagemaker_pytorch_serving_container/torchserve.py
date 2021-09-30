@@ -175,8 +175,8 @@ def _generate_ts_config_properties():
             }
         }
         user_defined_configuration["models"] = json.dumps(models)
-        logger.warn("Sagemaker TS environment variables have been set and will be used \
-                    for single model endpoint.")
+        logger.warn("Sagemaker TS environment variables have been set and will be used "
+                    "for single model endpoint.")
 
     custom_configuration = str()
 
