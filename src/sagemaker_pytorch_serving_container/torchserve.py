@@ -163,15 +163,15 @@ def _generate_ts_config_properties():
 
     if ts_env.is_env_set() and not ENABLE_MULTI_MODEL:
         models_string = f'''{{\\\n
-        {DEFAULT_TS_MODEL_NAME}: {{\\\n
+        "{DEFAULT_TS_MODEL_NAME}": {{\\\n
             "1.0": {{\\\n
-                "defaultVersion": True,\\\n
+                "defaultVersion": true,\\\n
                 "marName": {DEFAULT_TS_MODEL_NAME}.mar,\\\n
-                "minWorkers": ts_env._min_workers,\\\n
-                "maxWorkers": ts_env._max_workers,\\\n
-                "batchSize": ts_env._batch_size,\\\n
-                "maxBatchDelay": ts_env._max_batch_delay,\\\n
-                "responseTimeout": ts_env._response_timeout,\\\n
+                "minWorkers": {ts_env._min_workers},\\\n
+                "maxWorkers": {ts_env._max_workers},\\\n
+                "batchSize": {ts_env._batch_size},\\\n
+                "maxBatchDelay": {ts_env._max_batch_delay},\\\n
+                "responseTimeout": {ts_env._response_timeout},\\\n
             }}\\\n
         }}\\\n
     }}'''
