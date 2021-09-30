@@ -145,6 +145,8 @@ def _set_python_path():
 def _create_torchserve_config_file():
     configuration_properties = _generate_ts_config_properties()
 
+    logger.warn(f"Complete configuration:\n {configuration_properties}")
+
     utils.write_file(TS_CONFIG_FILE, configuration_properties)
 
 
