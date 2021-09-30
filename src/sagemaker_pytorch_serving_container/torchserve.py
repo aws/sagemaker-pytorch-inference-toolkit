@@ -160,7 +160,7 @@ def _generate_ts_config_properties():
 
     ts_env = ts_environment.TorchServeEnvironment()
 
-    if ts_env.is_env_set():
+    if ts_env.is_env_set() and not ENABLE_MULTI_MODEL:
         models = {
             DEFAULT_TS_MODEL_NAME: {
                 "1.0": {
@@ -175,7 +175,8 @@ def _generate_ts_config_properties():
             }
         }
         user_defined_configuration["models"] = json.dumps(models)
-        user_defined_configuration["load_models"] = f"{DEFAULT_TS_MODEL_NAME}.mar"
+        logger.warn("Sagemaker TS environment variables have been set and will be used \
+                    for single model endpoint.")
 
     custom_configuration = str()
 
