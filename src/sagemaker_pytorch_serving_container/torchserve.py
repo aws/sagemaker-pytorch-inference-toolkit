@@ -24,6 +24,7 @@ import logging
 from retrying import retry
 
 import sagemaker_pytorch_serving_container
+from sagemaker_pytorch_serving_container import ts_environment
 from sagemaker_inference import default_handler_service, environment, utils
 from sagemaker_inference.environment import code_dir
 
@@ -149,13 +150,32 @@ def _create_torchserve_config_file():
 
 def _generate_ts_config_properties():
     env = environment.Environment()
-
     user_defined_configuration = {
         "default_response_timeout": env.model_server_timeout,
         "default_workers_per_model": env.model_server_workers,
         "inference_address": "http://0.0.0.0:{}".format(env.inference_http_port),
         "management_address": "http://0.0.0.0:{}".format(env.management_http_port),
     }
+
+    ts_env = ts_environment.TorchServeEnvironment()
+
+    if ts_env.is_env_set() and not ENABLE_MULTI_MODEL:
+        models_string = f'''{{\\
+        "{DEFAULT_TS_MODEL_NAME}": {{\\
+            "1.0": {{\\
+                "defaultVersion": true,\\
+                "marName": "{DEFAULT_TS_MODEL_NAME}.mar",\\
+                "minWorkers": {ts_env._min_workers},\\
+                "maxWorkers": {ts_env._max_workers},\\
+                "batchSize": {ts_env._batch_size},\\
+                "maxBatchDelay": {ts_env._max_batch_delay},\\
+                "responseTimeout": {ts_env._response_timeout}\\
+                }}\\
+            }}\\
+        }}'''
+        user_defined_configuration["models"] = models_string
+        logger.warn("Sagemaker TS environment variables have been set and will be used "
+                    "for single model endpoint.")
 
     custom_configuration = str()
 
