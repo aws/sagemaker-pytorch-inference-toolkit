@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.0.6 (2021-10-04)
+
+### Bug Fixes and Other Changes
+
+ * Env variable support for batch inference
+
 ## v2.0.5 (2021-03-17)
 
 ### Bug Fixes and Other Changes
