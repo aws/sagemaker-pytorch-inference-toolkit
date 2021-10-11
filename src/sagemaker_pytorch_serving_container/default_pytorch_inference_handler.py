@@ -49,10 +49,14 @@ class DefaultPytorchInferenceHandler(default_inference_handler.DefaultInferenceH
             # Client-framework is CPU only. But model will run in Elastic Inference server with CUDA.
             return torch.jit.load(model_path, map_location=torch.device('cpu'))
         else:
-            raise NotImplementedError(textwrap.dedent("""
-            Please provide a model_fn implementation.
-            See documentation for model_fn at https://github.com/aws/sagemaker-python-sdk
-            """))
+            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+            model_path = os.path.join(model_dir, DEFAULT_MODEL_FILENAME)
+            if not os.path.exists(model_path):
+                raise FileNotFoundError("Failed to load model with default model_fn: missing file {}."
+                                        .format(DEFAULT_MODEL_FILENAME))
+            model = torch.jit.load(model_path, map_location=device)
+            model = model.to(device)
+            return model
 
     def default_input_fn(self, input_data, content_type):
         """A default input_fn that can handle JSON, CSV and NPZ formats.
