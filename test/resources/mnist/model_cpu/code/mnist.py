@@ -55,9 +55,3 @@ def model_fn(model_dir):
     with open(os.path.join(model_dir, 'torch_model.pth'), 'rb') as f:
         model.load_state_dict(torch.load(f))
     return model
-
-
-def save_model(model, model_dir):
-    logger.info("Saving the model to {}.".format(model_dir))
-    path = os.path.join(model_dir, 'model.pt')
-    torch.jit.save(model, path)
