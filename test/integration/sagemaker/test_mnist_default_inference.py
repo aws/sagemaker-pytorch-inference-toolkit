@@ -12,8 +12,10 @@
 # language governing permissions and limitations under the License.
 from __future__ import absolute_import
 
+import json
 import numpy as np
 import pytest
+import requests
 import sagemaker
 from sagemaker.pytorch import PyTorchModel
 
@@ -66,6 +68,13 @@ def test_default_inference_eia(sagemaker_session, image_uri, instance_type, acce
 def _test_default_inference(
     sagemaker_session, image_uri, instance_type, model_tar, mnist_script, accelerator_type=None
 ):
+    image_url = (
+        "https://raw.githubusercontent.com/aws/amazon-sagemaker-examples/master/"
+        "sagemaker_neo_compilation_jobs/pytorch_torchvision/cat.jpg"
+    )
+    img_data = requests.get(image_url).content
+    with open('cat.jpg', 'wb') as file_obj:
+        file_obj.write(img_data)
     endpoint_name = sagemaker.utils.unique_name_from_base("sagemaker-pytorch-serving")
 
     model_data = sagemaker_session.upload_data(
@@ -94,8 +103,15 @@ def _test_default_inference(
                 initial_instance_count=1, instance_type=instance_type, endpoint_name=endpoint_name
             )
 
-        batch_size = 100
-        data = np.random.rand(batch_size, 1, 28, 28).astype(np.float32)
-        output = predictor.predict(data)
-
-        assert output.shape == (batch_size, 10)
+        if accelerator_type:
+            batch_size = 100
+            data = np.random.rand(batch_size, 1, 28, 28).astype(np.float32)
+            output = predictor.predict(data)
+            assert output.shape == (batch_size, 10)
+        else:
+            with open("cat.jpg", "rb") as f:
+                payload = f.read()
+                payload = bytearray(payload)
+            response = predictor.predict(payload)
+            result = json.loads(response.decode())
+            assert len(result) == 1000
