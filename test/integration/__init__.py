@@ -62,14 +62,14 @@ call_model_fn_once_tar = file_utils.make_tarfile(call_model_fn_once_script,
                                                  "model_call_model_fn_once.tar.gz",
                                                  script_path="code")
 
-default_model_dir = os.path.join(resnet18_path, code_sub_dir, default_sub_dir)
-default_model_script = os.path.join(default_model_dir, "resnet18.py")
+default_model_dir = os.path.join(resnet18_path, default_sub_dir)
+default_model_script = os.path.join(default_model_dir, code_sub_dir, "resnet18.py")
 default_model_tar = file_utils.make_tarfile(
     default_model_script, os.path.join(default_model_dir, "model.pt"), default_model_dir, script_path="code"
 )
 
-default_model_eia_dir = os.path.join(mnist_path, code_sub_dir, default_sub_eia_dir)
-default_model_eia_script = os.path.join(default_model_eia_dir, "mnist.py")
+default_model_eia_dir = os.path.join(mnist_path, default_sub_eia_dir)
+default_model_eia_script = os.path.join(default_model_eia_dir, code_sub_dir, "mnist.py")
 default_model_eia_tar = file_utils.make_tarfile(
     default_model_eia_script, os.path.join(default_model_eia_dir, "model.pt"), default_model_eia_dir
 )
