@@ -58,8 +58,14 @@ def eia_inference_handler():
 
 
 def test_default_model_fn(inference_handler):
-    with pytest.raises(NotImplementedError):
-        inference_handler.default_model_fn("model_dir")
+    with mock.patch("sagemaker_pytorch_serving_container.default_pytorch_inference_handler.os") as mock_os:
+        mock_os.getenv.return_value = "true"
+        mock_os.path.join.return_value = "model_dir"
+        mock_os.path.exists.return_value = True
+        with mock.patch("torch.jit.load") as mock_torch:
+            mock_torch.return_value = DummyModel()
+            model = inference_handler.default_model_fn("model_dir")
+    assert model is not None
 
 
 def test_default_input_fn_json(inference_handler, tensor):
