@@ -21,12 +21,6 @@ from sagemaker.predictor import RealTimePredictor
 from sagemaker.pytorch import PyTorchModel, PyTorchPredictor
 
 from integration import (
-    model_cpu_tar,
-    model_gpu_tar,
-    mnist_cpu_script,
-    mnist_gpu_script,
-    model_eia_tar,
-    mnist_eia_script,
     default_model_script,
     default_model_tar,
     default_model_eia_script,
