@@ -15,7 +15,7 @@ def transform_fn(model, payload, request_content_type, response_content_type):
 
     logger.info("Invoking user-defined transform function")
 
-    if request_content_type != "application/octet-stream":
+    if request_content_type and request_content_type != "application/octet-stream":
         raise RuntimeError(
             "Content type must be application/octet-stream. Provided: {0}".format(
                 request_content_type

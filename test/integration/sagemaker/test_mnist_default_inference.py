@@ -17,7 +17,8 @@ import numpy as np
 import pytest
 import requests
 import sagemaker
-from sagemaker.pytorch import PyTorchModel
+from sagemaker.predictor import RealTimePredictor
+from sagemaker.pytorch import PyTorchModel, PyTorchPredictor
 
 from integration import (
     model_cpu_tar,
@@ -85,6 +86,7 @@ def _test_default_inference(
     pytorch = PyTorchModel(
         model_data=model_data,
         role="SageMakerRole",
+        predictor_cls=RealTimePredictor if not accelerator_type else PyTorchPredictor,
         entry_point=mnist_script,
         image=image_uri,
         sagemaker_session=sagemaker_session,
