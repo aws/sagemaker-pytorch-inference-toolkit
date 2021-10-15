@@ -63,13 +63,6 @@ def test_default_inference_eia(sagemaker_session, image_uri, instance_type, acce
 def _test_default_inference(
     sagemaker_session, image_uri, instance_type, model_tar, mnist_script, accelerator_type=None
 ):
-    image_url = (
-        "https://raw.githubusercontent.com/aws/amazon-sagemaker-examples/master/"
-        "sagemaker_neo_compilation_jobs/pytorch_torchvision/cat.jpg"
-    )
-    img_data = requests.get(image_url).content
-    with open('cat.jpg', 'wb') as file_obj:
-        file_obj.write(img_data)
     endpoint_name = sagemaker.utils.unique_name_from_base("sagemaker-pytorch-serving")
 
     model_data = sagemaker_session.upload_data(
@@ -105,6 +98,13 @@ def _test_default_inference(
             output = predictor.predict(data)
             assert output.shape == (batch_size, 10)
         else:
+            image_url = (
+                "https://raw.githubusercontent.com/aws/amazon-sagemaker-examples/master/"
+                "sagemaker_neo_compilation_jobs/pytorch_torchvision/cat.jpg"
+            )
+            img_data = requests.get(image_url).content
+            with open('cat.jpg', 'wb') as file_obj:
+                file_obj.write(img_data)
             with open("cat.jpg", "rb") as f:
                 payload = f.read()
                 payload = bytearray(payload)
