@@ -45,6 +45,7 @@ def test_default_inference_gpu(sagemaker_session, image_uri, instance_type):
     _test_default_inference(sagemaker_session, image_uri, instance_type, default_model_tar, default_model_script)
 
 
+@pytest.mark.skip(reason="Latest EIA version - 1.5.1 uses mms. Enable when EIA images use torchserve")
 @pytest.mark.eia_test
 def test_default_inference_eia(sagemaker_session, image_uri, instance_type, accelerator_type):
     instance_type = instance_type or "ml.c4.xlarge"
