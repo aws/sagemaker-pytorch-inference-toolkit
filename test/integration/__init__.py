@@ -67,6 +67,13 @@ default_model_script = os.path.join(default_model_dir, code_sub_dir, "resnet18.p
 default_model_tar = file_utils.make_tarfile(
     default_model_script, os.path.join(default_model_dir, "model.pt"), default_model_dir, script_path="code"
 )
+default_model_traced_resnet18_tar = file_utils.make_tarfile(
+    default_model_script,
+    os.path.join(default_model_dir, "traced_resnet18.pt"),
+    default_model_dir,
+    filename="traced_resnet18.tar.gz",
+    script_path="code",
+)
 
 default_model_eia_dir = os.path.join(mnist_path, default_sub_eia_dir)
 default_model_eia_script = os.path.join(default_model_eia_dir, code_sub_dir, "mnist.py")

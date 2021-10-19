@@ -23,6 +23,7 @@ from sagemaker.pytorch import PyTorchModel, PyTorchPredictor
 from integration import (
     default_model_script,
     default_model_tar,
+    default_model_traced_resnet18_tar,
     default_model_eia_script,
     default_model_eia_tar,
 )
@@ -34,7 +35,9 @@ def test_default_inference_cpu(sagemaker_session, image_uri, instance_type):
     instance_type = instance_type or "ml.c4.xlarge"
     # Scripted model is serialized with torch.jit.save().
     # Default inference test doesn't need to instantiate model definition
-    _test_default_inference(sagemaker_session, image_uri, instance_type, default_model_tar, default_model_script)
+    _test_default_inference(
+        sagemaker_session, image_uri, instance_type, default_model_tar, default_model_script
+    )
 
 
 @pytest.mark.gpu_test
@@ -42,10 +45,14 @@ def test_default_inference_gpu(sagemaker_session, image_uri, instance_type):
     instance_type = instance_type or "ml.p2.xlarge"
     # Scripted model is serialized with torch.jit.save().
     # Default inference test doesn't need to instantiate model definition
-    _test_default_inference(sagemaker_session, image_uri, instance_type, default_model_tar, default_model_script)
+    _test_default_inference(
+        sagemaker_session, image_uri, instance_type, default_model_tar, default_model_script
+    )
 
 
-@pytest.mark.skip(reason="Latest EIA version - 1.5.1 uses mms. Enable when EIA images use torchserve")
+@pytest.mark.skip(
+    reason="Latest EIA version - 1.5.1 uses mms. Enable when EIA images use torchserve"
+)
 @pytest.mark.eia_test
 def test_default_inference_eia(sagemaker_session, image_uri, instance_type, accelerator_type):
     instance_type = instance_type or "ml.c4.xlarge"
@@ -58,6 +65,20 @@ def test_default_inference_eia(sagemaker_session, image_uri, instance_type, acce
         default_model_eia_tar,
         default_model_eia_script,
         accelerator_type=accelerator_type,
+    )
+
+
+@pytest.mark.cpu_test
+def test_default_inference_any_model_name_cpu(sagemaker_session, image_uri, instance_type):
+    instance_type = instance_type or "ml.c4.xlarge"
+    # Scripted model is serialized with torch.jit.save().
+    # Default inference test doesn't need to instantiate model definition
+    _test_default_inference(
+        sagemaker_session,
+        image_uri,
+        instance_type,
+        default_model_traced_resnet18_tar,
+        default_model_script,
     )
 
 
@@ -104,7 +125,7 @@ def _test_default_inference(
                 "sagemaker_neo_compilation_jobs/pytorch_torchvision/cat.jpg"
             )
             img_data = requests.get(image_url).content
-            with open('cat.jpg', 'wb') as file_obj:
+            with open("cat.jpg", "wb") as file_obj:
                 file_obj.write(img_data)
             with open("cat.jpg", "rb") as f:
                 payload = f.read()
