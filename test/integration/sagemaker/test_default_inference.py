@@ -68,9 +68,9 @@ def test_default_inference_eia(sagemaker_session, image_uri, instance_type, acce
     )
 
 
-@pytest.mark.cpu_test
-def test_default_inference_any_model_name_cpu(sagemaker_session, image_uri, instance_type):
-    instance_type = instance_type or "ml.c4.xlarge"
+@pytest.mark.gpu_test
+def test_default_inference_any_model_name_gpu(sagemaker_session, image_uri, instance_type):
+    instance_type = instance_type or "ml.p2.xlarge"
     # Scripted model is serialized with torch.jit.save().
     # Default inference test doesn't need to instantiate model definition
     _test_default_inference(
