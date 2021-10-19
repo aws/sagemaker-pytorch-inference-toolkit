@@ -31,6 +31,14 @@ DEFAULT_MODEL_FILENAME = "model.pt"
 class DefaultPytorchInferenceHandler(default_inference_handler.DefaultInferenceHandler):
     VALID_CONTENT_TYPES = (content_types.JSON, content_types.NPY)
 
+    @staticmethod
+    def _is_model_file(filename):
+        is_model_file = False
+        if os.path.isfile(filename):
+            _, ext = os.path.splitext(filename)
+            is_model_file = ext in [".pt", ".pth"]
+        return is_model_file
+
     def default_model_fn(self, model_dir):
         """Loads a model. For PyTorch, a default function to load a model only if Elastic Inference is used.
         In other cases, users should provide customized model_fn() in script.
@@ -51,8 +59,12 @@ class DefaultPytorchInferenceHandler(default_inference_handler.DefaultInferenceH
             device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
             model_path = os.path.join(model_dir, DEFAULT_MODEL_FILENAME)
             if not os.path.exists(model_path):
-                raise FileNotFoundError("Failed to load model with default model_fn: missing file {}."
-                                        .format(DEFAULT_MODEL_FILENAME))
+                model_files = [file for file in os.listdir(model_dir) if self._is_model_file(file)]
+                if len(model_files) != 1:
+                    raise ValueError(
+                        "Exactly one .pth or .pt file is required for PyTorch models: {}".format(model_files)
+                    )
+                model_path = os.path.join(model_dir, model_files[0])
             model = torch.jit.load(model_path, map_location=device)
             model = model.to(device)
             return model
