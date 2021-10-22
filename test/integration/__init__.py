@@ -75,6 +75,7 @@ default_model_traced_resnet18_tar = file_utils.make_tarfile(
     default_traced_resnet_script,
     os.path.join(default_traced_resnet_dir, "traced_resnet18.pt"),
     default_traced_resnet_dir,
+    filename="traced_resnet18.tar.gz",
     script_path="code",
 )
 
