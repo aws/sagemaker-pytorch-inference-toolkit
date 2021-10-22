@@ -102,7 +102,7 @@ def test_default_model_fn_no_model_file(inference_handler, listdir_return_value)
             with pytest.raises(
                 ValueError, match=r"Exactly one .pth or .pt file is required for PyTorch models: .*"
             ):
-                model = inference_handler.default_model_fn("model_dir")
+                inference_handler.default_model_fn("model_dir")
 
 
 def test_default_input_fn_json(inference_handler, tensor):
