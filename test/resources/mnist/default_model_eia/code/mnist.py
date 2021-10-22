@@ -26,7 +26,7 @@ def predict_fn(input_data, model):
     logger.info('Performing EIA inference with Torch JIT context with input of size {}'.format(input_data.shape))
     # With EI, client instance should be CPU for cost-efficiency.
     # Sub-graphs with unsupported arguments run locally. Server runs with CUDA
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    device = torch.device('cpu')
     model = model.to(device)
     input_data = input_data.to(device)
     with torch.no_grad():

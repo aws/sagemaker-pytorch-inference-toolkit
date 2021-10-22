@@ -102,18 +102,12 @@ def _test_default_inference(
         sagemaker_session=sagemaker_session,
     )
     with timeout_and_delete_endpoint(endpoint_name, sagemaker_session, minutes=30):
-        # Use accelerator type to differentiate EI vs. CPU and GPU. Don't use processor value
-        if accelerator_type is not None:
-            predictor = pytorch.deploy(
-                initial_instance_count=1,
-                instance_type=instance_type,
-                accelerator_type=accelerator_type,
-                endpoint_name=endpoint_name,
-            )
-        else:
-            predictor = pytorch.deploy(
-                initial_instance_count=1, instance_type=instance_type, endpoint_name=endpoint_name
-            )
+        predictor = pytorch.deploy(
+            initial_instance_count=1,
+            instance_type=instance_type,
+            accelerator_type=accelerator_type,
+            endpoint_name=endpoint_name,
+        )
 
         if accelerator_type:
             batch_size = 100
