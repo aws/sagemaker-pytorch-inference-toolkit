@@ -31,7 +31,8 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 class DummyModel(nn.Module):
-    def __init__(self):
+
+    def __init__(self, ):
         super(DummyModel, self).__init__()
 
     def forward(self, x):
@@ -58,11 +59,9 @@ def eia_inference_handler():
 
 
 def test_default_model_fn(inference_handler):
-    with mock.patch(
-        "sagemaker_pytorch_serving_container.default_pytorch_inference_handler.os"
-    ) as mock_os:
+    with mock.patch("sagemaker_pytorch_serving_container.default_pytorch_inference_handler.os") as mock_os:
         mock_os.getenv.return_value = "true"
-        mock_os.path.join.return_value = "model_dir"
+        mock_os.path.join = os.path.join
         mock_os.path.exists.return_value = True
         with mock.patch("torch.jit.load") as mock_torch:
             mock_torch.return_value = DummyModel()
@@ -71,11 +70,9 @@ def test_default_model_fn(inference_handler):
 
 
 def test_default_model_fn_unknown_name(inference_handler):
-    with mock.patch(
-        "sagemaker_pytorch_serving_container.default_pytorch_inference_handler.os"
-    ) as mock_os:
+    with mock.patch("sagemaker_pytorch_serving_container.default_pytorch_inference_handler.os") as mock_os:
         mock_os.getenv.return_value = "false"
-        mock_os.path.join.return_value = "model_dir"
+        mock_os.path.join = os.path.join
         mock_os.path.isfile.return_value = True
         mock_os.listdir.return_value = ["abcd.pt", "efgh.txt", "ijkl.bin"]
         with mock.patch("torch.jit.load") as mock_torch_load:
@@ -99,9 +96,7 @@ def test_default_model_fn_no_model_file(inference_handler, listdir_return_value)
         mock_os.path.splitext = os.path.splitext
         with mock.patch("torch.jit.load") as mock_torch_load:
             mock_torch_load.return_value = DummyModel()
-            with pytest.raises(
-                ValueError, match=r"Exactly one .pth or .pt file is required for PyTorch models: .*"
-            ):
+            with pytest.raises(ValueError, match=r"Exactly one .pth or .pt file is required for PyTorch models: .*"):
                 inference_handler.default_model_fn("model_dir")
 
 
@@ -231,9 +226,7 @@ def test_default_output_fn_gpu(inference_handler):
 
 
 def test_eia_default_model_fn(eia_inference_handler):
-    with mock.patch(
-        "sagemaker_pytorch_serving_container.default_pytorch_inference_handler.os"
-    ) as mock_os:
+    with mock.patch("sagemaker_pytorch_serving_container.default_pytorch_inference_handler.os") as mock_os:
         mock_os.getenv.return_value = "true"
         mock_os.path.join.return_value = "model_dir"
         mock_os.path.exists.return_value = True
@@ -244,9 +237,7 @@ def test_eia_default_model_fn(eia_inference_handler):
 
 
 def test_eia_default_model_fn_error(eia_inference_handler):
-    with mock.patch(
-        "sagemaker_pytorch_serving_container.default_pytorch_inference_handler.os"
-    ) as mock_os:
+    with mock.patch("sagemaker_pytorch_serving_container.default_pytorch_inference_handler.os") as mock_os:
         mock_os.getenv.return_value = "true"
         mock_os.path.join.return_value = "model_dir"
         mock_os.path.exists.return_value = False
@@ -256,9 +247,7 @@ def test_eia_default_model_fn_error(eia_inference_handler):
 
 def test_eia_default_predict_fn(eia_inference_handler, tensor):
     model = DummyModel()
-    with mock.patch(
-        "sagemaker_pytorch_serving_container.default_pytorch_inference_handler.os"
-    ) as mock_os:
+    with mock.patch("sagemaker_pytorch_serving_container.default_pytorch_inference_handler.os") as mock_os:
         mock_os.getenv.return_value = "true"
         with mock.patch("torch.jit.optimized_execution") as mock_torch:
             mock_torch.__enter__.return_value = "dummy"
