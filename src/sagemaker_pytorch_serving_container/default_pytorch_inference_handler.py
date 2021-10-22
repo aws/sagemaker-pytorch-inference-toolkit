@@ -28,6 +28,10 @@ INFERENCE_ACCELERATOR_PRESENT_ENV = "SAGEMAKER_INFERENCE_ACCELERATOR_PRESENT"
 DEFAULT_MODEL_FILENAME = "model.pt"
 
 
+class ModelLoadError(Exception):
+    pass
+
+
 class DefaultPytorchInferenceHandler(default_inference_handler.DefaultInferenceHandler):
     VALID_CONTENT_TYPES = (content_types.JSON, content_types.NPY)
 
@@ -54,7 +58,12 @@ class DefaultPytorchInferenceHandler(default_inference_handler.DefaultInferenceH
                 raise FileNotFoundError("Failed to load model with default model_fn: missing file {}."
                                         .format(DEFAULT_MODEL_FILENAME))
             # Client-framework is CPU only. But model will run in Elastic Inference server with CUDA.
-            return torch.jit.load(model_path, map_location=torch.device('cpu'))
+            try:
+                return torch.jit.load(model_path, map_location=torch.device('cpu'))
+            except RuntimeError as e:
+                raise ModelLoadError(
+                    "Failed to load {}. Please ensure model is saved using torchscript.".format(model_path)
+                ) from e
         else:
             device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
             model_path = os.path.join(model_dir, DEFAULT_MODEL_FILENAME)
@@ -65,7 +74,12 @@ class DefaultPytorchInferenceHandler(default_inference_handler.DefaultInferenceH
                         "Exactly one .pth or .pt file is required for PyTorch models: {}".format(model_files)
                     )
                 model_path = os.path.join(model_dir, model_files[0])
-            model = torch.jit.load(model_path, map_location=device)
+            try:
+                model = torch.jit.load(model_path, map_location=device)
+            except RuntimeError as e:
+                raise ModelLoadError(
+                    "Failed to load {}. Please ensure model is saved using torchscript.".format(model_path)
+                ) from e
             model = model.to(device)
             return model
 
