@@ -68,6 +68,32 @@ def test_default_model_fn(inference_handler):
     assert model is not None
 
 
+def test_default_model_fn_unknown_name(inference_handler):
+    with mock.patch("sagemaker_pytorch_serving_container.default_pytorch_inference_handler.os") as mock_os:
+        mock_os.getenv.return_value = "false"
+        mock_os.path.join.return_value = "model_dir"
+        mock_os.path.isfile.return_value = True
+        mock_os.listdir.return_value = ["abcd.pt", "efgh.txt", "ijkl.bin"]
+        with mock.patch("torch.jit.load") as mock_torch_load:
+            mock_torch_load.return_value = DummyModel()
+            model = inference_handler.default_model_fn("model_dir")
+    assert model is not None
+
+
+@pytest.mark.parametrize("listdir_return_value", [["abcd.py", "efgh.txt", "ijkl.bin"], ["abcd.pt", "efgh.pth"]])
+def test_default_model_fn_no_model_file(inference_handler, listdir_return_value):
+    with mock.patch("sagemaker_pytorch_serving_container.default_pytorch_inference_handler.os") as mock_os:
+        mock_os.getenv.return_value = "false"
+        mock_os.path.join.return_value = "model_dir"
+        mock_os.path.isfile.return_value = True
+        mock_os.listdir.return_value = listdir_return_value
+        with mock.patch("torch.jit.load") as mock_torch_load:
+            mock_torch_load.return_value = DummyModel()
+            with pytest.raises(ValueError):
+                model = inference_handler.default_model_fn("model_dir")
+    assert model is not None
+
+
 def test_default_input_fn_json(inference_handler, tensor):
     json_data = json.dumps(tensor.cpu().numpy().tolist())
     deserialized_np_array = inference_handler.default_input_fn(json_data, content_types.JSON)
