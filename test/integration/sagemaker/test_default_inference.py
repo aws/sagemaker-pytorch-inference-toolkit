@@ -23,6 +23,7 @@ from sagemaker.pytorch import PyTorchModel, PyTorchPredictor
 from integration import (
     default_model_script,
     default_model_tar,
+    default_traced_resnet_script,
     default_model_traced_resnet18_tar,
     default_model_eia_script,
     default_model_eia_tar,
@@ -74,11 +75,7 @@ def test_default_inference_any_model_name_gpu(sagemaker_session, image_uri, inst
     # Scripted model is serialized with torch.jit.save().
     # Default inference test doesn't need to instantiate model definition
     _test_default_inference(
-        sagemaker_session,
-        image_uri,
-        instance_type,
-        default_model_traced_resnet18_tar,
-        default_model_script,
+        sagemaker_session, image_uri, instance_type, default_model_traced_resnet18_tar, default_traced_resnet_script
     )
 
 

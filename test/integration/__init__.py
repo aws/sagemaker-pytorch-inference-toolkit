@@ -27,6 +27,7 @@ eia_sub_dir = 'model_eia'
 code_sub_dir = 'code'
 default_sub_dir = 'default_model'
 default_sub_eia_dir = 'default_model_eia'
+default_sub_traced_resnet_dir = 'default_traced_resnet'
 
 model_cpu_dir = os.path.join(mnist_path, cpu_sub_dir)
 mnist_cpu_script = os.path.join(model_cpu_dir, code_sub_dir, 'mnist.py')
@@ -67,11 +68,13 @@ default_model_script = os.path.join(default_model_dir, code_sub_dir, "resnet18.p
 default_model_tar = file_utils.make_tarfile(
     default_model_script, os.path.join(default_model_dir, "model.pt"), default_model_dir, script_path="code"
 )
+
+default_traced_resnet_dir = os.path.join(resnet18_path, default_sub_traced_resnet_dir)
+default_traced_resnet_script = os.path.join(default_traced_resnet_dir, code_sub_dir, "resnet18.py")
 default_model_traced_resnet18_tar = file_utils.make_tarfile(
-    default_model_script,
-    os.path.join(default_model_dir, "traced_resnet18.pt"),
-    default_model_dir,
-    filename="traced_resnet18.tar.gz",
+    default_traced_resnet_script,
+    os.path.join(default_traced_resnet_dir, "traced_resnet18.pt"),
+    default_traced_resnet_dir,
     script_path="code",
 )
 
