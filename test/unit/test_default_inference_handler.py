@@ -76,6 +76,7 @@ def test_default_model_fn_unknown_name(inference_handler):
         mock_os.path.exists.return_value = False
         mock_os.path.isfile.return_value = True
         mock_os.listdir.return_value = ["abcd.pt", "efgh.txt", "ijkl.bin"]
+        mock_os.path.splitext = os.path.splitext
         with mock.patch("torch.jit.load") as mock_torch_load:
             mock_torch_load.return_value = DummyModel()
             model = inference_handler.default_model_fn("model_dir")
