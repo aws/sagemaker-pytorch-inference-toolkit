@@ -100,6 +100,10 @@ def test_default_model_fn_no_model_file(inference_handler, listdir_return_value)
                 inference_handler.default_model_fn("model_dir")
 
 
+def _produce_runtime_error(x, **kwargs):
+    raise RuntimeError("dummy runtime error")
+
+
 @pytest.mark.parametrize("test_case", ["eia", "non_eia"])
 def test_default_model_fn_non_torchscript_model(inference_handler, test_case):
     with mock.patch("sagemaker_pytorch_serving_container.default_pytorch_inference_handler.os") as mock_os:
@@ -107,7 +111,7 @@ def test_default_model_fn_non_torchscript_model(inference_handler, test_case):
         mock_os.path.join = os.path.join
         mock_os.path.exists.return_value = True
         with mock.patch("torch.jit") as mock_torch_jit:
-            mock_torch_jit.load = lambda x, y: RuntimeError("dummy runtime error")
+            mock_torch_jit.load = _produce_runtime_error
             with pytest.raises(Exception, match=r"Failed to load \s*. Please ensure model is saved using torchscript."):
                 inference_handler.default_model_fn("model_dir")
 
