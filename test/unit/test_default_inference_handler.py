@@ -112,7 +112,7 @@ def test_default_model_fn_non_torchscript_model(inference_handler, test_case):
         mock_os.path.exists.return_value = True
         with mock.patch("torch.jit") as mock_torch_jit:
             mock_torch_jit.load = _produce_runtime_error
-            with pytest.raises(Exception, match=r"Failed to load \s*. Please ensure model is saved using torchscript."):
+            with pytest.raises(Exception, match=r"Failed to load .*. Please ensure model is saved using torchscript."):
                 inference_handler.default_model_fn("model_dir")
 
 
