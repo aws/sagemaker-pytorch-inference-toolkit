@@ -13,17 +13,35 @@
 from __future__ import absolute_import
 
 import os
-import textwrap
 
 import torch
-from sagemaker_inference import content_types, decoder, default_inference_handler, encoder
+from sagemaker_inference import (
+    content_types,
+    decoder,
+    default_inference_handler,
+    encoder,
+    errors,
+    utils,
+)
 
 INFERENCE_ACCELERATOR_PRESENT_ENV = "SAGEMAKER_INFERENCE_ACCELERATOR_PRESENT"
 DEFAULT_MODEL_FILENAME = "model.pt"
 
 
+class ModelLoadError(Exception):
+    pass
+
+
 class DefaultPytorchInferenceHandler(default_inference_handler.DefaultInferenceHandler):
     VALID_CONTENT_TYPES = (content_types.JSON, content_types.NPY)
+
+    @staticmethod
+    def _is_model_file(filename):
+        is_model_file = False
+        if os.path.isfile(filename):
+            _, ext = os.path.splitext(filename)
+            is_model_file = ext in [".pt", ".pth"]
+        return is_model_file
 
     def default_model_fn(self, model_dir):
         """Loads a model. For PyTorch, a default function to load a model only if Elastic Inference is used.
@@ -40,12 +58,30 @@ class DefaultPytorchInferenceHandler(default_inference_handler.DefaultInferenceH
                 raise FileNotFoundError("Failed to load model with default model_fn: missing file {}."
                                         .format(DEFAULT_MODEL_FILENAME))
             # Client-framework is CPU only. But model will run in Elastic Inference server with CUDA.
-            return torch.jit.load(model_path, map_location=torch.device('cpu'))
+            try:
+                return torch.jit.load(model_path, map_location=torch.device('cpu'))
+            except RuntimeError as e:
+                raise ModelLoadError(
+                    "Failed to load {}. Please ensure model is saved using torchscript.".format(model_path)
+                ) from e
         else:
-            raise NotImplementedError(textwrap.dedent("""
-            Please provide a model_fn implementation.
-            See documentation for model_fn at https://github.com/aws/sagemaker-python-sdk
-            """))
+            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+            model_path = os.path.join(model_dir, DEFAULT_MODEL_FILENAME)
+            if not os.path.exists(model_path):
+                model_files = [file for file in os.listdir(model_dir) if self._is_model_file(file)]
+                if len(model_files) != 1:
+                    raise ValueError(
+                        "Exactly one .pth or .pt file is required for PyTorch models: {}".format(model_files)
+                    )
+                model_path = os.path.join(model_dir, model_files[0])
+            try:
+                model = torch.jit.load(model_path, map_location=device)
+            except RuntimeError as e:
+                raise ModelLoadError(
+                    "Failed to load {}. Please ensure model is saved using torchscript.".format(model_path)
+                ) from e
+            model = model.to(device)
+            return model
 
     def default_input_fn(self, input_data, content_type):
         """A default input_fn that can handle JSON, CSV and NPZ formats.
@@ -101,8 +137,12 @@ class DefaultPytorchInferenceHandler(default_inference_handler.DefaultInferenceH
         """
         if type(prediction) == torch.Tensor:
             prediction = prediction.detach().cpu().numpy().tolist()
-        encoded_prediction = encoder.encode(prediction, accept)
-        if accept == content_types.CSV:
-            encoded_prediction = encoded_prediction.encode("utf-8")
 
-        return encoded_prediction
+        for content_type in utils.parse_accept(accept):
+            if content_type in encoder.SUPPORTED_CONTENT_TYPES:
+                encoded_prediction = encoder.encode(prediction, content_type)
+                if content_type == content_types.CSV:
+                    encoded_prediction = encoded_prediction.encode("utf-8")
+                return encoded_prediction
+
+        raise errors.UnsupportedFormatError(accept)

@@ -18,11 +18,16 @@ from utils import file_utils
 
 resources_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'resources'))
 mnist_path = os.path.join(resources_path, 'mnist')
+resnet18_path = os.path.join(resources_path, 'resnet18')
 data_dir = os.path.join(mnist_path, 'data')
 training_dir = os.path.join(data_dir, 'training')
 cpu_sub_dir = 'model_cpu'
 gpu_sub_dir = 'model_gpu'
 eia_sub_dir = 'model_eia'
+code_sub_dir = 'code'
+default_sub_dir = 'default_model'
+default_sub_eia_dir = 'default_model_eia'
+default_sub_traced_resnet_dir = 'default_traced_resnet'
 
 model_cpu_dir = os.path.join(mnist_path, cpu_sub_dir)
 mnist_cpu_script = os.path.join(model_cpu_dir, 'mnist.py')
@@ -53,6 +58,28 @@ call_model_fn_once_tar = file_utils.make_tarfile(call_model_fn_once_script,
                                                  os.path.join(model_cpu_dir, "model.pth"),
                                                  model_cpu_dir,
                                                  "model_call_model_fn_once.tar.gz")
+
+default_model_dir = os.path.join(resnet18_path, default_sub_dir)
+default_model_script = os.path.join(default_model_dir, code_sub_dir, "resnet18.py")
+default_model_tar = file_utils.make_tarfile(
+    default_model_script, os.path.join(default_model_dir, "model.pt"), default_model_dir, script_path="code"
+)
+
+default_traced_resnet_dir = os.path.join(resnet18_path, default_sub_traced_resnet_dir)
+default_traced_resnet_script = os.path.join(default_traced_resnet_dir, code_sub_dir, "resnet18.py")
+default_model_traced_resnet18_tar = file_utils.make_tarfile(
+    default_traced_resnet_script,
+    os.path.join(default_traced_resnet_dir, "traced_resnet18.pt"),
+    default_traced_resnet_dir,
+    filename="traced_resnet18.tar.gz",
+    script_path="code",
+)
+
+default_model_eia_dir = os.path.join(mnist_path, default_sub_eia_dir)
+default_model_eia_script = os.path.join(default_model_eia_dir, code_sub_dir, "mnist.py")
+default_model_eia_tar = file_utils.make_tarfile(
+    default_model_eia_script, os.path.join(default_model_eia_dir, "model.pt"), default_model_eia_dir
+)
 
 ROLE = 'dummy/unused-role'
 DEFAULT_TIMEOUT = 20
