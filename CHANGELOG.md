@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.0.7 (2021-10-26)
+
+### Bug Fixes and Other Changes
+
+ * Enable default model fn for cpu and gpu
+
 ## v2.0.6 (2021-10-04)
 
 ### Bug Fixes and Other Changes
