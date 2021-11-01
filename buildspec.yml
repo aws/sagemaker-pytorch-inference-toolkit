@@ -2,8 +2,8 @@ version: 0.2
 
 env:
   variables:
-    FRAMEWORK_VERSION: '1.5.0'
-    EIA_FRAMEWORK_VERSION: '1.3.1'
+    FRAMEWORK_VERSION: '1.5.1'
+    EIA_FRAMEWORK_VERSION: '1.5.1'
     CPU_INSTANCE_TYPE: 'ml.c4.xlarge'
     GPU_INSTANCE_TYPE: 'ml.p2.8xlarge'
     EIA_ACCELERATOR_TYPE: 'ml.eia2.medium'
@@ -39,7 +39,7 @@ phases:
       - GENERIC_TAG="$FRAMEWORK_VERSION-pytorch-$BUILD_ID"
       - DLC_CPU_TAG="$FRAMEWORK_VERSION-dlc-cpu-$BUILD_ID"
       - DLC_GPU_TAG="$FRAMEWORK_VERSION-dlc-gpu-$BUILD_ID"
-      - DLC_EIA_TAG="$FRAMEWORK_VERSION-dlc-eia-$BUILD_ID"
+      - DLC_EIA_TAG="$EIA_FRAMEWORK_VERSION-dlc-eia-$BUILD_ID"
 
       # run local CPU integration tests (build and push the image to ECR repo)
       - test_cmd="IGNORE_COVERAGE=- tox -e py36 -- test/integration/local --build-image --push-image --dockerfile-type pytorch --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $FRAMEWORK_VERSION --processor cpu --tag $GENERIC_TAG"
