@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.6.0 (2021-11-03)
+
+### Bug Fixes and Other Changes
+
+ * Enable default model fn for cpu and gpu
+
 ## v1.5.1.post1 (2020-06-25)
 
 ### Testing and Release Infrastructure
