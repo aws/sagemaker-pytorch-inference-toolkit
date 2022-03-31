@@ -30,22 +30,22 @@ phases:
       - PY_COLORS=0
 
       # run linters
-      - tox -e flake8,twine
+      # - tox -e flake8,twine
 
       # run unit tests
-      - tox -e py36,py37 test/unit
+      # - tox -e py36,py37 test/unit
 
       # define tags
-      - GENERIC_TAG="$FRAMEWORK_VERSION-pytorch-$BUILD_ID"
-      - DLC_CPU_TAG="$FRAMEWORK_VERSION-dlc-cpu-$BUILD_ID"
+      # - GENERIC_TAG="$FRAMEWORK_VERSION-pytorch-$BUILD_ID"
+      # - DLC_CPU_TAG="$FRAMEWORK_VERSION-dlc-cpu-$BUILD_ID"
       - DLC_GPU_TAG="$FRAMEWORK_VERSION-dlc-gpu-$BUILD_ID"
       - DLC_EIA_TAG="$EIA_FRAMEWORK_VERSION-dlc-eia-$BUILD_ID"
 
       # run local CPU integration tests (build and push the image to ECR repo)
-      - test_cmd="IGNORE_COVERAGE=- tox -e py36 -- test/integration/local --build-image --push-image --dockerfile-type pytorch --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $FRAMEWORK_VERSION --processor cpu --tag $GENERIC_TAG"
-      - execute-command-if-has-matching-changes "$test_cmd" "test/" "src/*.py" "setup.py" "setup.cfg" "buildspec-toolkit.yml" "artifacts/*"
-      - test_cmd="IGNORE_COVERAGE=- tox -e py36 -- test/integration/local --build-image --push-image --dockerfile-type dlc.cpu --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $FRAMEWORK_VERSION --processor cpu --tag $DLC_CPU_TAG"
-      - execute-command-if-has-matching-changes "$test_cmd" "test/" "src/*.py" "setup.py" "setup.cfg" "buildspec-toolkit.yml" "artifacts/*"
+      # - test_cmd="IGNORE_COVERAGE=- tox -e py36 -- test/integration/local --build-image --push-image --dockerfile-type pytorch --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $FRAMEWORK_VERSION --processor cpu --tag $GENERIC_TAG"
+      # - execute-command-if-has-matching-changes "$test_cmd" "test/" "src/*.py" "setup.py" "setup.cfg" "buildspec-toolkit.yml" "artifacts/*"
+      # - test_cmd="IGNORE_COVERAGE=- tox -e py36 -- test/integration/local --build-image --push-image --dockerfile-type dlc.cpu --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $FRAMEWORK_VERSION --processor cpu --tag $DLC_CPU_TAG"
+      # - execute-command-if-has-matching-changes "$test_cmd" "test/" "src/*.py" "setup.py" "setup.cfg" "buildspec-toolkit.yml" "artifacts/*"
 
       # launch remote GPU instance
       - prefix='ml.'
@@ -63,24 +63,24 @@ phases:
       - docker push $PREPROD_IMAGE:$DLC_GPU_TAG
 
       # run GPU local integration tests
-      - printf "$SETUP_CMDS" > $SETUP_FILE
+      # - printf "$SETUP_CMDS" > $SETUP_FILE
       # no reason to rebuild the image again since it was already built and pushed to ECR during CPU tests
-      - generic_cmd="IGNORE_COVERAGE=- tox -e py36 -- test/integration/local --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $FRAMEWORK_VERSION --processor gpu --tag $GENERIC_TAG"
-      - test_cmd="remote-test --github-repo $GITHUB_REPO --test-cmd \"$generic_cmd\" --setup-file $SETUP_FILE --pr-number \"$PR_NUM\""
-      - execute-command-if-has-matching-changes "$test_cmd" "test/" "src/*.py" "setup.py" "setup.cfg" "buildspec-toolkit.yml" "artifacts/*"
-      - dlc_cmd="IGNORE_COVERAGE=- tox -e py36 -- test/integration/local --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $FRAMEWORK_VERSION --processor gpu --tag $DLC_GPU_TAG"
-      - test_cmd="remote-test --github-repo $GITHUB_REPO --test-cmd \"$dlc_cmd\" --setup-file $SETUP_FILE --pr-number \"$PR_NUM\" --skip-setup"
-      - execute-command-if-has-matching-changes "$test_cmd" "test/" "src/*.py" "setup.py" "setup.cfg" "buildspec-toolkit.yml" "artifacts/*"
+      # - generic_cmd="IGNORE_COVERAGE=- tox -e py36 -- test/integration/local --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $FRAMEWORK_VERSION --processor gpu --tag $GENERIC_TAG"
+      # - test_cmd="remote-test --github-repo $GITHUB_REPO --test-cmd \"$generic_cmd\" --setup-file $SETUP_FILE --pr-number \"$PR_NUM\""
+      # - execute-command-if-has-matching-changes "$test_cmd" "test/" "src/*.py" "setup.py" "setup.cfg" "buildspec-toolkit.yml" "artifacts/*"
+      # - dlc_cmd="IGNORE_COVERAGE=- tox -e py36 -- test/integration/local --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $FRAMEWORK_VERSION --processor gpu --tag $DLC_GPU_TAG"
+      # - test_cmd="remote-test --github-repo $GITHUB_REPO --test-cmd \"$dlc_cmd\" --setup-file $SETUP_FILE --pr-number \"$PR_NUM\" --skip-setup"
+      # - execute-command-if-has-matching-changes "$test_cmd" "test/" "src/*.py" "setup.py" "setup.cfg" "buildspec-toolkit.yml" "artifacts/*"
 
       # run CPU sagemaker integration tests
-      - test_cmd="IGNORE_COVERAGE=- tox -e py36 -- test/integration/sagemaker --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $FRAMEWORK_VERSION --processor cpu --instance-type $CPU_INSTANCE_TYPE --tag $GENERIC_TAG"
-      - execute-command-if-has-matching-changes "$test_cmd" "test/" "src/*.py" "setup.py" "setup.cfg" "buildspec-toolkit.yml" "artifacts/*"
-      - test_cmd="IGNORE_COVERAGE=- tox -e py36 -- test/integration/sagemaker --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $FRAMEWORK_VERSION --processor cpu --instance-type $CPU_INSTANCE_TYPE --tag $DLC_CPU_TAG"
-      - execute-command-if-has-matching-changes "$test_cmd" "test/" "src/*.py" "setup.py" "setup.cfg" "buildspec-toolkit.yml" "artifacts/*"
+      # - test_cmd="IGNORE_COVERAGE=- tox -e py36 -- test/integration/sagemaker --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $FRAMEWORK_VERSION --processor cpu --instance-type $CPU_INSTANCE_TYPE --tag $GENERIC_TAG"
+      # - execute-command-if-has-matching-changes "$test_cmd" "test/" "src/*.py" "setup.py" "setup.cfg" "buildspec-toolkit.yml" "artifacts/*"
+      # - test_cmd="IGNORE_COVERAGE=- tox -e py36 -- test/integration/sagemaker --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $FRAMEWORK_VERSION --processor cpu --instance-type $CPU_INSTANCE_TYPE --tag $DLC_CPU_TAG"
+      # - execute-command-if-has-matching-changes "$test_cmd" "test/" "src/*.py" "setup.py" "setup.cfg" "buildspec-toolkit.yml" "artifacts/*"
 
       # run GPU sagemaker integration tests
-      - test_cmd="IGNORE_COVERAGE=- tox -e py36 -- test/integration/sagemaker --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $FRAMEWORK_VERSION --processor gpu --instance-type $GPU_INSTANCE_TYPE --tag $GENERIC_TAG"
-      - execute-command-if-has-matching-changes "$test_cmd" "test/" "src/*.py" "setup.py" "setup.cfg" "buildspec-toolkit.yml" "artifacts/*"
+      # - test_cmd="IGNORE_COVERAGE=- tox -e py36 -- test/integration/sagemaker --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $FRAMEWORK_VERSION --processor gpu --instance-type $GPU_INSTANCE_TYPE --tag $GENERIC_TAG"
+      # - execute-command-if-has-matching-changes "$test_cmd" "test/" "src/*.py" "setup.py" "setup.cfg" "buildspec-toolkit.yml" "artifacts/*"
       - test_cmd="IGNORE_COVERAGE=- tox -e py36 -- test/integration/sagemaker --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $FRAMEWORK_VERSION --processor gpu --instance-type $GPU_INSTANCE_TYPE --tag $DLC_GPU_TAG"
       - execute-command-if-has-matching-changes "$test_cmd" "test/" "src/*.py" "setup.py" "setup.cfg" "buildspec-toolkit.yml" "artifacts/*"
 
