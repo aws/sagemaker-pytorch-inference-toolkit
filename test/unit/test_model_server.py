@@ -32,13 +32,13 @@ DEFAULT_CONFIGURATION = "default_configuration"
 @patch("sagemaker_pytorch_serving_container.torchserve._retrieve_ts_server_process")
 @patch("sagemaker_pytorch_serving_container.torchserve._add_sigterm_handler")
 @patch("sagemaker_pytorch_serving_container.torchserve._install_requirements")
+@patch("os.path.exists", return_value=True)
 @patch("sagemaker_pytorch_serving_container.torchserve._create_torchserve_config_file")
 @patch("sagemaker_pytorch_serving_container.torchserve._set_python_path")
-@patch("os.path.exists", return_value=True)
 def test_start_torchserve_default_service_handler(
-    exists,
     set_python_path,
     create_config,
+    exists,
     install_requirements,
     sigterm,
     retrieve,
@@ -47,10 +47,8 @@ def test_start_torchserve_default_service_handler(
 ):
     torchserve.start_torchserve()
 
-    exists.assert_called_once_with(torchserve.MODEL_STORE)
     set_python_path.assert_called_once_with()
     create_config.assert_called_once_with()
-    exists.assert_called_once_with(REQUIREMENTS_PATH)
     install_requirements.assert_called_once_with()
 
     ts_model_server_cmd = [
