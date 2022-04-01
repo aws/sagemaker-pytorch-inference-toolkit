@@ -44,7 +44,7 @@ phases:
       # run local CPU integration tests (build and push the image to ECR repo)
       # - test_cmd="IGNORE_COVERAGE=- tox -e py36 -- test/integration/local --build-image --push-image --dockerfile-type pytorch --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $FRAMEWORK_VERSION --processor cpu --tag $GENERIC_TAG"
       # - execute-command-if-has-matching-changes "$test_cmd" "test/" "src/*.py" "setup.py" "setup.cfg" "buildspec-toolkit.yml" "artifacts/*"
-      - test_cmd="IGNORE_COVERAGE=- tox -e py36 -- test/integration/local --dockerfile-type dlc.cpu --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $FRAMEWORK_VERSION --processor cpu --tag 1.10.2-dlc-cpu-sagemaker-pytorch-inference-toolkit-pr-999c5d89-dba7-4cf6-8b0f-b4e13052ad49"
+      - test_cmd="IGNORE_COVERAGE=- tox -e py36 -- test/integration/local -vv -rA -s --dockerfile-type dlc.cpu --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $FRAMEWORK_VERSION --processor cpu --tag 1.10.2-dlc-cpu-sagemaker-pytorch-inference-toolkit-pr-999c5d89-dba7-4cf6-8b0f-b4e13052ad49"
       - execute-command-if-has-matching-changes "$test_cmd" "test/" "src/*.py" "setup.py" "setup.cfg" "buildspec-toolkit.yml" "artifacts/*"
 
       # launch remote GPU instance
