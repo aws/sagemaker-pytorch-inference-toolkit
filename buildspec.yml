@@ -30,10 +30,10 @@ phases:
       - PY_COLORS=0
 
       # run linters
-      - tox -e flake8,twine
+      # - tox -e flake8,twine
 
       # run unit tests
-      - tox -e py36,py37 test/unit
+      # - tox -e py36,py37 test/unit
 
       # define tags
       - GENERIC_TAG="$FRAMEWORK_VERSION-pytorch-$BUILD_ID"
