@@ -31,7 +31,6 @@ from sagemaker_inference.environment import code_dir
 logger = logging.getLogger()
 
 TS_CONFIG_FILE = os.path.join("/etc", "sagemaker-ts.properties")
-DEFAULT_HANDLER_SERVICE = default_handler_service.__name__
 DEFAULT_TS_CONFIG_FILE = pkg_resources.resource_filename(
     sagemaker_pytorch_serving_container.__name__, "/etc/default-ts.properties"
 )
@@ -131,7 +130,7 @@ def _generate_ts_config_properties(handler_service):
         "default_workers_per_model": env.model_server_workers,
         "inference_address": "http://0.0.0.0:{}".format(env.inference_http_port),
         "management_address": "http://0.0.0.0:{}".format(env.management_http_port),
-        "default_service_handler": handler_service,
+        "default_service_handler": handler_service + ":handle",
     }
 
     ts_env = ts_environment.TorchServeEnvironment()
