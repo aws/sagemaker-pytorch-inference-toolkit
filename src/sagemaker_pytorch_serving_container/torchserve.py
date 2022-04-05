@@ -77,7 +77,7 @@ def start_torchserve(handler_service=DEFAULT_HANDLER_SERVICE):
 
     _set_python_path()
 
-    _create_torchserve_config_file()
+    _create_torchserve_config_file(handler_service)
 
     if os.path.exists(REQUIREMENTS_PATH):
         _install_requirements()
@@ -118,19 +118,20 @@ def _set_python_path():
         os.environ[PYTHON_PATH_ENV] = environment.code_dir
 
 
-def _create_torchserve_config_file():
-    configuration_properties = _generate_ts_config_properties()
+def _create_torchserve_config_file(handler_service):
+    configuration_properties = _generate_ts_config_properties(handler_service)
 
     utils.write_file(TS_CONFIG_FILE, configuration_properties)
 
 
-def _generate_ts_config_properties():
+def _generate_ts_config_properties(handler_service):
     env = environment.Environment()
     user_defined_configuration = {
         "default_response_timeout": env.model_server_timeout,
         "default_workers_per_model": env.model_server_workers,
         "inference_address": "http://0.0.0.0:{}".format(env.inference_http_port),
         "management_address": "http://0.0.0.0:{}".format(env.management_http_port),
+        "default_service_handler": handler_service,
     }
 
     ts_env = ts_environment.TorchServeEnvironment()
