@@ -48,7 +48,7 @@ def test_start_torchserve_default_service_handler(
     torchserve.start_torchserve()
 
     set_python_path.assert_called_once_with()
-    create_config.assert_called_once_with()
+    create_config.assert_called_once_with(torchserve.DEFAULT_HANDLER_SERVICE)
     install_requirements.assert_called_once_with()
 
     ts_model_server_cmd = [
@@ -91,7 +91,7 @@ def test_start_torchserve_default_service_handler_multi_model(
     torchserve.ENABLE_MULTI_MODEL = False
 
     set_python_path.assert_called_once_with()
-    create_config.assert_called_once_with()
+    create_config.assert_called_once_with(torchserve.DEFAULT_HANDLER_SERVICE)
     exists.assert_called_once_with(REQUIREMENTS_PATH)
     install_requirements.assert_called_once_with()
 
@@ -133,7 +133,7 @@ def test_new_python_path():
 @patch("sagemaker_pytorch_serving_container.torchserve._generate_ts_config_properties")
 @patch("sagemaker_inference.utils.write_file")
 def test_create_torchserve_config_file(write_file, generate_ts_config_props):
-    torchserve._create_torchserve_config_file()
+    torchserve._create_torchserve_config_file(torchserve.DEFAULT_HANDLER_SERVICE)
 
     write_file.assert_called_once_with(
         torchserve.TS_CONFIG_FILE, generate_ts_config_props.return_value
@@ -151,7 +151,7 @@ def test_generate_ts_config_properties(env, read_file):
     env.return_value.model_sever_workerse = model_server_workers
     env.return_value.inference_http_port = http_port
 
-    ts_config_properties = torchserve._generate_ts_config_properties()
+    ts_config_properties = torchserve._generate_ts_config_properties(torchserve.DEFAULT_HANDLER_SERVICE)
 
     inference_address = "inference_address=http://0.0.0.0:{}\n".format(http_port)
     server_timeout = "default_response_timeout={}\n".format(model_server_timeout)
@@ -168,7 +168,7 @@ def test_generate_ts_config_properties(env, read_file):
 def test_generate_ts_config_properties_default_workers(env, read_file):
     env.return_value.model_server_workers = None
 
-    ts_config_properties = torchserve._generate_ts_config_properties()
+    ts_config_properties = torchserve._generate_ts_config_properties(torchserve.DEFAULT_HANDLER_SERVICE)
 
     workers = "default_workers_per_model={}".format(None)
 
@@ -184,7 +184,7 @@ def test_generate_ts_config_properties_multi_model(env, read_file):
     env.return_value.model_server_workers = None
 
     torchserve.ENABLE_MULTI_MODEL = True
-    ts_config_properties = torchserve._generate_ts_config_properties()
+    ts_config_properties = torchserve._generate_ts_config_properties(torchserve.DEFAULT_HANDLER_SERVICE)
     torchserve.ENABLE_MULTI_MODEL = False
 
     workers = "default_workers_per_model={}".format(None)
