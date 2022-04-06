@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.0.9 (2022-04-04)
+
+### Bug Fixes and Other Changes
+
+ * Update CI to use PyTorch 1.10
+
 ## v2.0.8 (2022-01-13)
 
 ### Bug Fixes and Other Changes
