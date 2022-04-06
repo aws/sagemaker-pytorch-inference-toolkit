@@ -25,7 +25,7 @@ from retrying import retry
 
 import sagemaker_pytorch_serving_container
 from sagemaker_pytorch_serving_container import ts_environment
-from sagemaker_inference import default_handler_service, environment, utils
+from sagemaker_inference import environment, utils
 from sagemaker_inference.environment import code_dir
 
 logger = logging.getLogger()
