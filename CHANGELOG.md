@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.0.10 (2022-04-07)
+
+### Bug Fixes and Other Changes
+
+ * pass model directory as input to torchserve
+
 ## v2.0.9 (2022-04-04)
 
 ### Bug Fixes and Other Changes
