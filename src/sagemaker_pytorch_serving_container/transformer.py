@@ -5,9 +5,11 @@ from sagemaker_inference import content_types, environment, utils
 from sagemaker_inference.default_inference_handler import DefaultInferenceHandler
 from sagemaker_inference.errors import BaseInferenceToolkitError, GenericInferenceToolkitError
 
+
 class PyTorchTransformer(Transformer):
-	def transform(self, data, context):
-        """Take a request with input data, deserialize it, make a prediction, and return a
+    def transform(self, data, context):
+        """
+        Take a request with input data, deserialize it, make a prediction, and return a
         serialized response.
 
         Args:
