@@ -140,7 +140,6 @@ def _generate_ts_config_properties(handler_service):
         "{DEFAULT_TS_MODEL_NAME}": {{\\
             "1.0": {{\\
                 "defaultVersion": true,\\
-                "marName": "{DEFAULT_TS_MODEL_NAME}.mar",\\
                 "minWorkers": {ts_env._min_workers},\\
                 "maxWorkers": {ts_env._max_workers},\\
                 "batchSize": {ts_env._batch_size},\\
