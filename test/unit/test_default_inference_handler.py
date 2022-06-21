@@ -14,6 +14,7 @@ from __future__ import absolute_import
 
 import csv
 import json
+import os
 
 import mock
 import numpy as np
@@ -58,8 +59,61 @@ def eia_inference_handler():
 
 
 def test_default_model_fn(inference_handler):
-    with pytest.raises(NotImplementedError):
-        inference_handler.default_model_fn("model_dir")
+    with mock.patch("sagemaker_pytorch_serving_container.default_pytorch_inference_handler.os") as mock_os:
+        mock_os.getenv.return_value = "true"
+        mock_os.path.join = os.path.join
+        mock_os.path.exists.return_value = True
+        with mock.patch("torch.jit.load") as mock_torch_load:
+            mock_torch_load.return_value = DummyModel()
+            model = inference_handler.default_model_fn("model_dir")
+    assert model is not None
+
+
+def test_default_model_fn_unknown_name(inference_handler):
+    with mock.patch("sagemaker_pytorch_serving_container.default_pytorch_inference_handler.os") as mock_os:
+        mock_os.getenv.return_value = "false"
+        mock_os.path.join = os.path.join
+        mock_os.path.exists.return_value = False
+        mock_os.path.isfile.return_value = True
+        mock_os.listdir.return_value = ["abcd.pt", "efgh.txt", "ijkl.bin"]
+        mock_os.path.splitext = os.path.splitext
+        with mock.patch("torch.jit.load") as mock_torch_load:
+            mock_torch_load.return_value = DummyModel()
+            model = inference_handler.default_model_fn("model_dir")
+    assert model is not None
+
+
+@pytest.mark.parametrize(
+    "listdir_return_value", [["abcd.py", "efgh.txt", "ijkl.bin"], ["abcd.pt", "efgh.pth"]]
+)
+def test_default_model_fn_no_model_file(inference_handler, listdir_return_value):
+    with mock.patch("sagemaker_pytorch_serving_container.default_pytorch_inference_handler.os") as mock_os:
+        mock_os.getenv.return_value = "false"
+        mock_os.path.join = os.path.join
+        mock_os.path.exists.return_value = False
+        mock_os.path.isfile.return_value = True
+        mock_os.listdir.return_value = listdir_return_value
+        mock_os.path.splitext = os.path.splitext
+        with mock.patch("torch.jit.load") as mock_torch_load:
+            mock_torch_load.return_value = DummyModel()
+            with pytest.raises(ValueError, match=r"Exactly one .pth or .pt file is required for PyTorch models: .*"):
+                inference_handler.default_model_fn("model_dir")
+
+
+def _produce_runtime_error(x, **kwargs):
+    raise RuntimeError("dummy runtime error")
+
+
+@pytest.mark.parametrize("test_case", ["eia", "non_eia"])
+def test_default_model_fn_non_torchscript_model(inference_handler, test_case):
+    with mock.patch("sagemaker_pytorch_serving_container.default_pytorch_inference_handler.os") as mock_os:
+        mock_os.getenv.return_value = "true" if test_case == "eia" else "false"
+        mock_os.path.join = os.path.join
+        mock_os.path.exists.return_value = True
+        with mock.patch("torch.jit") as mock_torch_jit:
+            mock_torch_jit.load = _produce_runtime_error
+            with pytest.raises(Exception, match=r"Failed to load .*. Please ensure model is saved using torchscript."):
+                inference_handler.default_model_fn("model_dir")
 
 
 def test_default_input_fn_json(inference_handler, tensor):

@@ -1,5 +1,35 @@
 # Changelog
 
+## v2.0.10 (2022-04-07)
+
+### Bug Fixes and Other Changes
+
+ * pass model directory as input to torchserve
+
+## v2.0.9 (2022-04-04)
+
+### Bug Fixes and Other Changes
+
+ * Update CI to use PyTorch 1.10
+
+## v2.0.8 (2022-01-13)
+
+### Bug Fixes and Other Changes
+
+ * log4j migration from 1 to 2. Replace properties file with xml.
+
+## v2.0.7 (2021-10-26)
+
+### Bug Fixes and Other Changes
+
+ * Enable default model fn for cpu and gpu
+
+## v2.0.6 (2021-10-04)
+
+### Bug Fixes and Other Changes
+
+ * Env variable support for batch inference
+
 ## v2.0.5 (2021-03-17)
 
 ### Bug Fixes and Other Changes

@@ -1,0 +1,46 @@
+FROM pytorch/pytorch:1.10.0-cuda11.3-cudnn8-runtime
+
+LABEL com.amazonaws.sagemaker.capabilities.accept-bind-to-port=true
+LABEL com.amazonaws.sagemaker.capabilities.multi-models=true
+
+ARG TS_VERSION=0.5.2
+ARG TS_ARCHIVER_VERSION=0.5.2
+
+ENV SAGEMAKER_SERVING_MODULE sagemaker_pytorch_serving_container.serving:main
+ENV TEMP=/home/model-server/tmp
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends software-properties-common \
+    && add-apt-repository ppa:openjdk-r/ppa \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    openjdk-11-jdk-headless \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN conda install -c conda-forge opencv \
+    && ln -s /opt/conda/bin/pip /usr/local/bin/pip3
+
+RUN pip install torchserve-nightly==2022.3.23.post2 \
+ && pip install torch-model-archiver==$TS_ARCHIVER_VERSION
+
+COPY dist/sagemaker_pytorch_inference-*.tar.gz /sagemaker_pytorch_inference.tar.gz
+RUN pip install --no-cache-dir /sagemaker_pytorch_inference.tar.gz && \
+    rm /sagemaker_pytorch_inference.tar.gz
+
+RUN useradd -m model-server \
+    && mkdir -p /home/model-server/tmp \
+    && chown -R model-server /home/model-server
+
+COPY artifacts/ts-entrypoint.py /usr/local/bin/dockerd-entrypoint.py
+COPY artifacts/config.properties /home/model-server
+
+RUN chmod +x /usr/local/bin/dockerd-entrypoint.py
+
+EXPOSE 8080 8081
+ENTRYPOINT ["python", "/usr/local/bin/dockerd-entrypoint.py"]
+CMD ["torchserve", "--start", "--ts-config", "/home/model-server/config.properties", "--model-store", "/home/model-server/"]
