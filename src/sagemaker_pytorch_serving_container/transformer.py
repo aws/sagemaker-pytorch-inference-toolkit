@@ -28,8 +28,7 @@ class PyTorchTransformer(Transformer):
 
             response_list = []
 
-            for i in range(len(data)):
-                print(f"Processing Data: {data[i]}")
+            for _ in range(len(data)):
                 input_data = data[i].get("body")
 
                 request_processor = context.request_processor[0]

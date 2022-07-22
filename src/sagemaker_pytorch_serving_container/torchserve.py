@@ -138,7 +138,7 @@ def _generate_ts_config_properties(handler_service):
     if ts_env.is_env_set() and not ENABLE_MULTI_MODEL:
         models_string = f'''{{\\
         "{DEFAULT_TS_MODEL_NAME}": {{\\
-            "1.0": {{\\
+            "1": {{\\
                 "defaultVersion": true,\\
                 "marName": "{DEFAULT_TS_MODEL_NAME}.mar",\\
                 "minWorkers": {ts_env._min_workers},\\

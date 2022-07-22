@@ -13,7 +13,6 @@
 from __future__ import absolute_import
 
 from sagemaker_inference.default_handler_service import DefaultHandlerService
-#from sagemaker_inference.transformer import Transformer
 from sagemaker_pytorch_serving_container.transformer import PyTorchTransformer
 from sagemaker_pytorch_serving_container.default_pytorch_inference_handler import DefaultPytorchInferenceHandler
 
