@@ -43,12 +43,13 @@ class DefaultPytorchInferenceHandler(default_inference_handler.DefaultInferenceH
             is_model_file = ext in [".pt", ".pth"]
         return is_model_file
 
-    def default_model_fn(self, model_dir):
+    def default_model_fn(self, model_dir, context=None):
         """Loads a model. For PyTorch, a default function to load a model only if Elastic Inference is used.
         In other cases, users should provide customized model_fn() in script.
 
         Args:
             model_dir: a directory where model is saved.
+            context: context for the request.
 
         Returns: A PyTorch model.
         """
@@ -65,7 +66,12 @@ class DefaultPytorchInferenceHandler(default_inference_handler.DefaultInferenceH
                     "Failed to load {}. Please ensure model is saved using torchscript.".format(model_path)
                 ) from e
         else:
-            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+            if context: 
+                properties = context.system_properties
+                device = torch.device("cuda:" + str(properties.get("gpu_id")) if torch.cuda.is_available() else "cpu")
+            else:
+                device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
             model_path = os.path.join(model_dir, DEFAULT_MODEL_FILENAME)
             if not os.path.exists(model_path):
                 model_files = [file for file in os.listdir(model_dir) if self._is_model_file(file)]
@@ -83,29 +89,35 @@ class DefaultPytorchInferenceHandler(default_inference_handler.DefaultInferenceH
             model = model.to(device)
             return model
 
-    def default_input_fn(self, input_data, content_type):
+    def default_input_fn(self, input_data, content_type, context=None):
         """A default input_fn that can handle JSON, CSV and NPZ formats.
 
         Args:
             input_data: the request payload serialized in the content_type format
             content_type: the request content_type
+            context: context for the request
 
         Returns: input_data deserialized into torch.FloatTensor or torch.cuda.FloatTensor,
             depending if cuda is available.
         """
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        if context: 
+            properties = context.system_properties
+            device = torch.device("cuda:" + str(properties.get("gpu_id")) if torch.cuda.is_available() else "cpu")
+        else:
+            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         np_array = decoder.decode(input_data, content_type)
         tensor = torch.FloatTensor(
             np_array) if content_type in content_types.UTF8_TYPES else torch.from_numpy(np_array)
         return tensor.to(device)
 
-    def default_predict_fn(self, data, model):
+    def default_predict_fn(self, data, model, context=None):
         """A default predict_fn for PyTorch. Calls a model on data deserialized in input_fn.
         Runs prediction on GPU if cuda is available.
 
         Args:
             data: input data (torch.Tensor) for prediction deserialized by input_fn
             model: PyTorch model loaded in memory by model_fn
+            context: context for the request
 
         Returns: a prediction
         """
@@ -118,7 +130,11 @@ class DefaultPytorchInferenceHandler(default_inference_handler.DefaultInferenceH
                 with torch.jit.optimized_execution(True, {"target_device": "eia:0"}):
                     output = model(input_data)
             else:
-                device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+                if context: 
+                    properties = context.system_properties
+                    device = torch.device("cuda:" + str(properties.get("gpu_id")) if torch.cuda.is_available() else "cpu")
+                else:
+                    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
                 model = model.to(device)
                 input_data = data.to(device)
                 model.eval()
