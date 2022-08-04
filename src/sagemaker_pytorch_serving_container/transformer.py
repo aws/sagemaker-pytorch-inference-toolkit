@@ -21,7 +21,6 @@ from sagemaker_inference.transformer import Transformer
 from sagemaker_inference import content_types, environment, utils
 from sagemaker_inference.errors import BaseInferenceToolkitError, GenericInferenceToolkitError
 
-logger = logging.getLogger()
 
 class PTTransformer(Transformer):
     """Represents the execution workflow for handling pytorch inference requests
@@ -46,7 +45,7 @@ class PTTransformer(Transformer):
         try:
             properties = context.system_properties
             model_dir = properties.get("model_dir")
-            self.validate_and_initialize(model_dir=model_dir, cotext=self._context)
+            self.validate_and_initialize(model_dir=model_dir, context=self._context)
 
             input_data = data[0].get("body")
 
@@ -62,14 +61,7 @@ class PTTransformer(Transformer):
             if content_type in content_types.UTF8_TYPES:
                 input_data = input_data.decode("utf-8")
 
-            try:
-                # custom/default handler takes context (for multi-gpu setup)
-                logger.info('running transform function with context.')
-                result = self._transform_fn(self._model, input_data, content_type, accept, self._context)
-            except TypeError:
-                # custom handler does not take context
-                logger.info('running transform function without context.')
-                result = self._transform_fn(self._model, input_data, content_type, accept)
+            result = self._run_handle_function(self._transform_fn, *(self._model, input_data, content_type, accept))
 
             response = result
             response_content_type = accept
@@ -100,22 +92,15 @@ class PTTransformer(Transformer):
             self._context = context
             self._environment = environment.Environment()
             self._validate_user_module_and_set_functions()
-            try:
-                # custom/default model function takes context (for multi-gpu setup)
-                logger.info('running model functions with context.')
-                if self._pre_model_fn is not None:
-                    self._pre_model_fn(model_dir, context)
-                self._model = self._model_fn(model_dir, context)
-                if self._model_warmup_fn is not None:
-                    self._model_warmup_fn(model_dir, self._model, context)
-            except TypeError:
-                # custom model function does not take context
-                logger.info('running model functions without context.')
-                if self._pre_model_fn is not None:
-                    self._pre_model_fn(model_dir)
-                self._model = self._model_fn(model_dir)
-                if self._model_warmup_fn is not None:
-                    self._model_warmup_fn(model_dir, self._model)
+
+            if self._pre_model_fn is not None:
+                self._run_handle_function(self._pre_model_fn, *(model_dir, ))
+
+            self._model = self._run_handle_function(self._model_fn, *(model_dir, ))
+
+            if self._model_warmup_fn is not None:
+                self._run_handle_function(self._model_warmup_fn, *(model_dir, self._model))
+
             self._initialized = True
 
     def _default_transform_fn(self, model, input_data, content_type, accept):
@@ -131,18 +116,21 @@ class PTTransformer(Transformer):
             obj: the serialized prediction result or a tuple of the form
                 (response_data, content_type)
         """
-        try: 
-            # custom/default handler takes context (for multi-gpu setup)
-            logger.info('running handler functions with context.')
-            data = self._input_fn(input_data, content_type, self._context)
-            prediction = self._predict_fn(data, model, self._context)
-            result = self._output_fn(prediction, accept, self._context)
-        except TypeError:
-            # custom handler does not take context
-            logger.info('running handler functions without context.')
-            data = self._input_fn(input_data, content_type)
-            prediction = self._predict_fn(data, model)
-            result = self._output_fn(prediction, accept)
+        data = self._run_handle_function(self._input_fn, *(input_data, content_type))
+        prediction = self._run_handle_function(self._predict_fn, *(data, model))
+        result = self._run_handle_function(self._output_fn, *(prediction, accept))
 
         return result
     
+    def _run_handle_function(self, func, *argv):
+        """Wrapper to call the handle function which covers 2 cases:
+        1. context passed to the handle function
+        2. context not passed to the handle function
+        """
+        try:
+            argv_context = argv + (self._context, )
+            result = func(*argv_context)
+        except TypeError:
+            result = func(*argv)
+        
+        return result
