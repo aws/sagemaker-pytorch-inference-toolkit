@@ -16,18 +16,18 @@ from mock import patch, Mock
 
 
 @patch('sagemaker_pytorch_serving_container.default_pytorch_inference_handler.DefaultPytorchInferenceHandler')
-@patch('sagemaker_inference.transformer.Transformer')
-def test_hosting_start(Transformer, DefaultPytorchInferenceHandler):
+@patch('sagemaker_pytorch_serving_container.transformer.PyTorchTransformer')
+def test_hosting_start(PyTorchTransformer, DefaultPytorchInferenceHandler):
     from sagemaker_pytorch_serving_container import handler_service
 
     handler_service.HandlerService()
 
-    Transformer.assert_called_with(default_inference_handler=DefaultPytorchInferenceHandler())
+    PyTorchTransformer.assert_called_with(default_inference_handler=DefaultPytorchInferenceHandler())
 
 
 @patch('sagemaker_pytorch_serving_container.default_pytorch_inference_handler.DefaultPytorchInferenceHandler')
-@patch('sagemaker_inference.transformer.Transformer')
-def test_hosting_start_enable_multi_model(Transformer, DefaultPytorchInferenceHandler):
+@patch('sagemaker_pytorch_serving_container.transformer.PyTorchTransformer')
+def test_hosting_start_enable_multi_model(PyTorchTransformer, DefaultPytorchInferenceHandler):
     from sagemaker_pytorch_serving_container import handler_service
 
     context = Mock()
