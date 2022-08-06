@@ -22,6 +22,7 @@ import sys
 PYTHON_PATH_ENV = "PYTHONPATH"
 ENABLE_MULTI_MODEL = os.getenv("SAGEMAKER_MULTI_MODEL", "false") == "true"
 
+
 class HandlerService(DefaultHandlerService):
     """
     Handler service that is executed by the model server.

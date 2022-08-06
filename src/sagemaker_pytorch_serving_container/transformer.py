@@ -13,7 +13,6 @@
 
 from __future__ import absolute_import
 
-import logging
 import traceback
 
 from six.moves import http_client
@@ -88,7 +87,7 @@ class PyTorchTransformer(Transformer):
                     GenericInferenceToolkitError(http_client.INTERNAL_SERVER_ERROR, str(e)),
                     trace,
                 )
-    
+
     def validate_and_initialize(self, model_dir=environment.model_dir, context=None):
         """Validates the user module against the SageMaker inference contract.
         Load the model as defined by the ``model_fn`` to prepare handling predictions.
@@ -126,7 +125,7 @@ class PyTorchTransformer(Transformer):
         result = self._run_handle_function(self._output_fn, *(prediction, accept))
 
         return result
-    
+
     def _run_handle_function(self, func, *argv):
         """Wrapper to call the handle function which covers 2 cases:
         1. context passed to the handle function
@@ -137,5 +136,5 @@ class PyTorchTransformer(Transformer):
             result = func(*argv_context)
         except TypeError:
             result = func(*argv)
-        
+
         return result

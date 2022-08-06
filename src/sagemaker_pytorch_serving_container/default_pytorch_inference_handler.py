@@ -66,7 +66,7 @@ class DefaultPytorchInferenceHandler(default_inference_handler.DefaultInferenceH
                     "Failed to load {}. Please ensure model is saved using torchscript.".format(model_path)
                 ) from e
         else:
-            if context: 
+            if context:
                 properties = context.system_properties
                 device = torch.device("cuda:" + str(properties.get("gpu_id")) if torch.cuda.is_available() else "cpu")
             else:
@@ -100,7 +100,7 @@ class DefaultPytorchInferenceHandler(default_inference_handler.DefaultInferenceH
         Returns: input_data deserialized into torch.FloatTensor or torch.cuda.FloatTensor,
             depending if cuda is available.
         """
-        if context: 
+        if context:
             properties = context.system_properties
             device = torch.device("cuda:" + str(properties.get("gpu_id")) if torch.cuda.is_available() else "cpu")
         else:
@@ -130,9 +130,10 @@ class DefaultPytorchInferenceHandler(default_inference_handler.DefaultInferenceH
                 with torch.jit.optimized_execution(True, {"target_device": "eia:0"}):
                     output = model(input_data)
             else:
-                if context: 
+                if context:
                     properties = context.system_properties
-                    device = torch.device("cuda:" + str(properties.get("gpu_id")) if torch.cuda.is_available() else "cpu")
+                    device = torch.device("cuda:" + str(properties.get("gpu_id")) 
+                                          if torch.cuda.is_available() else "cpu")
                 else:
                     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
                 model = model.to(device)
