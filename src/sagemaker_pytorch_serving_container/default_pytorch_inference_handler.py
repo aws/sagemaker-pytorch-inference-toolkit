@@ -132,7 +132,7 @@ class DefaultPytorchInferenceHandler(default_inference_handler.DefaultInferenceH
             else:
                 if context:
                     properties = context.system_properties
-                    device = torch.device("cuda:" + str(properties.get("gpu_id")) 
+                    device = torch.device("cuda:" + str(properties.get("gpu_id"))
                                           if torch.cuda.is_available() else "cpu")
                 else:
                     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
