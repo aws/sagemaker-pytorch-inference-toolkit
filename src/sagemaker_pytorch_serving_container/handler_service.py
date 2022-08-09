@@ -13,7 +13,6 @@
 from __future__ import absolute_import
 
 from sagemaker_inference.default_handler_service import DefaultHandlerService
-from sagemaker_pytorch_serving_container.default_pytorch_inference_handler import DefaultPytorchInferenceHandler
 from sagemaker_pytorch_serving_container.transformer import PyTorchTransformer
 
 import os
@@ -37,7 +36,7 @@ class HandlerService(DefaultHandlerService):
     def __init__(self):
         self._initialized = False
 
-        transformer = PyTorchTransformer(default_inference_handler=DefaultPytorchInferenceHandler())
+        transformer = PyTorchTransformer()
         super(HandlerService, self).__init__(transformer=transformer)
 
     def initialize(self, context):

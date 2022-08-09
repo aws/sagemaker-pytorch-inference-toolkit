@@ -22,7 +22,7 @@ def test_hosting_start(PyTorchTransformer, DefaultPytorchInferenceHandler):
 
     handler_service.HandlerService()
 
-    PyTorchTransformer.assert_called_with(default_inference_handler=DefaultPytorchInferenceHandler())
+    PyTorchTransformer.assert_called_with()
 
 
 @patch('sagemaker_pytorch_serving_container.default_pytorch_inference_handler.DefaultPytorchInferenceHandler')

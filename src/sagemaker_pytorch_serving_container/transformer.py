@@ -19,13 +19,14 @@ from six.moves import http_client
 from sagemaker_inference.transformer import Transformer
 from sagemaker_inference import content_types, environment, utils
 from sagemaker_inference.errors import BaseInferenceToolkitError, GenericInferenceToolkitError
+from sagemaker_pytorch_serving_container.default_pytorch_inference_handler import DefaultPytorchInferenceHandler
 
 
 class PyTorchTransformer(Transformer):
     """Represents the execution workflow for handling pytorch inference requests
     sent to the model server.
     """
-    def __init__(self, default_inference_handler=None):
+    def __init__(self, default_inference_handler=DefaultPytorchInferenceHandler()):
         super().__init__(default_inference_handler)
         self._context = None
 
@@ -44,7 +45,7 @@ class PyTorchTransformer(Transformer):
         try:
             properties = context.system_properties
             model_dir = properties.get("model_dir")
-            self.validate_and_initialize(model_dir=model_dir, context=self._context)
+            self.validate_and_initialize(model_dir=model_dir, context=context)
 
             response_list = []
             for i in range(len(data)):
