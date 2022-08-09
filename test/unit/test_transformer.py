@@ -16,14 +16,21 @@ from __future__ import absolute_import
 from mock import Mock, patch
 import pytest
 
-from sagemaker_inference import environment
+try:
+    import http.client as http_client
+except ImportError:
+    import httplib as http_client
+
+from sagemaker_inference import content_types, environment
 from sagemaker_pytorch_serving_container.default_pytorch_inference_handler import DefaultPytorchInferenceHandler
+from sagemaker_inference.errors import BaseInferenceToolkitError
 from sagemaker_pytorch_serving_container.transformer import PyTorchTransformer
 
 
 INPUT_DATA = "input_data"
 CONTENT_TYPE = "content_type"
 ACCEPT = "accept"
+DEFAULT_ACCEPT = "default_accept"
 RESULT = "result"
 MODEL = "foo"
 
@@ -96,6 +103,81 @@ def test_transform(validate, retrieve_content_type_header, accept_key):
     assert result[0] == RESULT
 
 
+@patch("sagemaker_inference.utils.retrieve_content_type_header", return_value=CONTENT_TYPE)
+@patch("sagemaker_pytorch_serving_container.transformer.PyTorchTransformer.validate_and_initialize")
+def test_transform_any_accept(validate, retrieve_content_type_header):
+    data = [{"body": INPUT_DATA}]
+    context = Mock()
+    request_processor = Mock()
+    transform_fn = Mock()
+    environment = Mock()
+    environment.default_accept = DEFAULT_ACCEPT
+
+    context.request_processor = [request_processor]
+    request_processor.get_request_properties.return_value = {"accept": content_types.ANY}
+
+    transformer = PyTorchTransformer()
+    transformer._model = MODEL
+    transformer._transform_fn = transform_fn
+    transformer._environment = environment
+    transformer._context = context
+
+    transformer.transform(data, context)
+
+    validate.assert_called_once()
+    transform_fn.assert_called_once_with(MODEL, INPUT_DATA, CONTENT_TYPE, DEFAULT_ACCEPT, context)
+
+
+@pytest.mark.parametrize("content_type", content_types.UTF8_TYPES)
+@patch("sagemaker_inference.utils.retrieve_content_type_header")
+@patch("sagemaker_pytorch_serving_container.transformer.PyTorchTransformer.validate_and_initialize")
+def test_transform_decode(validate, retrieve_content_type_header, content_type):
+    input_data = Mock()
+    context = Mock()
+    request_processor = Mock()
+    transform_fn = Mock()
+    data = [{"body": input_data}]
+
+    input_data.decode.return_value = INPUT_DATA
+    context.request_processor = [request_processor]
+    request_processor.get_request_properties.return_value = {"accept": ACCEPT}
+    retrieve_content_type_header.return_value = content_type
+
+    transformer = PyTorchTransformer()
+    transformer._model = MODEL
+    transformer._transform_fn = transform_fn
+    transformer._context = context
+
+    transformer.transform(data, context)
+
+    input_data.decode.assert_called_once_with("utf-8")
+    transform_fn.assert_called_once_with(MODEL, INPUT_DATA, content_type, ACCEPT, context)
+
+
+@patch("sagemaker_inference.utils.retrieve_content_type_header", return_value=CONTENT_TYPE)
+@patch("sagemaker_pytorch_serving_container.transformer.PyTorchTransformer.validate_and_initialize")
+def test_transform_tuple(validate, retrieve_content_type_header):
+    data = [{"body": INPUT_DATA}]
+    context = Mock()
+    request_processor = Mock()
+    transform_fn = Mock(return_value=(RESULT, ACCEPT))
+
+    context.request_processor = [request_processor]
+    request_processor.get_request_properties.return_value = {"accept": ACCEPT}
+
+    transformer = PyTorchTransformer()
+    transformer._model = MODEL
+    transformer._transform_fn = transform_fn
+    transformer._context = context
+
+    result = transformer.transform(data, context)
+
+    transform_fn.assert_called_once_with(MODEL, INPUT_DATA, CONTENT_TYPE, ACCEPT, context)
+    context.set_response_content_type.assert_called_once_with(0, transform_fn()[1])
+    assert isinstance(result, list)
+    assert result[0] == transform_fn()[0]
+
+
 @patch("sagemaker_pytorch_serving_container.transformer.PyTorchTransformer._validate_user_module_and_set_functions")
 @patch("sagemaker_inference.environment.Environment")
 def test_validate_and_initialize(env, validate_user_module):
@@ -118,6 +200,74 @@ def test_validate_and_initialize(env, validate_user_module):
     model_fn.assert_called_once_with(environment.model_dir, context)
     env.assert_called_once_with()
     validate_user_module.assert_called_once_with()
+
+
+@patch("sagemaker_inference.transformer.Transformer._validate_user_module_and_set_functions")
+@patch("sagemaker_inference.environment.Environment")
+def test_handle_validate_and_initialize_error(env, validate_user_module):
+    data = [{"body": INPUT_DATA}]
+    request_processor = Mock()
+
+    context = Mock()
+    context.request_processor = [request_processor]
+
+    transform_fn = Mock()
+    model_fn = Mock()
+
+    transformer = PyTorchTransformer()
+
+    transformer._model = MODEL
+    transformer._transform_fn = transform_fn
+    transformer._model_fn = model_fn
+    transformer._context = context
+
+    test_error_message = "Foo"
+    validate_user_module.side_effect = ValueError(test_error_message)
+
+    assert transformer._initialized is False
+
+    response = transformer.transform(data, context)
+    assert test_error_message in str(response)
+    assert "Traceback (most recent call last)" in str(response)
+    context.set_response_status.assert_called_with(
+        code=http_client.INTERNAL_SERVER_ERROR, phrase=test_error_message
+    )
+
+
+@patch("sagemaker_inference.transformer.Transformer._validate_user_module_and_set_functions")
+@patch("sagemaker_inference.environment.Environment")
+def test_handle_validate_and_initialize_user_error(env, validate_user_module):
+    test_status_code = http_client.FORBIDDEN
+    test_error_message = "Foo"
+
+    class FooUserError(BaseInferenceToolkitError):
+        def __init__(self, status_code, message):
+            self.status_code = status_code
+            self.message = message
+            self.phrase = "Foo"
+
+    data = [{"body": INPUT_DATA}]
+    context = Mock()
+    transform_fn = Mock()
+    model_fn = Mock()
+
+    transformer = PyTorchTransformer()
+
+    transformer._model = MODEL
+    transformer._transform_fn = transform_fn
+    transformer._model_fn = model_fn
+    transformer._context = context
+
+    validate_user_module.side_effect = FooUserError(test_status_code, test_error_message)
+
+    assert transformer._initialized is False
+
+    response = transformer.transform(data, context)
+    assert test_error_message in str(response)
+    assert "Traceback (most recent call last)" in str(response)
+    context.set_response_status.assert_called_with(
+        code=http_client.FORBIDDEN, phrase=test_error_message
+    )
 
 
 def test_default_transform_fn():
