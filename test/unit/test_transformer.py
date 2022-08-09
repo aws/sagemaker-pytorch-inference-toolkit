@@ -9,9 +9,11 @@
 # or in the 'license' file accompanying this file. This file is
 # distributed on an 'AS IS' BASIS, WITHOUT WARRANTIES OR CONDITIONS OF
 # ANY KIND, either express or implied. See the License for the specific
-# language governing permissions and limitations under the License.
+# language governing permissions and limitations under the License. 
 
-from mock import Mock, patch
+from __future__ import absolute_import
+
+from mock import Mock, patch 
 import pytest
 
 from sagemaker_inference import environment
@@ -32,7 +34,7 @@ PROCESSED_RESULT = "processed_result"
 
 def test_default_transformer():
     transformer = PyTorchTransformer()
-    
+
     assert isinstance(transformer._default_inference_handler, DefaultPytorchInferenceHandler)
     assert transformer._initialized is False
     assert transformer._environment is None
@@ -140,7 +142,8 @@ def test_default_transform_fn():
 
 
 def test_run_handle_function():
-    def three_inputs_func(a, b, c): pass
+    def three_inputs_func(a, b, c):
+        pass
 
     three_inputs_mock = Mock(spec=three_inputs_func)
     a = Mock()
