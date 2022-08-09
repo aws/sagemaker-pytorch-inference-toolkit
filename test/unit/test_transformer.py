@@ -90,7 +90,7 @@ def test_transform(validate, retrieve_content_type_header, accept_key):
 
     validate.assert_called_once()
     retrieve_content_type_header.assert_called_once_with(request_property)
-    transform_fn.assert_called_once_with(MODEL, INPUT_DATA, CONTENT_TYPE, ACCEPT)
+    transform_fn.assert_called_once_with(MODEL, INPUT_DATA, CONTENT_TYPE, ACCEPT, context)
     context.set_response_content_type.assert_called_once_with(0, ACCEPT)
     assert isinstance(result, list)
     assert result[0] == RESULT
