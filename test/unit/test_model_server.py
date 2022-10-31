@@ -104,8 +104,6 @@ def test_start_torchserve_default_service_handler_multi_model(
         torchserve.TS_CONFIG_FILE,
         "--log-config",
         torchserve.DEFAULT_TS_LOG_FILE,
-        "--models",
-        "model=/opt/ml/model"
     ]
 
     subprocess_popen.assert_called_once_with(ts_model_server_cmd)
