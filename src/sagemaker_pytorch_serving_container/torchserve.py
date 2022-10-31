@@ -90,9 +90,12 @@ def start_torchserve(handler_service=DEFAULT_HANDLER_SERVICE):
         TS_CONFIG_FILE,
         "--log-config",
         DEFAULT_TS_LOG_FILE,
-        "--models",
-        DEFAULT_TS_MODEL_NAME + "=" + environment.model_dir
     ]
+
+    default_model_path_args = ["--models", DEFAULT_TS_MODEL_NAME + "=" + environment.model_dir]
+    
+    if not ENABLE_MULTI_MODEL:
+        ts_torchserve_cmd += default_model_path_args
 
     print(ts_torchserve_cmd)
 
@@ -138,7 +141,7 @@ def _generate_ts_config_properties(handler_service):
     if ts_env.is_env_set() and not ENABLE_MULTI_MODEL:
         models_string = f'''{{\\
         "{DEFAULT_TS_MODEL_NAME}": {{\\
-            "1.0": {{\\
+            "1": {{\\
                 "defaultVersion": true,\\
                 "marName": "{DEFAULT_TS_MODEL_NAME}.mar",\\
                 "minWorkers": {ts_env._min_workers},\\
