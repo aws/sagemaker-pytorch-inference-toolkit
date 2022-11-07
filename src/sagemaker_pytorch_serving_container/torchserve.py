@@ -90,9 +90,12 @@ def start_torchserve(handler_service=DEFAULT_HANDLER_SERVICE):
         TS_CONFIG_FILE,
         "--log-config",
         DEFAULT_TS_LOG_FILE,
-        "--models",
-        DEFAULT_TS_MODEL_NAME + "=" + environment.model_dir
     ]
+
+    default_model_path_args = ["--models", DEFAULT_TS_MODEL_NAME + "=" + environment.model_dir]
+
+    if not ENABLE_MULTI_MODEL:
+        ts_torchserve_cmd += default_model_path_args
 
     print(ts_torchserve_cmd)
 
