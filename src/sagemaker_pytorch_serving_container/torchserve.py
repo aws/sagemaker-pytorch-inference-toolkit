@@ -99,9 +99,8 @@ def start_torchserve(handler_service=DEFAULT_HANDLER_SERVICE):
 
     print(ts_torchserve_cmd)
 
-    docker_env = os.environ.copy()
     logger.info(ts_torchserve_cmd)
-    subprocess.Popen(ts_torchserve_cmd, env=docker_env)
+    subprocess.Popen(ts_torchserve_cmd)
 
     ts_process = _retrieve_ts_server_process()
 
