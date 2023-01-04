@@ -16,6 +16,22 @@ For information on running PyTorch jobs on Amazon SageMaker, please refer to the
 For notebook examples: `SageMaker Notebook
 Examples <https://github.com/awslabs/amazon-sagemaker-examples>`__.
 
+TorchServe Compatibility Requirements
+-------------------------------------
+
+Check this table for compatibility constraints.
+If version of sagemaker-pytorch-inference matches a row below, then the torchserve must also satisfy that row's constraint.
+
++---------------------------------+--------------------------+
+| ``sagemaker-pytorch-inference`` | ``torchserve``           |
++=================================+==========================+
+| ``main`` / ``nightly``          | ``main`` / ``nightly``   |
++---------------------------------+--------------------------+
+| ``>=2.0.9``                     | ``>=0.6``                |
++---------------------------------+--------------------------+
+| ``>=2.0.8``                     | ``>=0.5.3``              |
++---------------------------------+--------------------------+
+
 Contributing
 ------------
 
