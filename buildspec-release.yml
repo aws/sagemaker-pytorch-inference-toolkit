@@ -16,10 +16,10 @@ phases:
 
       # run local integ tests
       #- $(aws ecr get-login --no-include-email --region us-west-2)
-      #- IGNORE_COVERAGE=- tox -e py27,py36 -- test/integ/local
+      #- IGNORE_COVERAGE=- tox -e py38,py39,py310 -- test/integ/local
 
       # run sagemaker integ tests
-      #- IGNORE_COVERAGE=- tox -e py27,py36 -- test/integ/sagemaker
+      #- IGNORE_COVERAGE=- tox -e py38,py39,py310 -- test/integ/sagemaker
 
       # generate the distribution package
       - python3 setup.py sdist
