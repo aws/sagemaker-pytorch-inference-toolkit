@@ -33,7 +33,8 @@ phases:
       - tox -e flake8,twine
 
       # run unit tests
-      - tox -e py38,py39,py310 test/unit
+      # TODO change below to `tox -e `py38,py39,py310 -- test/unit` once py39 and py310 are available
+      - tox -e py38 -- test/unit
 
       # define tags
       - GENERIC_TAG="$FRAMEWORK_VERSION-pytorch-$BUILD_ID"
