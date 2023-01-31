@@ -59,7 +59,7 @@ setup(
         'test': ['boto3', 'coverage', 'docker-compose', 'flake8', 'Flask',
                  'mock', 'pytest', 'pytest-cov', 'pytest-xdist', 'PyYAML',
                  'sagemaker', 'six', 'requests',
-                 'requests_mock', 'torch==1.12.1', 'torchvision==0.13.1', 'tox']
+                 'requests_mock', 'torch==1.13.1', 'torchvision==0.14.1', 'tox']
     },
 
     entry_points={
