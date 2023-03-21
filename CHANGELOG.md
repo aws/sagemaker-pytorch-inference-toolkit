@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.0.13 (2023-03-20)
+
+### Bug Fixes and Other Changes
+
+ * add vmargs=-XX:-UseContainerSupport in config
+
 ## v2.0.12 (2022-11-29)
 
 ### Bug Fixes and Other Changes
