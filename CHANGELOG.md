@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.0.14 (2023-03-22)
+
+### Bug Fixes and Other Changes
+
+ * Modify log4j2.xml to remove dependency on javascript.
+
 ## v2.0.13 (2023-03-20)
 
 ### Bug Fixes and Other Changes
