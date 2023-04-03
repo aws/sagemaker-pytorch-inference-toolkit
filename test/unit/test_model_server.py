@@ -144,21 +144,25 @@ def test_generate_ts_config_properties(env, read_file):
     model_server_timeout = "torchserve_timeout"
     model_server_workers = "torchserve_workers"
     http_port = "http_port"
+    max_request_size = 10485760
 
     env.return_value.model_server_timeout = model_server_timeout
     env.return_value.model_sever_workerse = model_server_workers
     env.return_value.inference_http_port = http_port
+    env.return_value.max_request_size = max_request_size
 
     ts_config_properties = torchserve._generate_ts_config_properties(torchserve.DEFAULT_HANDLER_SERVICE)
 
     inference_address = "inference_address=http://0.0.0.0:{}\n".format(http_port)
     server_timeout = "default_response_timeout={}\n".format(model_server_timeout)
+    max_request_size_config = "max_request_size={}\n".format(max_request_size)
 
     read_file.assert_called_once_with(torchserve.DEFAULT_TS_CONFIG_FILE)
 
     assert ts_config_properties.startswith(DEFAULT_CONFIGURATION)
     assert inference_address in ts_config_properties
     assert server_timeout in ts_config_properties
+    assert max_request_size_config in ts_config_properties
 
 
 @patch("sagemaker_inference.utils.read_file", return_value=DEFAULT_CONFIGURATION)
