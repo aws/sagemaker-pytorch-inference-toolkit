@@ -61,10 +61,10 @@
         </RollingFile>
         <Null name="null_appender"/>
         <Routing name="telemetry_metrics">
-            <Routes pattern="${env:SM_TELEMETRY_LOG:-OPT_OUT}">
+            <Routes pattern="${env:SM_TELEMETRY_LOG_REV_2022_12:-OPT_OUT}">
                 <Route ref="null_appender" key="OPT_OUT"/>
-                <Route key="${env:SM_TELEMETRY_LOG}">
-                    <File name="remote_appender" fileName="${env:SM_TELEMETRY_LOG}">
+                <Route key="${env:SM_TELEMETRY_LOG_REV_2022_12}">
+                    <File name="remote_appender" fileName="${env:SM_TELEMETRY_LOG_REV_2022_12}">
                         <PatternLayout pattern="%m%n"/>
                     </File>
                 </Route>
