@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.0.15 (2023-05-29)
+
+### Bug Fixes and Other Changes
+
+ * Enable telemetry.
+
 ## v2.0.14 (2023-03-22)
 
 ### Bug Fixes and Other Changes
