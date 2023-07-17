@@ -19,9 +19,9 @@ import types
 from mock import Mock, patch
 import pytest
 
-from sagemaker_inference import environment
+from sagemaker_inference import environment, model_server
 from sagemaker_pytorch_serving_container import torchserve
-from sagemaker_pytorch_serving_container.torchserve import TS_NAMESPACE, REQUIREMENTS_PATH
+from sagemaker_pytorch_serving_container.torchserve import TS_NAMESPACE
 
 PYTHON_PATH = "python_path"
 DEFAULT_CONFIGURATION = "default_configuration"
@@ -31,7 +31,7 @@ DEFAULT_CONFIGURATION = "default_configuration"
 @patch("subprocess.Popen")
 @patch("sagemaker_pytorch_serving_container.torchserve._retrieve_ts_server_process")
 @patch("sagemaker_pytorch_serving_container.torchserve._add_sigterm_handler")
-@patch("sagemaker_pytorch_serving_container.torchserve._install_requirements")
+@patch("sagemaker_inference.model_server._install_requirements")
 @patch("os.path.exists", return_value=True)
 @patch("sagemaker_pytorch_serving_container.torchserve._create_torchserve_config_file")
 @patch("sagemaker_pytorch_serving_container.torchserve._set_python_path")
@@ -72,7 +72,7 @@ def test_start_torchserve_default_service_handler(
 @patch("subprocess.Popen")
 @patch("sagemaker_pytorch_serving_container.torchserve._retrieve_ts_server_process")
 @patch("sagemaker_pytorch_serving_container.torchserve._add_sigterm_handler")
-@patch("sagemaker_pytorch_serving_container.torchserve._install_requirements")
+@patch("sagemaker_inference.model_server._install_requirements")
 @patch("os.path.exists", return_value=True)
 @patch("sagemaker_pytorch_serving_container.torchserve._create_torchserve_config_file")
 @patch("sagemaker_pytorch_serving_container.torchserve._set_python_path")
@@ -92,7 +92,7 @@ def test_start_torchserve_default_service_handler_multi_model(
 
     set_python_path.assert_called_once_with()
     create_config.assert_called_once_with(torchserve.DEFAULT_HANDLER_SERVICE)
-    exists.assert_called_once_with(REQUIREMENTS_PATH)
+    exists.assert_called_once_with(model_server.REQUIREMENTS_PATH)
     install_requirements.assert_called_once_with()
 
     ts_model_server_cmd = [
@@ -210,7 +210,7 @@ def test_add_sigterm_handler(signal_call):
 
 @patch("subprocess.check_call")
 def test_install_requirements(check_call):
-    torchserve._install_requirements()
+    model_server._install_requirements()
     for i in ['pip', 'install', '-r', '/opt/ml/model/code/requirements.txt']:
         assert i in check_call.call_args.args[0]
 
@@ -218,7 +218,7 @@ def test_install_requirements(check_call):
 @patch("subprocess.check_call", side_effect=subprocess.CalledProcessError(0, "cmd"))
 def test_install_requirements_installation_failed(check_call):
     with pytest.raises(ValueError) as e:
-        torchserve._install_requirements()
+        model_server._install_requirements()
     assert "failed to install required packages" in str(e.value)
 
 

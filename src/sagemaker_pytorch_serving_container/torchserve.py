@@ -16,7 +16,6 @@ from __future__ import absolute_import
 import os
 import signal
 import subprocess
-import sys
 
 import pkg_resources
 import psutil
@@ -25,8 +24,7 @@ from retrying import retry
 
 import sagemaker_pytorch_serving_container
 from sagemaker_pytorch_serving_container import ts_environment
-from sagemaker_inference import environment, utils
-from sagemaker_inference.environment import code_dir
+from sagemaker_inference import environment, utils, model_server
 
 logger = logging.getLogger()
 
@@ -47,7 +45,6 @@ ENABLE_MULTI_MODEL = os.getenv("SAGEMAKER_MULTI_MODEL", "false") == "true"
 MODEL_STORE = "/" if ENABLE_MULTI_MODEL else os.path.join(os.getcwd(), ".sagemaker", "ts", "models")
 
 PYTHON_PATH_ENV = "PYTHONPATH"
-REQUIREMENTS_PATH = os.path.join(code_dir, "requirements.txt")
 TS_NAMESPACE = "org.pytorch.serve.ModelServer"
 
 
@@ -78,8 +75,8 @@ def start_torchserve(handler_service=DEFAULT_HANDLER_SERVICE):
 
     _create_torchserve_config_file(handler_service)
 
-    if os.path.exists(REQUIREMENTS_PATH):
-        _install_requirements()
+    if os.path.exists(model_server.REQUIREMENTS_PATH):
+        model_server._install_requirements()
 
     ts_torchserve_cmd = [
         "torchserve",
@@ -179,17 +176,6 @@ def _add_sigterm_handler(ts_process):
             pass
 
     signal.signal(signal.SIGTERM, _terminate)
-
-
-def _install_requirements():
-    logger.info("installing packages from requirements.txt...")
-    pip_install_cmd = [sys.executable, "-m", "pip", "install", "-r", REQUIREMENTS_PATH]
-
-    try:
-        subprocess.check_call(pip_install_cmd)
-    except subprocess.CalledProcessError:
-        logger.exception("failed to install required packages, exiting")
-        raise ValueError("failed to install required packages")
 
 
 # retry for 10 seconds
