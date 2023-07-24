@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.0.16 (2023-07-24)
+
+### Bug Fixes and Other Changes
+
+ * reuse sagemaker-inference's requirements.txt installation logic
+
 ## v2.0.15 (2023-05-29)
 
 ### Bug Fixes and Other Changes
