@@ -50,7 +50,7 @@ MODEL_STORE = "/" if ENABLE_MULTI_MODEL else DEFAULT_TS_MODEL_DIRECTORY
 
 PYTHON_PATH_ENV = "PYTHONPATH"
 REQUIREMENTS_PATH = os.path.join(code_dir, "requirements.txt")
-LOG4J_OVERRIDE_PATH = os.path.join(code_dir, "log4j.properties")
+LOG4J_OVERRIDE_PATH = os.path.join(code_dir, "log4j.xml")
 TS_NAMESPACE = "org.pytorch.serve.ModelServer"
 
 
