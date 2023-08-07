@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.0.17 (2023-08-07)
+
+### Bug Fixes and Other Changes
+
+ * remove unused file due to security
+
 ## v2.0.16 (2023-07-24)
 
 ### Bug Fixes and Other Changes
