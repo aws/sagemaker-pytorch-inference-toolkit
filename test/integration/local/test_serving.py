@@ -22,7 +22,7 @@ import torch.utils.data.distributed
 from sagemaker.pytorch import PyTorchModel
 from sagemaker.predictor import BytesDeserializer, csv_deserializer, csv_serializer, \
     json_deserializer, json_serializer, npy_serializer, numpy_deserializer
-from sagemaker_containers.beta.framework import content_types
+from sagemaker_inference import content_types
 from torchvision import datasets, transforms
 
 from integration import training_dir, mnist_1d_script, model_cpu_tar, mnist_cpu_script, \
@@ -89,10 +89,10 @@ def test_serving_calls_model_fn_once(image_uri, sagemaker_local_session, instanc
 @contextmanager
 def _predictor(model_tar, script, image, sagemaker_local_session, instance_type,
                model_server_workers=None):
-    model = PyTorchModel('file://{}'.format(model_tar),
-                         ROLE,
-                         script,
-                         image=image,
+    model = PyTorchModel(model_data='file://{}'.format(model_tar),
+                         role=ROLE,
+                         entry_point=script,
+                         image_uri=image,
                          sagemaker_session=sagemaker_local_session,
                          model_server_workers=model_server_workers)
 

@@ -39,25 +39,27 @@ setup(
     url='https://github.com/aws/sagemaker-pytorch-inference-toolkit',
     license='Apache License 2.0',
 
+    python_requires=">=3.8",
+
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
         "Natural Language :: English",
         "License :: OSI Approved :: Apache Software License",
         "Programming Language :: Python",
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
     ],
 
     # We don't declare our dependency on torch here because we build with
     # different packages for different variants
-    install_requires=['numpy', 'retrying', 'sagemaker-inference>=1.3.1'],
+    install_requires=['numpy', 'retrying', 'sagemaker-inference>=1.8'],
     extras_require={
-        'test': ['boto3>=1.10.44', 'coverage==4.5.3', 'docker-compose==1.23.2', 'flake8==3.7.7', 'Flask==1.1.1',
-                 'mock==2.0.0', 'pytest==4.4.0', 'pytest-cov==2.7.1', 'pytest-xdist==1.28.0', 'PyYAML==3.10',
-                 'sagemaker==1.56.3', 'sagemaker-containers>=2.5.4', 'six==1.12.0', 'requests==2.20.0',
-                 'requests_mock==1.6.0', 'torch==1.6.0', 'torchvision==0.7.0', 'tox==3.7.0']
+        'test': ['boto3', 'coverage', 'docker-compose', 'flake8', 'Flask',
+                 'mock', 'pytest', 'pytest-cov', 'pytest-xdist', 'PyYAML',
+                 'sagemaker', 'six', 'requests',
+                 'requests_mock', 'torch==1.13.1', 'torchvision==0.14.1', 'tox']
     },
 
     entry_points={
