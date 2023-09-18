@@ -146,3 +146,4 @@ class DefaultPytorchInferenceHandler(default_inference_handler.DefaultInferenceH
                 return encoded_prediction
 
         raise errors.UnsupportedFormatError(accept)
+
