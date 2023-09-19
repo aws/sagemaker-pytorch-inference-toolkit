@@ -40,6 +40,7 @@ COPY artifacts/ts-entrypoint.py /usr/local/bin/dockerd-entrypoint.py
 COPY artifacts/config.properties /home/model-server
 
 RUN chmod +x /usr/local/bin/dockerd-entrypoint.py
+RUN export MKL_THREADING_LAYER=GNU
 
 EXPOSE 8080 8081
 ENTRYPOINT ["python", "/usr/local/bin/dockerd-entrypoint.py"]
