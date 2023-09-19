@@ -137,7 +137,7 @@ class DefaultPytorchInferenceHandler(default_inference_handler.DefaultInferenceH
         """
         if type(prediction) == torch.Tensor:
             prediction = prediction.detach().cpu().numpy().tolist()
-        print("--------------------------")
+        print("------------------------")
         for content_type in utils.parse_accept(accept):
             if content_type in encoder.SUPPORTED_CONTENT_TYPES:
                 encoded_prediction = encoder.encode(prediction, content_type)
