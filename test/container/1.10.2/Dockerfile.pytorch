@@ -25,7 +25,7 @@ RUN apt-get update \
 RUN conda install -c conda-forge opencv \
     && ln -s /opt/conda/bin/pip /usr/local/bin/pip3
 
-RUN pip install torchserve-nightly==2022.5.2.post2 \
+RUN pip install torchserve-nightly==2022.5.2 \
  && pip install torch-model-archiver==$TS_ARCHIVER_VERSION
 
 COPY dist/sagemaker_pytorch_inference-*.tar.gz /sagemaker_pytorch_inference.tar.gz
