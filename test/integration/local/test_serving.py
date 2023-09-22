@@ -20,9 +20,12 @@ import torch
 import torch.utils.data
 import torch.utils.data.distributed
 from sagemaker.pytorch import PyTorchModel
-from sagemaker.predictor import BytesDeserializer, csv_deserializer, csv_serializer, \
-    json_deserializer, json_serializer, npy_serializer, numpy_deserializer
-from sagemaker_containers.beta.framework import content_types
+from sagemaker import deserializers
+from sagemaker import serializers
+from sagemaker_inference import content_types
+# from sagemaker.predictor import BytesDeserializer, csv_deserializer, csv_serializer, \
+#     json_deserializer, json_serializer, npy_serializer, numpy_deserializer
+# from sagemaker_containers.beta.framework import content_types
 from torchvision import datasets, transforms
 
 from integration import training_dir, mnist_1d_script, model_cpu_tar, mnist_cpu_script, \
@@ -31,15 +34,15 @@ from integration import training_dir, mnist_1d_script, model_cpu_tar, mnist_cpu_
 from utils import local_mode_utils
 
 CONTENT_TYPE_TO_SERIALIZER_MAP = {
-    content_types.CSV: csv_serializer,
-    content_types.JSON: json_serializer,
-    content_types.NPY: npy_serializer,
+    content_types.CSV: serializers.CSVSerializer(),
+    content_types.JSON: serializers.JSONSerializer(),
+    content_types.NPY: serializers.NumpySerializer(),
 }
 
 ACCEPT_TYPE_TO_DESERIALIZER_MAP = {
-    content_types.CSV: csv_deserializer,
-    content_types.JSON: json_deserializer,
-    content_types.NPY: numpy_deserializer,
+    content_types.CSV: deserializers.CSVDeserializer(),
+    content_types.JSON: deserializers.JSONDeserializer(),
+    content_types.NPY: deserializers.NumpyDeserializer(),
 }
 
 
@@ -77,7 +80,7 @@ def test_serving_calls_model_fn_once(image_uri, sagemaker_local_session, instanc
     with _predictor(call_model_fn_once_tar, call_model_fn_once_script, image_uri, sagemaker_local_session,
                     instance_type, model_server_workers=2) as predictor:
         predictor.accept = None
-        predictor.deserializer = BytesDeserializer()
+        predictor.deserializer = deserializers.BytesDeserializer()
 
         # call enough times to ensure multiple requests to a worker
         for i in range(3):
