@@ -16,7 +16,6 @@ env:
     sudo apt-get update\n
     sudo apt-get install build-essential git libreadline-dev zlib1g-dev libssl-dev libbz2-dev libsqlite3-dev\n
     curl -L https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer | bash\n
-    # may need this, but install script above should handle it; and yeah, you can do multiline inserts with awk/sed or whatever\n
     echo 'export PATH="/root/.pyenv/bin:$PATH"' >> ~/.bashrc\n
     echo 'eval "$(pyenv init -)"' >> ~/.bashrc\n
     echo 'eval "$(pyenv virtualenv-init -)"' >> ~/.bashrc\n
