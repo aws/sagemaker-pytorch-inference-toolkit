@@ -98,7 +98,7 @@ def _test_default_inference(
         role="SageMakerRole",
         predictor_cls=RealTimePredictor if not accelerator_type else PyTorchPredictor,
         entry_point=mnist_script,
-        image=image_uri,
+        image_uri=image_uri,
         sagemaker_session=sagemaker_session,
     )
     with timeout_and_delete_endpoint(endpoint_name, sagemaker_session, minutes=30):
