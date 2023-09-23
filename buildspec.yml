@@ -11,7 +11,7 @@ env:
     GITHUB_REPO: 'sagemaker-pytorch-serving-container'
     DLC_ACCOUNT: '763104351884'
     SETUP_FILE: 'setup_cmds.sh'
-    SETUP_CMDS: '#!/bin/bash\npython3.8 -m pip install --upgrade pip\npython3.8 -m pip install -U -e .\npython3.8 -m pip install -U -e .[test]'
+    SETUP_CMDS: '#!/bin/bash\npython3.6 -m pip install --upgrade pip\npython3.6 -m pip install -U -e .\npython3.6 -m pip install -U -e .[test]'
 
 
 phases:
