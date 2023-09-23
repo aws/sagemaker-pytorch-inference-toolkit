@@ -1,5 +1,5 @@
 ARG region
-FROM 763104351884.dkr.ecr.us-east-1.amazonaws.com/pytorch-inference:2.0.1-cpu-py310-ubuntu20.04-sagemaker
+FROM 763104351884.dkr.ecr.$region.amazonaws.com/pytorch-inference:2.0.1-cpu-py310-ubuntu20.04-sagemaker
 
 RUN pip uninstall torchserve -y && \
     pip install torchserve-nightly==2023.9.22
