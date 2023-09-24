@@ -10,18 +10,19 @@
 # distributed on an 'AS IS' BASIS, WITHOUT WARRANTIES OR CONDITIONS OF
 # ANY KIND, either express or implied. See the License for the specific
 # language governing permissions and limitations under the License.
-from __future__ import absolute_import
 import os
 import signal
 import subprocess
+import sys
 import types
 
-from mock import Mock, patch
+import botocore.session
+from botocore.stub import Stubber
+from mock import ANY, MagicMock, Mock, patch
 import pytest
 
 from sagemaker_inference import environment, model_server
-from sagemaker_pytorch_serving_container import torchserve
-from sagemaker_pytorch_serving_container.torchserve import TS_NAMESPACE
+from sagemaker_inference.model_server import MMS_NAMESPACE, REQUIREMENTS_PATH
 
 PYTHON_PATH = "python_path"
 DEFAULT_CONFIGURATION = "default_configuration"
@@ -29,14 +30,16 @@ DEFAULT_CONFIGURATION = "default_configuration"
 
 @patch("subprocess.call")
 @patch("subprocess.Popen")
-@patch("sagemaker_pytorch_serving_container.torchserve._retrieve_ts_server_process")
-@patch("sagemaker_pytorch_serving_container.torchserve._add_sigterm_handler")
+@patch("sagemaker_inference.model_server._retry_retrieve_mms_server_process")
+@patch("sagemaker_inference.model_server._add_sigterm_handler")
 @patch("sagemaker_inference.model_server._install_requirements")
 @patch("os.path.exists", return_value=True)
-@patch("sagemaker_pytorch_serving_container.torchserve._create_torchserve_config_file")
-@patch("sagemaker_pytorch_serving_container.torchserve._set_python_path")
-def test_start_torchserve_default_service_handler(
-    set_python_path,
+@patch("sagemaker_inference.model_server._create_model_server_config_file")
+@patch("sagemaker_inference.model_server._adapt_to_mms_format")
+@patch("sagemaker_inference.environment.Environment")
+def test_start_model_server_default_service_handler(
+    env,
+    adapt,
     create_config,
     exists,
     install_requirements,
@@ -45,159 +48,171 @@ def test_start_torchserve_default_service_handler(
     subprocess_popen,
     subprocess_call,
 ):
-    torchserve.start_torchserve()
+    env.return_value.startup_timeout = 10000
 
-    set_python_path.assert_called_once_with()
-    create_config.assert_called_once_with(torchserve.DEFAULT_HANDLER_SERVICE)
+    model_server.start_model_server()
+
+    adapt.assert_not_called()
+
+    create_config.assert_called_once_with(env.return_value, model_server.DEFAULT_HANDLER_SERVICE)
+    exists.assert_called_once_with(REQUIREMENTS_PATH)
     install_requirements.assert_called_once_with()
 
-    ts_model_server_cmd = [
-        "torchserve",
+    multi_model_server_cmd = [
+        "multi-model-server",
         "--start",
         "--model-store",
-        torchserve.MODEL_STORE,
-        "--ts-config",
-        torchserve.TS_CONFIG_FILE,
+        model_server.MODEL_STORE,
+        "--mms-config",
+        model_server.MMS_CONFIG_FILE,
         "--log-config",
-        torchserve.DEFAULT_TS_LOG_FILE,
+        model_server.DEFAULT_MMS_LOG_FILE,
         "--models",
-        "model=/opt/ml/model"
+        "{}={}".format(model_server.DEFAULT_MMS_MODEL_NAME, environment.model_dir),
     ]
 
-    subprocess_popen.assert_called_once_with(ts_model_server_cmd)
+    subprocess_popen.assert_called_once_with(multi_model_server_cmd)
     sigterm.assert_called_once_with(retrieve.return_value)
 
 
 @patch("subprocess.call")
 @patch("subprocess.Popen")
-@patch("sagemaker_pytorch_serving_container.torchserve._retrieve_ts_server_process")
-@patch("sagemaker_pytorch_serving_container.torchserve._add_sigterm_handler")
-@patch("sagemaker_inference.model_server._install_requirements")
-@patch("os.path.exists", return_value=True)
-@patch("sagemaker_pytorch_serving_container.torchserve._create_torchserve_config_file")
-@patch("sagemaker_pytorch_serving_container.torchserve._set_python_path")
-def test_start_torchserve_default_service_handler_multi_model(
-    set_python_path,
-    create_config,
-    exists,
-    install_requirements,
-    sigterm,
-    retrieve,
-    subprocess_popen,
-    subprocess_call,
+@patch("sagemaker_inference.model_server._retry_retrieve_mms_server_process")
+@patch("sagemaker_inference.model_server._add_sigterm_handler")
+@patch("sagemaker_inference.model_server._create_model_server_config_file")
+@patch("sagemaker_inference.model_server._adapt_to_mms_format")
+@patch("sagemaker_inference.environment.Environment")
+def test_start_model_server_custom_handler_service(
+    env, adapt, create_config, sigterm, retrieve, subprocess_popen, subprocess_call
 ):
-    torchserve.ENABLE_MULTI_MODEL = True
-    torchserve.start_torchserve()
-    torchserve.ENABLE_MULTI_MODEL = False
+    handler_service = Mock()
 
-    set_python_path.assert_called_once_with()
-    create_config.assert_called_once_with(torchserve.DEFAULT_HANDLER_SERVICE)
-    exists.assert_called_once_with(model_server.REQUIREMENTS_PATH)
-    install_requirements.assert_called_once_with()
+    model_server.start_model_server(handler_service)
 
-    ts_model_server_cmd = [
-        "torchserve",
-        "--start",
-        "--model-store",
-        torchserve.MODEL_STORE,
-        "--ts-config",
-        torchserve.TS_CONFIG_FILE,
-        "--log-config",
-        torchserve.DEFAULT_TS_LOG_FILE,
+    adapt.assert_not_called()
+    create_config.assert_called_once_with(env.return_value, handler_service)
+
+
+@patch("sagemaker_inference.model_server._set_python_path")
+@patch("subprocess.check_call")
+@patch("os.makedirs")
+@patch("os.path.exists", return_value=False)
+def test_adapt_to_mms_format(path_exists, make_dir, subprocess_check_call, set_python_path):
+    handler_service = Mock()
+
+    model_server._adapt_to_mms_format(handler_service)
+
+    path_exists.assert_called_once_with(model_server.DEFAULT_MMS_MODEL_EXPORT_DIRECTORY)
+    make_dir.assert_called_once_with(model_server.DEFAULT_MMS_MODEL_EXPORT_DIRECTORY)
+
+    model_archiver_cmd = [
+        "model-archiver",
+        "--model-name",
+        model_server.DEFAULT_MMS_MODEL_NAME,
+        "--handler",
+        handler_service,
+        "--model-path",
+        environment.model_dir,
+        "--export-path",
+        model_server.DEFAULT_MMS_MODEL_EXPORT_DIRECTORY,
+        "--archive-format",
+        "no-archive",
     ]
 
-    subprocess_popen.assert_called_once_with(ts_model_server_cmd)
-    sigterm.assert_called_once_with(retrieve.return_value)
+    subprocess_check_call.assert_called_once_with(model_archiver_cmd)
+    set_python_path.assert_called_once_with()
 
 
-@patch.dict(os.environ, {torchserve.PYTHON_PATH_ENV: PYTHON_PATH}, clear=True)
+@patch("sagemaker_inference.model_server._set_python_path")
+@patch("subprocess.check_call")
+@patch("os.makedirs")
+@patch("os.path.exists", return_value=True)
+def test_adapt_to_mms_format_existing_path(
+    path_exists, make_dir, subprocess_check_call, set_python_path
+):
+    handler_service = Mock()
+
+    model_server._adapt_to_mms_format(handler_service)
+
+    path_exists.assert_called_once_with(model_server.DEFAULT_MMS_MODEL_EXPORT_DIRECTORY)
+    make_dir.assert_not_called()
+
+
+@patch.dict(os.environ, {model_server.PYTHON_PATH_ENV: PYTHON_PATH}, clear=True)
 def test_set_existing_python_path():
-    torchserve._set_python_path()
+    model_server._set_python_path()
 
-    code_dir_path = "{}:{}".format(environment.code_dir, PYTHON_PATH)
+    code_dir_path = "{}:".format(environment.code_dir)
 
-    assert os.environ[torchserve.PYTHON_PATH_ENV] == code_dir_path
+    assert os.environ[model_server.PYTHON_PATH_ENV] == code_dir_path + PYTHON_PATH
 
 
 @patch.dict(os.environ, {}, clear=True)
 def test_new_python_path():
-    torchserve._set_python_path()
+    model_server._set_python_path()
 
-    code_dir_path = environment.code_dir
+    code_dir_path = "{}:".format(environment.code_dir)
 
-    assert os.environ[torchserve.PYTHON_PATH_ENV] == code_dir_path
+    assert os.environ[model_server.PYTHON_PATH_ENV] == code_dir_path
 
 
-@patch("sagemaker_pytorch_serving_container.torchserve._generate_ts_config_properties")
+@patch("sagemaker_inference.model_server._generate_mms_config_properties")
 @patch("sagemaker_inference.utils.write_file")
-def test_create_torchserve_config_file(write_file, generate_ts_config_props):
-    torchserve._create_torchserve_config_file(torchserve.DEFAULT_HANDLER_SERVICE)
+@patch("sagemaker_inference.environment.Environment")
+def test_create_model_server_config_file(env, write_file, generate_mms_config_props):
+
+    model_server._create_model_server_config_file(env.return_value)
 
     write_file.assert_called_once_with(
-        torchserve.TS_CONFIG_FILE, generate_ts_config_props.return_value
+        model_server.MMS_CONFIG_FILE, generate_mms_config_props.return_value
     )
 
 
 @patch("sagemaker_inference.utils.read_file", return_value=DEFAULT_CONFIGURATION)
 @patch("sagemaker_inference.environment.Environment")
-def test_generate_ts_config_properties(env, read_file):
-    model_server_timeout = "torchserve_timeout"
-    model_server_workers = "torchserve_workers"
+def test_generate_mms_config_properties(env, read_file):
+    model_server_timeout = "model_server_timeout"
+    model_server_workers = "model_server_workers"
     http_port = "http_port"
 
     env.return_value.model_server_timeout = model_server_timeout
-    env.return_value.model_sever_workerse = model_server_workers
+    env.return_value.model_server_workers = model_server_workers
     env.return_value.inference_http_port = http_port
 
-    ts_config_properties = torchserve._generate_ts_config_properties(torchserve.DEFAULT_HANDLER_SERVICE)
+    mms_config_properties = model_server._generate_mms_config_properties(env.return_value)
 
     inference_address = "inference_address=http://0.0.0.0:{}\n".format(http_port)
     server_timeout = "default_response_timeout={}\n".format(model_server_timeout)
+    workers = "default_workers_per_model={}\n".format(model_server_workers)
 
-    read_file.assert_called_once_with(torchserve.DEFAULT_TS_CONFIG_FILE)
+    read_file.assert_called_once_with(model_server.DEFAULT_MMS_CONFIG_FILE)
 
-    assert ts_config_properties.startswith(DEFAULT_CONFIGURATION)
-    assert inference_address in ts_config_properties
-    assert server_timeout in ts_config_properties
-
-
-@patch("sagemaker_inference.utils.read_file", return_value=DEFAULT_CONFIGURATION)
-@patch("sagemaker_inference.environment.Environment")
-def test_generate_ts_config_properties_default_workers(env, read_file):
-    env.return_value.model_server_workers = None
-
-    ts_config_properties = torchserve._generate_ts_config_properties(torchserve.DEFAULT_HANDLER_SERVICE)
-
-    workers = "default_workers_per_model={}".format(None)
-
-    read_file.assert_called_once_with(torchserve.DEFAULT_TS_CONFIG_FILE)
-
-    assert ts_config_properties.startswith(DEFAULT_CONFIGURATION)
-    assert workers not in ts_config_properties
+    assert mms_config_properties.startswith(DEFAULT_CONFIGURATION)
+    assert inference_address in mms_config_properties
+    assert server_timeout in mms_config_properties
+    assert workers in mms_config_properties
 
 
 @patch("sagemaker_inference.utils.read_file", return_value=DEFAULT_CONFIGURATION)
 @patch("sagemaker_inference.environment.Environment")
-def test_generate_ts_config_properties_multi_model(env, read_file):
+def test_generate_mms_config_properties_default_workers(env, read_file):
     env.return_value.model_server_workers = None
 
-    torchserve.ENABLE_MULTI_MODEL = True
-    ts_config_properties = torchserve._generate_ts_config_properties(torchserve.DEFAULT_HANDLER_SERVICE)
-    torchserve.ENABLE_MULTI_MODEL = False
+    mms_config_properties = model_server._generate_mms_config_properties(env.return_value)
 
     workers = "default_workers_per_model={}".format(None)
 
-    read_file.assert_called_once_with(torchserve.MME_TS_CONFIG_FILE)
+    read_file.assert_called_once_with(model_server.DEFAULT_MMS_CONFIG_FILE)
 
-    assert ts_config_properties.startswith(DEFAULT_CONFIGURATION)
-    assert workers not in ts_config_properties
+    assert mms_config_properties.startswith(DEFAULT_CONFIGURATION)
+    assert workers not in mms_config_properties
 
 
 @patch("signal.signal")
 def test_add_sigterm_handler(signal_call):
-    ts = Mock()
+    mms = Mock()
 
-    torchserve._add_sigterm_handler(ts)
+    model_server._add_sigterm_handler(mms)
 
     mock_calls = signal_call.mock_calls
     first_argument = mock_calls[0][1][0]
@@ -211,49 +226,98 @@ def test_add_sigterm_handler(signal_call):
 @patch("subprocess.check_call")
 def test_install_requirements(check_call):
     model_server._install_requirements()
-    for i in ['pip', 'install', '-r', '/opt/ml/model/code/requirements.txt']:
-        assert i in check_call.call_args.args[0]
+
+    install_cmd = [
+        sys.executable,
+        "-m",
+        "pip",
+        "install",
+        "-r",
+        "/opt/ml/model/code/requirements.txt",
+    ]
+    check_call.assert_called_once_with(install_cmd)
 
 
 @patch("subprocess.check_call", side_effect=subprocess.CalledProcessError(0, "cmd"))
 def test_install_requirements_installation_failed(check_call):
     with pytest.raises(ValueError) as e:
         model_server._install_requirements()
+
     assert "failed to install required packages" in str(e.value)
 
 
-@patch("retrying.Retrying.should_reject", return_value=False)
+@patch.dict(os.environ, {"CA_REPOSITORY_ARN": "invalid_arn"}, clear=True)
+def test_install_requirements_codeartifact_invalid_arn_installation_failed():
+    with pytest.raises(Exception) as e:
+        model_server._install_requirements()
+
+    assert "invalid CodeArtifact repository arn invalid_arn" in str(e.value)
+
+
+@patch("subprocess.check_call")
+@patch.dict(
+    os.environ,
+    {
+        "CA_REPOSITORY_ARN": "arn:aws:codeartifact:my_region:012345678900:repository/my_domain/my_repo"
+    },
+    clear=True,
+)
+def test_install_requirements_codeartifact(check_call):
+    # mock/stub codeartifact client and its responses
+    endpoint = "https://domain-012345678900.d.codeartifact.region.amazonaws.com/pypi/my_repo/"
+    codeartifact = botocore.session.get_session().create_client(
+        "codeartifact", region_name="myregion"
+    )
+    stubber = Stubber(codeartifact)
+    stubber.add_response("get_authorization_token", {"authorizationToken": "the-auth-token"})
+    stubber.add_response("get_repository_endpoint", {"repositoryEndpoint": endpoint})
+    stubber.activate()
+
+    with patch("boto3.client", MagicMock(return_value=codeartifact)):
+        model_server._install_requirements()
+
+    install_cmd = [
+        sys.executable,
+        "-m",
+        "pip",
+        "install",
+        "-r",
+        "/opt/ml/model/code/requirements.txt",
+        "-i",
+        "https://aws:the-auth-token@domain-012345678900.d.codeartifact.region.amazonaws.com/pypi/my_repo/simple/",
+    ]
+    check_call.assert_called_once_with(install_cmd)
+
+
 @patch("psutil.process_iter")
-def test_retrieve_ts_server_process(process_iter, retry):
+def test_retrieve_mms_server_process(process_iter):
     server = Mock()
-    server.cmdline.return_value = TS_NAMESPACE
+    server.cmdline.return_value = MMS_NAMESPACE
 
     processes = list()
     processes.append(server)
 
     process_iter.return_value = processes
 
-    process = torchserve._retrieve_ts_server_process()
+    process = model_server._retrieve_mms_server_process()
 
     assert process == server
 
 
-@patch("retrying.Retrying.should_reject", return_value=False)
 @patch("psutil.process_iter", return_value=list())
-def test_retrieve_ts_server_process_no_server(process_iter, retry):
+def test_retrieve_mms_server_process_no_server(process_iter):
     with pytest.raises(Exception) as e:
-        torchserve._retrieve_ts_server_process()
+        model_server._retrieve_mms_server_process()
 
-    assert "Torchserve model server was unsuccessfully started" in str(e.value)
+    assert "mms model server was unsuccessfully started" in str(e.value)
 
 
-@patch("retrying.Retrying.should_reject", return_value=False)
 @patch("psutil.process_iter")
-def test_retrieve_ts_server_process_too_many_servers(process_iter, retry):
+def test_retrieve_mms_server_process_too_many_servers(process_iter):
     server = Mock()
     second_server = Mock()
-    server.cmdline.return_value = TS_NAMESPACE
-    second_server.cmdline.return_value = TS_NAMESPACE
+    server.cmdline.return_value = MMS_NAMESPACE
+    second_server.cmdline.return_value = MMS_NAMESPACE
 
     processes = list()
     processes.append(server)
@@ -262,6 +326,14 @@ def test_retrieve_ts_server_process_too_many_servers(process_iter, retry):
     process_iter.return_value = processes
 
     with pytest.raises(Exception) as e:
-        torchserve._retrieve_ts_server_process()
+        model_server._retrieve_mms_server_process()
 
-    assert "multiple ts model servers are not supported" in str(e.value)
+    assert "multiple mms model servers are not supported" in str(e.value)
+
+
+@patch("sagemaker_inference.model_server.retry", return_value=lambda f: f)
+@patch("sagemaker_inference.model_server._retrieve_mms_server_process", return_value=17)
+def test_retry_retrieve_mms_server_process(retrieve, retry):
+    process_id = model_server._retry_retrieve_mms_server_process(100)
+    assert process_id == 17
+    retry.assert_called_once_with(wait_fixed=ANY, stop_max_delay=100 * 1000)
