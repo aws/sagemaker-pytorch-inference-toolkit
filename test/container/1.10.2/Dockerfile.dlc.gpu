@@ -3,7 +3,7 @@ FROM 763104351884.dkr.ecr.$region.amazonaws.com/pytorch-inference:1.10.2-gpu-py3
 
 RUN pip uninstall torchserve -y && \
     pip uninstall sagemaker_inference -y \
-    pip uninstall sagemaler_pytorch_inference -y \
+    pip uninstall sagemaker_pytorch_inference -y \
     pip install torchserve-nightly==2023.1.1
 
 COPY dist/sagemaker_pytorch_inference-*.tar.gz /sagemaker_pytorch_inference.tar.gz
