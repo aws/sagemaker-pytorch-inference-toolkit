@@ -135,7 +135,7 @@ class DefaultPytorchInferenceHandler(default_inference_handler.DefaultInferenceH
 
         Returns: output data serialized
         """
-        if type(prediction) == torch.Tensor:
+        if type(prediction) is torch.Tensor:
             prediction = prediction.detach().cpu().numpy().tolist()
 
         for content_type in utils.parse_accept(accept):

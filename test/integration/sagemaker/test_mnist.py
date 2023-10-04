@@ -54,7 +54,7 @@ def _test_mnist_distributed(sagemaker_session, image_uri, instance_type, model_t
     )
 
     pytorch = PyTorchModel(model_data=model_data, role='SageMakerRole', entry_point=mnist_script,
-                           image=image_uri, sagemaker_session=sagemaker_session)
+                           image_uri=image_uri, sagemaker_session=sagemaker_session)
     with timeout_and_delete_endpoint(endpoint_name, sagemaker_session, minutes=30):
         # Use accelerator type to differentiate EI vs. CPU and GPU. Don't use processor value
         if accelerator_type is not None:

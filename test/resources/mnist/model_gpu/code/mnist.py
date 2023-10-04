@@ -54,4 +54,6 @@ def model_fn(model_dir):
     model = torch.nn.DataParallel(Net())
     with open(os.path.join(model_dir, 'torch_model.pth'), 'rb') as f:
         model.load_state_dict(torch.load(f))
+    device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+    model = model.to(device)
     return model
