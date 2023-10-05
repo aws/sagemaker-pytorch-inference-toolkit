@@ -53,8 +53,15 @@ def _test_mnist_distributed(sagemaker_session, image_uri, instance_type, model_t
         key_prefix="sagemaker-pytorch-serving/models",
     )
 
+    if 'gpu' in image_uri:
+        env_vars = {
+            'NCCL_SHM_DISABLE': '1'
+        }
+    else:
+        env_vars = None
+
     pytorch = PyTorchModel(model_data=model_data, role='SageMakerRole', entry_point=mnist_script,
-                           image_uri=image_uri, sagemaker_session=sagemaker_session)
+                           image_uri=image_uri, sagemaker_session=sagemaker_session, env=env_vars)
     with timeout_and_delete_endpoint(endpoint_name, sagemaker_session, minutes=30):
         # Use accelerator type to differentiate EI vs. CPU and GPU. Don't use processor value
         if accelerator_type is not None:

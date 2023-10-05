@@ -49,14 +49,24 @@ def fixture_test_loader():
     return _get_test_data_loader(batch_size=300)
 
 
-def test_serve_json_npy(test_loader, use_gpu, image_uri, sagemaker_local_session, instance_type):
+def test_serve_json(test_loader, use_gpu, image_uri, sagemaker_local_session, instance_type):
     model_tar = model_gpu_tar if use_gpu else model_cpu_tar
     mnist_script = mnist_gpu_script if use_gpu else mnist_cpu_script
     with _predictor(model_tar, mnist_script, image_uri, sagemaker_local_session,
                     instance_type) as predictor:
-        for content_type in (content_types.JSON, content_types.NPY):
-            for accept in (content_types.JSON, content_types.CSV, content_types.NPY):
-                _assert_prediction_npy_json(predictor, test_loader, content_type, accept)
+        content_type = content_types.JSON
+        for accept in (content_types.JSON, content_types.CSV, content_types.NPY):
+            _assert_prediction_npy_json(predictor, test_loader, content_type, accept)
+
+
+def test_serve_npy(test_loader, use_gpu, image_uri, sagemaker_local_session, instance_type):
+    model_tar = model_gpu_tar if use_gpu else model_cpu_tar
+    mnist_script = mnist_gpu_script if use_gpu else mnist_cpu_script
+    with _predictor(model_tar, mnist_script, image_uri, sagemaker_local_session,
+                    instance_type) as predictor:
+        content_type = content_types.NPY
+        for accept in (content_types.JSON, content_types.CSV, content_types.NPY):
+            _assert_prediction_npy_json(predictor, test_loader, content_type, accept)
 
 
 def test_serve_csv(test_loader, use_gpu, image_uri, sagemaker_local_session, instance_type):
@@ -88,13 +98,20 @@ def test_serving_calls_model_fn_once(image_uri, sagemaker_local_session, instanc
 
 @contextmanager
 def _predictor(model_tar, script, image, sagemaker_local_session, instance_type, model_server_workers=None):
+    if 'gpu' in image:
+        env_vars = {
+            'NCCL_SHM_DISABLE': '1'
+        }
+    else:
+        env_vars = None
     model = PyTorchModel(
         model_data='file://{}'.format(model_tar),
         role=ROLE,
         entry_point=script,
         image_uri=image,
         sagemaker_session=sagemaker_local_session,
-        model_server_workers=model_server_workers
+        model_server_workers=model_server_workers,
+        env=env_vars
     )
 
     with local_mode_utils.lock():

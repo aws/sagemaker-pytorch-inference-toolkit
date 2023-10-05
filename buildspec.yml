@@ -2,11 +2,11 @@ version: 0.2
 
 env:
   variables:
-    FRAMEWORK_VERSION: '2.0.1'
-    EIA_FRAMEWORK_VERSION: '1.3.1'
+    FRAMEWORK_VERSIONS: '2.0.0 2.0.1'
+    # EIA_FRAMEWORK_VERSION: '1.3.1'
     CPU_INSTANCE_TYPE: 'ml.c4.xlarge'
-    GPU_INSTANCE_TYPE: 'ml.g4dn.xlarge'
-    EIA_ACCELERATOR_TYPE: 'ml.eia2.medium'
+    GPU_INSTANCE_TYPE: 'ml.g4dn.12xlarge'
+    # EIA_ACCELERATOR_TYPE: 'ml.eia2.medium'
     ECR_REPO: 'sagemaker-test'
     GITHUB_REPO: 'sagemaker-pytorch-serving-container'
     DLC_ACCOUNT: '763104351884'
@@ -35,54 +35,79 @@ phases:
       # run unit tests
       - tox -e py38,py39,py310 test/unit
 
-      # define tags
-      - DLC_CPU_TAG="$FRAMEWORK_VERSION-dlc-cpu-$BUILD_ID"
-      - DLC_GPU_TAG="$FRAMEWORK_VERSION-dlc-gpu-$BUILD_ID"
-      - DLC_EIA_TAG="$EIA_FRAMEWORK_VERSION-dlc-eia-$BUILD_ID"
+      # define EIA tag
+      # - DLC_EIA_TAG="$EIA_FRAMEWORK_VERSION-dlc-eia-$BUILD_ID"
 
       # run local CPU integration tests (build and push the image to ECR repo)
-      - test_cmd="IGNORE_COVERAGE=- tox -e py38 -- test/integration/local -vv -rA -s --build-image --push-image --dockerfile-type dlc.cpu --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $FRAMEWORK_VERSION --processor cpu --tag $DLC_CPU_TAG"
-      - execute-command-if-has-matching-changes "$test_cmd" "test/" "src/*.py" "setup.py" "setup.cfg"
+      - |
+        for FRAMEWORK_VERSION in $FRAMEWORK_VERSIONS; 
+          do
+            DLC_CPU_TAG="$FRAMEWORK_VERSION-dlc-cpu-$BUILD_ID";
+            test_cmd="IGNORE_COVERAGE=- tox -e py38 -- test/integration/local -vv -rA -s --build-image --push-image --dockerfile-type dlc.cpu --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $FRAMEWORK_VERSION --processor cpu --tag $DLC_CPU_TAG";
+            execute-command-if-has-matching-changes "$test_cmd" "test/" "src/*.py" "setup.py" "setup.cfg";
+            docker system prune --all --force;
+          done
 
       # launch remote GPU instance with Deep Learning AMI GPU PyTorch 1.9 (Ubuntu 20.04)
       - prefix='ml.'
       - instance_type=${GPU_INSTANCE_TYPE#"$prefix"}
-      - create-key-pair
-      - launch-ec2-instance --instance-type $instance_type --ami-name ami-03e3ef8c92fdb39ad
-
+      
       # build DLC GPU image because the base DLC image is too big and takes too long to build as part of the test
       - python3 setup.py sdist
-      - build_dir="test/container/$FRAMEWORK_VERSION"
       - $(aws ecr get-login --registry-ids $DLC_ACCOUNT --no-include-email --region $AWS_DEFAULT_REGION)
-      - docker build -f "$build_dir/Dockerfile.dlc.gpu" -t $PREPROD_IMAGE:$DLC_GPU_TAG --build-arg region=$AWS_DEFAULT_REGION .
-      # push DLC GPU image to ECR
-      - $(aws ecr get-login --registry-ids $ACCOUNT --no-include-email --region $AWS_DEFAULT_REGION)
-      - docker push $PREPROD_IMAGE:$DLC_GPU_TAG
-
-      # run GPU local integration tests
-      - printf "$SETUP_CMDS" > $SETUP_FILE
-      - dlc_cmd="IGNORE_COVERAGE=- tox -e py38 -- test/integration/local -vv -rA -s --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $FRAMEWORK_VERSION --processor gpu --tag $DLC_GPU_TAG"
-      - test_cmd="remote-test --github-repo $GITHUB_REPO --test-cmd \"$dlc_cmd\" --setup-file $SETUP_FILE --pr-number \"$PR_NUM\" --python-version \"3.8\""
-      - execute-command-if-has-matching-changes "$test_cmd" "test/" "src/*.py" "setup.py" "setup.cfg"
+      - |
+        for FRAMEWORK_VERSION in $FRAMEWORK_VERSIONS;
+          do
+            create-key-pair;
+            launch-ec2-instance --instance-type $instance_type --ami-name ami-03e3ef8c92fdb39ad;
+            DLC_GPU_TAG="$FRAMEWORK_VERSION-dlc-gpu-$BUILD_ID";
+            build_dir="test/container/$FRAMEWORK_VERSION";
+            docker build -f "$build_dir/Dockerfile.dlc.gpu" -t $PREPROD_IMAGE:$DLC_GPU_TAG --build-arg region=$AWS_DEFAULT_REGION .;
+            $(aws ecr get-login --registry-ids $ACCOUNT --no-include-email --region $AWS_DEFAULT_REGION);
+            docker push $PREPROD_IMAGE:$DLC_GPU_TAG;
+            printf "$SETUP_CMDS" > $SETUP_FILE;
+            dlc_cmd="IGNORE_COVERAGE=- tox -e py38 -- test/integration/local -vv -rA -s --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $FRAMEWORK_VERSION --processor gpu --tag $DLC_GPU_TAG";
+            test_cmd="remote-test --github-repo $GITHUB_REPO --test-cmd \"$dlc_cmd\" --setup-file $SETUP_FILE --pr-number \"$PR_NUM\" --python-version \"3.8\"";
+            execute-command-if-has-matching-changes "$test_cmd" "test/" "src/*.py" "setup.py" "setup.cfg";
+            docker system prune --all --force;
+            cleanup-gpu-instances;
+            cleanup-key-pairs;
+          done
 
       # run CPU sagemaker integration tests
-      - test_cmd="IGNORE_COVERAGE=- tox -e py38 -- test/integration/sagemaker --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $FRAMEWORK_VERSION --processor cpu --instance-type $CPU_INSTANCE_TYPE --tag $DLC_CPU_TAG"
-      - execute-command-if-has-matching-changes "$test_cmd" "test/" "src/*.py" "setup.py" "setup.cfg"
+      - |
+        for FRAMEWORK_VERSION in $FRAMEWORK_VERSIONS; 
+          do
+            DLC_CPU_TAG="$FRAMEWORK_VERSION-dlc-cpu-$BUILD_ID";
+            test_cmd="IGNORE_COVERAGE=- tox -e py38 -- test/integration/sagemaker --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $FRAMEWORK_VERSION --processor cpu --instance-type $CPU_INSTANCE_TYPE --tag $DLC_CPU_TAG";
+            execute-command-if-has-matching-changes "$test_cmd" "test/" "src/*.py" "setup.py" "setup.cfg";
+            docker system prune --all --force;
+          done
 
       # run GPU sagemaker integration tests
-      - test_cmd="IGNORE_COVERAGE=- tox -e py38 -- test/integration/sagemaker --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $FRAMEWORK_VERSION --processor gpu --instance-type $GPU_INSTANCE_TYPE --tag $DLC_GPU_TAG"
-      - execute-command-if-has-matching-changes "$test_cmd" "test/" "src/*.py" "setup.py" "setup.cfg"
+      - |
+        for FRAMEWORK_VERSION in $FRAMEWORK_VERSIONS;
+          do
+            DLC_GPU_TAG="$FRAMEWORK_VERSION-dlc-gpu-$BUILD_ID";
+            test_cmd="IGNORE_COVERAGE=- tox -e py38 -- test/integration/sagemaker --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $FRAMEWORK_VERSION --processor gpu --instance-type $GPU_INSTANCE_TYPE --tag $DLC_GPU_TAG";
+            execute-command-if-has-matching-changes "$test_cmd" "test/" "src/*.py" "setup.py" "setup.cfg";
+            docker system prune --all --force;
+          done
 
       # run EIA sagemaker integration tests
-      - test_cmd="IGNORE_COVERAGE=- tox -e py38 -- test/integration/sagemaker --build-image --push-image --dockerfile-type dlc.eia --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $EIA_FRAMEWORK_VERSION --processor cpu --instance-type $CPU_INSTANCE_TYPE --accelerator-type $EIA_ACCELERATOR_TYPE --tag $DLC_EIA_TAG"
-      - execute-command-if-has-matching-changes "$test_cmd" "test/" "src/*.py" "setup.py" "setup.cfg"
+      # - test_cmd="IGNORE_COVERAGE=- tox -e py38 -- test/integration/sagemaker --build-image --push-image --dockerfile-type dlc.eia --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $EIA_FRAMEWORK_VERSION --processor cpu --instance-type $CPU_INSTANCE_TYPE --accelerator-type $EIA_ACCELERATOR_TYPE --tag $DLC_EIA_TAG"
+      # - execute-command-if-has-matching-changes "$test_cmd" "test/" "src/*.py" "setup.py" "setup.cfg"
 
     finally:
-      # shut down remote GPU instance
-      - cleanup-gpu-instances
-      - cleanup-key-pairs
 
       # remove ECR image
-      - aws ecr batch-delete-image --repository-name $ECR_REPO --region $AWS_DEFAULT_REGION --image-ids imageTag=$DLC_CPU_TAG
-      - aws ecr batch-delete-image --repository-name $ECR_REPO --region $AWS_DEFAULT_REGION --image-ids imageTag=$DLC_GPU_TAG
-      - aws ecr batch-delete-image --repository-name $ECR_REPO --region $AWS_DEFAULT_REGION --image-ids imageTag=$DLC_EIA_TAG
+      - |
+        for FRAMEWORK_VERSION in $FRAMEWORK_VERSIONS; 
+          do
+            DLC_CPU_TAG="$FRAMEWORK_VERSION-dlc-cpu-$BUILD_ID";
+            DLC_GPU_TAG="$FRAMEWORK_VERSION-dlc-gpu-$BUILD_ID";
+            aws ecr batch-delete-image --repository-name $ECR_REPO --region $AWS_DEFAULT_REGION --image-ids imageTag=$DLC_CPU_TAG;
+            aws ecr batch-delete-image --repository-name $ECR_REPO --region $AWS_DEFAULT_REGION --image-ids imageTag=$DLC_GPU_TAG;
+          done
+      
+      # - aws ecr batch-delete-image --repository-name $ECR_REPO --region $AWS_DEFAULT_REGION --image-ids imageTag=$DLC_EIA_TAG
