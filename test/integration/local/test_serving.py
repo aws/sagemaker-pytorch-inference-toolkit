@@ -97,13 +97,14 @@ def test_serving_calls_model_fn_once(image_uri, sagemaker_local_session, instanc
 
 
 @contextmanager
-def _predictor(model_tar, script, image, sagemaker_local_session, instance_type, model_server_workers=None):
+def _predictor(
+    model_tar, script, image, sagemaker_local_session, instance_type, model_server_workers=None, env_vars=None
+):
     if 'gpu' in image:
         env_vars = {
             'NCCL_SHM_DISABLE': '1'
         }
-    else:
-        env_vars = None
+
     model = PyTorchModel(
         model_data='file://{}'.format(model_tar),
         role=ROLE,

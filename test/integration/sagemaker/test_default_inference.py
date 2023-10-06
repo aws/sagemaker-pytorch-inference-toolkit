@@ -84,7 +84,7 @@ def test_default_inference_any_model_name_gpu(sagemaker_session, image_uri, inst
 
 
 def _test_default_inference(
-    sagemaker_session, image_uri, instance_type, model_tar, mnist_script, accelerator_type=None
+    sagemaker_session, image_uri, instance_type, model_tar, mnist_script, accelerator_type=None, env_vars=None
 ):
     endpoint_name = sagemaker.utils.unique_name_from_base("sagemaker-pytorch-serving")
 
@@ -97,8 +97,6 @@ def _test_default_inference(
         env_vars = {
             'NCCL_SHM_DISABLE': '1'
         }
-    else:
-        env_vars = None
 
     pytorch = PyTorchModel(
         model_data=model_data,
