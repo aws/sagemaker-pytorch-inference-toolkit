@@ -79,7 +79,7 @@ phases:
         for FRAMEWORK_VERSION in $FRAMEWORK_VERSIONS; 
           do
             DLC_CPU_TAG="$FRAMEWORK_VERSION-dlc-cpu-$BUILD_ID";
-            test_cmd="IGNORE_COVERAGE=- tox -e py38 -- test/integration/sagemaker --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $FRAMEWORK_VERSION --processor cpu --instance-type $CPU_INSTANCE_TYPE --tag $DLC_CPU_TAG";
+            test_cmd="IGNORE_COVERAGE=- tox -e py38 -- test/integration/sagemaker --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $FRAMEWORK_VERSION --processor cpu --tag $DLC_CPU_TAG";
             execute-command-if-has-matching-changes "$test_cmd" "test/" "src/*.py" "setup.py" "setup.cfg";
             docker system prune --all --force;
           done
@@ -89,7 +89,7 @@ phases:
         for FRAMEWORK_VERSION in $FRAMEWORK_VERSIONS;
           do
             DLC_GPU_TAG="$FRAMEWORK_VERSION-dlc-gpu-$BUILD_ID";
-            test_cmd="IGNORE_COVERAGE=- tox -e py38 -- test/integration/sagemaker --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $FRAMEWORK_VERSION --processor gpu --instance-type $GPU_INSTANCE_TYPE --tag $DLC_GPU_TAG";
+            test_cmd="IGNORE_COVERAGE=- tox -e py38 -- test/integration/sagemaker --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $FRAMEWORK_VERSION --processor gpu --tag $DLC_GPU_TAG";
             execute-command-if-has-matching-changes "$test_cmd" "test/" "src/*.py" "setup.py" "setup.cfg";
             docker system prune --all --force;
           done

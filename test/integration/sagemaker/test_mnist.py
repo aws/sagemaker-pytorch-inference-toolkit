@@ -23,14 +23,14 @@ from integration.sagemaker.timeout import timeout_and_delete_endpoint
 
 
 @pytest.mark.cpu_test
-def test_mnist_cpu(sagemaker_session, image_uri, instance_type):
-    instance_type = instance_type or 'ml.c4.xlarge'
+def test_mnist_cpu(sagemaker_session, image_uri):
+    instance_type = 'ml.c4.xlarge'
     _test_mnist_distributed(sagemaker_session, image_uri, instance_type, model_cpu_tar, mnist_cpu_script)
 
 
 @pytest.mark.gpu_test
-def test_mnist_gpu(sagemaker_session, image_uri, instance_type):
-    instance_type = instance_type or 'ml.p2.xlarge'
+def test_mnist_gpu(sagemaker_session, image_uri):
+    instance_type = 'ml.p2.xlarge'
     _test_mnist_distributed(sagemaker_session, image_uri, instance_type, model_gpu_tar, mnist_gpu_script)
 
 
