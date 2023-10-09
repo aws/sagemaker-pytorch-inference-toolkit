@@ -51,7 +51,16 @@ class Net(nn.Module):
 
 def model_fn(model_dir):
     logger.info('model_fn')
+    
+    # Check if CUDA (GPU support) is available
+    if not torch.cuda.is_available():
+        raise EnvironmentError("CUDA (GPU) is not available. This model requires GPU support.")
+    
     model = torch.nn.DataParallel(Net())
     with open(os.path.join(model_dir, 'torch_model.pth'), 'rb') as f:
         model.load_state_dict(torch.load(f))
+    
+    # Move the model to the GPU
+    device = torch.device("cuda")
+    model = model.to(device)
     return model

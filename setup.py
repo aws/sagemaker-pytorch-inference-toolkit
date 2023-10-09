@@ -45,19 +45,19 @@ setup(
         "Natural Language :: English",
         "License :: OSI Approved :: Apache Software License",
         "Programming Language :: Python",
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10'
     ],
 
     # We don't declare our dependency on torch here because we build with
     # different packages for different variants
-    install_requires=['numpy', 'retrying', 'sagemaker-inference>=1.3.1'],
+    install_requires=['numpy==1.24.4', 'retrying==1.3.4', 'sagemaker-inference==1.10.0'],
     extras_require={
-        'test': ['boto3>=1.10.44', 'coverage==4.5.3', 'docker-compose==1.23.2', 'flake8==3.7.7', 'Flask==1.1.1',
-                 'mock==2.0.0', 'pytest==4.4.0', 'pytest-cov==2.7.1', 'pytest-xdist==1.28.0', 'PyYAML==3.10',
-                 'sagemaker==1.56.3', 'sagemaker-containers>=2.5.4', 'six==1.12.0', 'requests==2.20.0',
-                 'requests_mock==1.6.0', 'torch==1.6.0', 'torchvision==0.7.0', 'tox==3.7.0']
+        'test': ['boto3==1.28.60', 'coverage==7.3.2', 'docker-compose==1.29.2', 'flake8==6.1.0', 'Flask==3.0.0',
+                 'mock==5.1.0', 'pytest==7.4.2', 'pytest-cov==4.1.0', 'pytest-xdist==3.3.1', 'PyYAML==5.4.1',
+                 'sagemaker==2.125.0', 'six==1.16.0', 'requests==2.31.0',
+                 'requests_mock==1.11.0', 'torch==2.1.0', 'torchvision==0.16.0', 'tox==4.11.3']
     },
 
     entry_points={

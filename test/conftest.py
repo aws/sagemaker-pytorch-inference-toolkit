@@ -45,15 +45,16 @@ def pytest_addoption(parser):
     parser.addoption('--build-image', '-B', action='store_true')
     parser.addoption('--push-image', '-P', action='store_true')
     parser.addoption('--dockerfile-type', '-T',
-                     choices=['dlc.cpu', 'dlc.gpu', 'dlc.eia', 'pytorch'],
-                     default='pytorch')
+                     # choices=['dlc.cpu', 'dlc.gpu', 'dlc.eia', 'pytorch'],
+                     choices=['dlc.cpu', 'dlc.gpu'],
+                     default='dlc.cpu')
     parser.addoption('--dockerfile', '-D', default=None)
     parser.addoption('--aws-id', default=None)
     parser.addoption('--instance-type')
     parser.addoption('--accelerator-type')
     parser.addoption('--docker-base-name', default='sagemaker-pytorch-inference')
     parser.addoption('--region', default='us-west-2')
-    parser.addoption('--framework-version', default="1.6.0")
+    parser.addoption('--framework-version', default="2.0.0")
     parser.addoption('--py-version', choices=['2', '3'], default='3')
     # Processor is still "cpu" for EIA tests
     parser.addoption('--processor', choices=['gpu', 'cpu'], default='cpu')

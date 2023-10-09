@@ -20,9 +20,9 @@ import torch
 import torch.utils.data
 import torch.utils.data.distributed
 from sagemaker.pytorch import PyTorchModel
-from sagemaker.predictor import BytesDeserializer, csv_deserializer, csv_serializer, \
-    json_deserializer, json_serializer, npy_serializer, numpy_deserializer
-from sagemaker_containers.beta.framework import content_types
+from sagemaker import deserializers
+from sagemaker import serializers
+from sagemaker_inference import content_types
 from torchvision import datasets, transforms
 
 from integration import training_dir, mnist_1d_script, model_cpu_tar, mnist_cpu_script, \
@@ -31,15 +31,15 @@ from integration import training_dir, mnist_1d_script, model_cpu_tar, mnist_cpu_
 from utils import local_mode_utils
 
 CONTENT_TYPE_TO_SERIALIZER_MAP = {
-    content_types.CSV: csv_serializer,
-    content_types.JSON: json_serializer,
-    content_types.NPY: npy_serializer,
+    content_types.CSV: serializers.CSVSerializer(),
+    content_types.JSON: serializers.JSONSerializer(),
+    content_types.NPY: serializers.NumpySerializer()
 }
 
 ACCEPT_TYPE_TO_DESERIALIZER_MAP = {
-    content_types.CSV: csv_deserializer,
-    content_types.JSON: json_deserializer,
-    content_types.NPY: numpy_deserializer,
+    content_types.CSV: deserializers.CSVDeserializer(),
+    content_types.JSON: deserializers.JSONDeserializer(),
+    content_types.NPY: deserializers.NumpyDeserializer()
 }
 
 
@@ -49,14 +49,24 @@ def fixture_test_loader():
     return _get_test_data_loader(batch_size=300)
 
 
-def test_serve_json_npy(test_loader, use_gpu, image_uri, sagemaker_local_session, instance_type):
+def test_serve_json(test_loader, use_gpu, image_uri, sagemaker_local_session, instance_type):
     model_tar = model_gpu_tar if use_gpu else model_cpu_tar
     mnist_script = mnist_gpu_script if use_gpu else mnist_cpu_script
     with _predictor(model_tar, mnist_script, image_uri, sagemaker_local_session,
                     instance_type) as predictor:
-        for content_type in (content_types.JSON, content_types.NPY):
-            for accept in (content_types.JSON, content_types.CSV, content_types.NPY):
-                _assert_prediction_npy_json(predictor, test_loader, content_type, accept)
+        content_type = content_types.JSON
+        for accept in (content_types.JSON, content_types.CSV, content_types.NPY):
+            _assert_prediction_npy_json(predictor, test_loader, content_type, accept)
+
+
+def test_serve_npy(test_loader, use_gpu, image_uri, sagemaker_local_session, instance_type):
+    model_tar = model_gpu_tar if use_gpu else model_cpu_tar
+    mnist_script = mnist_gpu_script if use_gpu else mnist_cpu_script
+    with _predictor(model_tar, mnist_script, image_uri, sagemaker_local_session,
+                    instance_type) as predictor:
+        content_type = content_types.NPY
+        for accept in (content_types.JSON, content_types.CSV, content_types.NPY):
+            _assert_prediction_npy_json(predictor, test_loader, content_type, accept)
 
 
 def test_serve_csv(test_loader, use_gpu, image_uri, sagemaker_local_session, instance_type):
@@ -66,8 +76,9 @@ def test_serve_csv(test_loader, use_gpu, image_uri, sagemaker_local_session, ins
             _assert_prediction_csv(predictor, test_loader, accept)
 
 
-@pytest.mark.skip_cpu
 def test_serve_cpu_model_on_gpu(test_loader, image_uri, sagemaker_local_session, instance_type):
+    if 'cpu' in image_uri:
+        pytest.skip("Skipping because running on CPU instance")
     with _predictor(model_cpu_1d_tar, mnist_1d_script, image_uri, sagemaker_local_session,
                     instance_type) as predictor:
         _assert_prediction_npy_json(predictor, test_loader, content_types.NPY, content_types.JSON)
@@ -76,8 +87,7 @@ def test_serve_cpu_model_on_gpu(test_loader, image_uri, sagemaker_local_session,
 def test_serving_calls_model_fn_once(image_uri, sagemaker_local_session, instance_type):
     with _predictor(call_model_fn_once_tar, call_model_fn_once_script, image_uri, sagemaker_local_session,
                     instance_type, model_server_workers=2) as predictor:
-        predictor.accept = None
-        predictor.deserializer = BytesDeserializer()
+        predictor.deserializer = deserializers.BytesDeserializer()
 
         # call enough times to ensure multiple requests to a worker
         for i in range(3):
@@ -87,14 +97,23 @@ def test_serving_calls_model_fn_once(image_uri, sagemaker_local_session, instanc
 
 
 @contextmanager
-def _predictor(model_tar, script, image, sagemaker_local_session, instance_type,
-               model_server_workers=None):
-    model = PyTorchModel('file://{}'.format(model_tar),
-                         ROLE,
-                         script,
-                         image=image,
-                         sagemaker_session=sagemaker_local_session,
-                         model_server_workers=model_server_workers)
+def _predictor(
+    model_tar, script, image, sagemaker_local_session, instance_type, model_server_workers=None, env_vars=None
+):
+    if 'gpu' in image:
+        env_vars = {
+            'NCCL_SHM_DISABLE': '1'
+        }
+
+    model = PyTorchModel(
+        model_data='file://{}'.format(model_tar),
+        role=ROLE,
+        entry_point=script,
+        image_uri=image,
+        sagemaker_session=sagemaker_local_session,
+        model_server_workers=model_server_workers,
+        env=env_vars
+    )
 
     with local_mode_utils.lock():
         try:
@@ -105,9 +124,7 @@ def _predictor(model_tar, script, image, sagemaker_local_session, instance_type,
 
 
 def _assert_prediction_npy_json(predictor, test_loader, content_type, accept):
-    predictor.content_type = content_type
     predictor.serializer = CONTENT_TYPE_TO_SERIALIZER_MAP[content_type]
-    predictor.accept = accept
     predictor.deserializer = ACCEPT_TYPE_TO_DESERIALIZER_MAP[accept]
 
     data = _get_mnist_batch(test_loader).numpy()
@@ -117,7 +134,6 @@ def _assert_prediction_npy_json(predictor, test_loader, content_type, accept):
 
 
 def _assert_prediction_csv(predictor, test_loader, accept):
-    predictor.accept = accept
     predictor.deserializer = ACCEPT_TYPE_TO_DESERIALIZER_MAP[accept]
 
     data = _get_mnist_batch(test_loader).view(test_loader.batch_size, -1)
