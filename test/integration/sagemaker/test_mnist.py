@@ -17,21 +17,21 @@ import pytest
 import sagemaker
 from sagemaker.pytorch import PyTorchModel
 
-from integration import model_cpu_tar, model_gpu_tar, mnist_cpu_script, mnist_gpu_script, \
-    model_eia_tar, mnist_eia_script
+from integration import mnist_cpu_tar, mnist_gpu_tar, mnist_cpu_script, mnist_gpu_script, \
+    mnist_eia_tar, mnist_eia_script
 from integration.sagemaker.timeout import timeout_and_delete_endpoint
 
 
 @pytest.mark.cpu_test
 def test_mnist_cpu(sagemaker_session, image_uri, instance_type):
     instance_type = instance_type or 'ml.c4.xlarge'
-    _test_mnist_distributed(sagemaker_session, image_uri, instance_type, model_cpu_tar, mnist_cpu_script)
+    _test_mnist_distributed(sagemaker_session, image_uri, instance_type, mnist_cpu_tar, mnist_cpu_script)
 
 
 @pytest.mark.gpu_test
 def test_mnist_gpu(sagemaker_session, image_uri, instance_type):
     instance_type = instance_type or 'ml.p2.xlarge'
-    _test_mnist_distributed(sagemaker_session, image_uri, instance_type, model_gpu_tar, mnist_gpu_script)
+    _test_mnist_distributed(sagemaker_session, image_uri, instance_type, mnist_gpu_tar, mnist_gpu_script)
 
 
 @pytest.mark.skip(reason="Latest EIA version - 1.5.1 uses mms. Enable when EIA images use torchserve")
@@ -40,7 +40,7 @@ def test_mnist_eia(sagemaker_session, image_uri, instance_type, accelerator_type
     instance_type = instance_type or 'ml.c4.xlarge'
     # Scripted model is serialized with torch.jit.save().
     # Inference test for EIA doesn't need to instantiate model definition then load state_dict
-    _test_mnist_distributed(sagemaker_session, image_uri, instance_type, model_eia_tar, mnist_eia_script,
+    _test_mnist_distributed(sagemaker_session, image_uri, instance_type, mnist_eia_tar, mnist_eia_script,
                             accelerator_type=accelerator_type)
 
 

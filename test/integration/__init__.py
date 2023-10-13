@@ -13,77 +13,55 @@
 from __future__ import absolute_import
 
 import os
+import json
 
 from utils import file_utils
 
 resources_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'resources'))
+model_gpu_context_dir = os.path.join(resources_path, 'model_gpu_context')
 mnist_path = os.path.join(resources_path, 'mnist')
-resnet18_path = os.path.join(resources_path, 'resnet18')
 data_dir = os.path.join(mnist_path, 'data')
 training_dir = os.path.join(data_dir, 'training')
-cpu_sub_dir = 'model_cpu'
-gpu_sub_dir = 'model_gpu'
-eia_sub_dir = 'model_eia'
-code_sub_dir = 'code'
-default_sub_dir = 'default_model'
-default_sub_eia_dir = 'default_model_eia'
-default_sub_traced_resnet_dir = 'default_traced_resnet'
 
-model_cpu_dir = os.path.join(mnist_path, cpu_sub_dir)
-mnist_cpu_script = os.path.join(model_cpu_dir, code_sub_dir, 'mnist.py')
-model_cpu_tar = file_utils.make_tarfile(mnist_cpu_script,
-                                        os.path.join(model_cpu_dir, "torch_model.pth"),
-                                        model_cpu_dir,
-                                        script_path="code")
+all_models_info_json = os.path.abspath(os.path.join(os.path.dirname(__file__), 'all_models_info.json'))
 
-model_cpu_1d_dir = os.path.join(model_cpu_dir, '1d')
-mnist_1d_script = os.path.join(model_cpu_1d_dir, code_sub_dir, 'mnist_1d.py')
-model_cpu_1d_tar = file_utils.make_tarfile(mnist_1d_script,
-                                           os.path.join(model_cpu_1d_dir, "torch_model.pth"),
-                                           model_cpu_1d_dir,
-                                           script_path="code")
+with open(all_models_info_json, 'r') as json_file:
+    all_models_info = json.load(json_file)
 
-model_gpu_dir = os.path.join(mnist_path, gpu_sub_dir)
-mnist_gpu_script = os.path.join(model_gpu_dir, code_sub_dir, 'mnist.py')
-model_gpu_tar = file_utils.make_tarfile(mnist_gpu_script,
-                                        os.path.join(model_gpu_dir, "torch_model.pth"),
-                                        model_gpu_dir,
-                                        script_path="code")
+for model_name in all_models_info.keys():
+    model_info = all_models_info[model_name]
 
-model_eia_dir = os.path.join(mnist_path, eia_sub_dir)
-mnist_eia_script = os.path.join(model_eia_dir, 'mnist.py')
-model_eia_tar = file_utils.make_tarfile(mnist_eia_script,
-                                        os.path.join(model_eia_dir, "torch_model.pth"),
-                                        model_eia_dir)
+    dir_path = model_info['dir_path']
+    model_dir = os.path.join(resources_path, *dir_path)
+    setattr(__import__('integration'), model_name + '_dir', model_dir)
 
-call_model_fn_once_script = os.path.join(model_cpu_dir, code_sub_dir, 'call_model_fn_once.py')
-call_model_fn_once_tar = file_utils.make_tarfile(call_model_fn_once_script,
-                                                 os.path.join(model_cpu_dir, "torch_model.pth"),
-                                                 model_cpu_dir,
-                                                 "model_call_model_fn_once.tar.gz",
-                                                 script_path="code")
+    script_name = model_info['script_name']
+    model = model_info['model']
+    if 'filename' in model_info:
+        filename = model_info['filename']
+    else:
+        filename = 'model.tar.gz'
+    if 'code_path' in model_info:
+        code_path = model_info['code_path']
+        script_path = model_info['code_path']
+    else:
+        code_path = ''
+        script_path = None
+    if 'requirements' in model_info:
+        requirements = os.path.join(model_dir, code_path, 'requirements.txt')
+    else:
+        requirements = None
 
-default_model_dir = os.path.join(resnet18_path, default_sub_dir)
-default_model_script = os.path.join(default_model_dir, code_sub_dir, "resnet18.py")
-default_model_tar = file_utils.make_tarfile(
-    default_model_script, os.path.join(default_model_dir, "model.pt"), default_model_dir, script_path="code"
-)
+    model_script = os.path.join(model_dir, code_path, script_name)
+    model_tar = file_utils.make_tarfile(model_script,
+                                        os.path.join(model_dir, model),
+                                        model_dir,
+                                        filename=filename,
+                                        script_path=script_path,
+                                        requirements=requirements)
 
-default_traced_resnet_dir = os.path.join(resnet18_path, default_sub_traced_resnet_dir)
-default_traced_resnet_script = os.path.join(default_traced_resnet_dir, code_sub_dir, "resnet18.py")
-default_model_traced_resnet18_tar = file_utils.make_tarfile(
-    default_traced_resnet_script,
-    os.path.join(default_traced_resnet_dir, "traced_resnet18.pt"),
-    default_traced_resnet_dir,
-    filename="traced_resnet18.tar.gz",
-    script_path="code",
-)
-
-default_model_eia_dir = os.path.join(mnist_path, default_sub_eia_dir)
-default_model_eia_script = os.path.join(default_model_eia_dir, code_sub_dir, "mnist.py")
-default_model_eia_tar = file_utils.make_tarfile(
-    default_model_eia_script, os.path.join(default_model_eia_dir, "model.pt"), default_model_eia_dir
-)
+    setattr(__import__('integration'), model_name + '_script', model_script)
+    setattr(__import__('integration'), model_name + '_tar', model_tar)
 
 ROLE = 'dummy/unused-role'
 DEFAULT_TIMEOUT = 20

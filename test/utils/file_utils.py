@@ -16,12 +16,16 @@ import os
 import tarfile
 
 
-def make_tarfile(script, model, output_path, filename="model.tar.gz", script_path=None):
+def make_tarfile(script, model, output_path, filename="model.tar.gz", script_path=None, requirements=None):
     output_filename = os.path.join(output_path, filename)
     with tarfile.open(output_filename, "w:gz") as tar:
-        if (script_path):
+        if script_path:
             tar.add(script, arcname=os.path.join(script_path, os.path.basename(script)))
         else:
             tar.add(script, arcname=os.path.basename(script))
         tar.add(model, arcname=os.path.basename(model))
+
+        if requirements and script_path:
+            tar.add(requirements, arcname=os.path.join(script_path, os.path.basename(requirements)))
+
     return output_filename

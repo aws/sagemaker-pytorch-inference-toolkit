@@ -1,0 +1,83 @@
+{
+    "mnist_cpu": 
+    {
+        "script_name": "mnist.py",
+        "model": "torch_model.pth",
+        "code_path": "code",
+        "requirements": "requirements.txt",
+        "dir_path": ["mnist", "model_cpu"]
+    },
+    "mnist_cpu_1d": 
+    {
+        "script_name": "mnist_1d.py",
+        "model": "torch_model.pth",
+        "code_path": "code",
+        "dir_path": ["mnist", "model_cpu", "1d"]
+    },
+    "mnist_gpu": 
+    {
+        "script_name": "mnist.py",
+        "model": "torch_model.pth",
+        "code_path": "code",
+        "dir_path": ["mnist", "model_gpu"]
+    },
+    "mnist_eia": 
+    {
+        "script_name": "mnist.py",
+        "model": "torch_model.pth",
+        "dir_path": ["mnist", "model_eia"]
+    },
+    "mnist_inductor": 
+    {
+        "script_name": "mnist.py",
+        "model": "torch_model.pth",
+        "code_path": "code",
+        "dir_path": ["mnist", "model_inductor"]
+    },
+    "call_model_fn_once": 
+    {
+        "script_name": "call_model_fn_once.py",
+        "model": "torch_model.pth",
+        "filename": "model_call_model_fn_once.tar.gz",
+        "code_path": "code",
+        "dir_path": ["mnist", "model_cpu"]
+    },
+    "default_model": 
+    {
+        "script_name": "resnet18.py",
+        "model": "model.pt",
+        "code_path": "code",
+        "dir_path": ["resnet18", "default_model"]
+    },
+    "default_model_traced_resnet": 
+    {
+        "script_name": "resnet18.py",
+        "model": "traced_resnet18.pt",
+        "filename": "traced_resnet18.tar.gz",
+        "code_path": "code",
+        "dir_path": ["resnet18", "default_traced_resnet"]
+    },
+    "default_model_eia": 
+    {
+        "script_name": "mnist.py",
+        "model": "model.pt",
+        "code_path": "code",
+        "dir_path": ["mnist", "default_model_eia"]
+    },
+    "resnet18": 
+    {
+        "script_name": "inference.py",
+        "model": "model.pt",
+        "filename": "resnet18.tar.gz",
+        "code_path": "code",
+        "dir_path": ["mme", "resnet18"]
+    },
+    "traced_resnet18": 
+    {
+        "script_name": "inference.py",
+        "model": "traced_resnet18.pt",
+        "filename": "traced_resnet18.tar.gz",
+        "code_path": "code",
+        "dir_path": ["mme", "traced_resnet18"]
+    }
+}

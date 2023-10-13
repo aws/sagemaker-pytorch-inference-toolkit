@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.0.18 (2023-10-10)
+
+### Bug Fixes and Other Changes
+
+ * Fix integration tests and update Python versions
+
 ## v2.0.17 (2023-08-07)
 
 ### Bug Fixes and Other Changes

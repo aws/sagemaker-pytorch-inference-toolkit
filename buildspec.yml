@@ -55,10 +55,10 @@ phases:
       # build DLC GPU image because the base DLC image is too big and takes too long to build as part of the test
       - python3 setup.py sdist
       - $(aws ecr get-login --registry-ids $DLC_ACCOUNT --no-include-email --region $AWS_DEFAULT_REGION)
+      - create-key-pair
       - |
         for FRAMEWORK_VERSION in $FRAMEWORK_VERSIONS;
           do
-            create-key-pair;
             launch-ec2-instance --instance-type $instance_type --ami-name ami-03e3ef8c92fdb39ad;
             DLC_GPU_TAG="$FRAMEWORK_VERSION-dlc-gpu-$BUILD_ID";
             build_dir="test/container/$FRAMEWORK_VERSION";
@@ -71,8 +71,10 @@ phases:
             execute-command-if-has-matching-changes "$test_cmd" "test/" "src/*.py" "setup.py" "setup.cfg";
             docker system prune --all --force;
             cleanup-gpu-instances;
-            cleanup-key-pairs;
+            rm ~/.instance_id;
+            rm ~/.ip_address;
           done
+      - cleanup-key-pairs;
 
       # run CPU sagemaker integration tests
       - |
