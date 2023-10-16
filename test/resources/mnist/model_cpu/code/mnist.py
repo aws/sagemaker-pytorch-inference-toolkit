@@ -16,6 +16,9 @@ import logging
 import os
 import sys
 
+# Attempt to import `transformers` to ensure it was installed from `requirements.txt`. 
+import transformers
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F

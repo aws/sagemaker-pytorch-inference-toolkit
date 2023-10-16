@@ -63,4 +63,4 @@ def model_fn(model_dir):
     # Move the model to the GPU
     device = torch.device("cuda")
     model = model.to(device)
-    return model
+    return model 
