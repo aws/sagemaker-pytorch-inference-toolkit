@@ -52,11 +52,12 @@ setup(
 
     # We don't declare our dependency on torch here because we build with
     # different packages for different variants
-    install_requires=['numpy==1.24.4', 'retrying==1.3.4', 'sagemaker-inference==1.10.0'],
+    install_requires=['boto3==1.28.60', 'numpy==1.24.4', 'six==1.16.0',
+                      'retrying==1.3.4', 'scipy==1.10.1', 'psutil==5.9.5'],
     extras_require={
-        'test': ['boto3==1.28.60', 'coverage==7.3.2', 'docker-compose==1.29.2', 'flake8==6.1.0', 'Flask==3.0.0',
-                 'mock==5.1.0', 'pytest==7.4.2', 'pytest-cov==4.1.0', 'pytest-xdist==3.3.1', 'PyYAML==5.4.1',
-                 'sagemaker==2.125.0', 'six==1.16.0', 'requests==2.31.0',
+        'test': ['coverage==7.3.2', 'docker-compose==1.29.2', 'flake8==6.1.0', 'Flask==3.0.0',
+                 'mock==5.1.0', 'pytest==7.4.2', 'pytest-cov==4.1.0', 'pytest-xdist==3.3.1',
+                 'PyYAML==5.4.1', 'sagemaker==2.125.0', 'requests==2.31.0',
                  'requests_mock==1.11.0', 'torch==2.1.0', 'torchvision==0.16.0', 'tox==4.11.3']
     },
 
