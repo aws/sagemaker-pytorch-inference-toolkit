@@ -106,23 +106,9 @@ class Environment(object):
         return self._model_server_timeout
 
     @property
-    def model_server_timeout_seconds(self) -> Optional[int]:
-        """int: Timeout, in seconds, used for model server's backend workers before
-        they are deemed unresponsive and rebooted.
-        """
-        return self._model_server_timeout_seconds
-
-    @property
     def model_server_workers(self) -> Optional[str]:
         """str: Number of worker processes the model server is configured to use."""
         return self._model_server_workers
-
-    @property
-    def startup_timeout(self) -> int:
-        """int: Timeout, in seconds, used for starting up the model server and fetching
-        its process id, before giving up and throwing error.
-        """
-        return self._startup_timeout
 
     @property
     def default_accept(self) -> str:
@@ -145,16 +131,3 @@ class Environment(object):
         specified by SageMaker for handling pings and invocations.
         """
         return self._safe_port_range
-
-    @property
-    def vmargs(self) -> str:
-        """str: vmargs can be provided for the JVM, to be overriden"""
-        return self._vmargs
-
-    @property
-    def max_request_size(self) -> Optional[int]:
-        """str: max request size set by Sagemaker platform in bytes"""
-        if self._max_request_size_in_mb is not None:
-            return int(self._max_request_size_in_mb) * 1024 * 1024
-        else:
-            return None
