@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.0.19 (2023-10-17)
+
+### Bug Fixes and Other Changes
+
+ * Add new unit and integration tests
+
 ## v2.0.18 (2023-10-10)
 
 ### Bug Fixes and Other Changes
