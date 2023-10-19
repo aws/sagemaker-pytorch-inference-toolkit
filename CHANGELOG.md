@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.0.20 (2023-10-19)
+
+### Bug Fixes and Other Changes
+
+ * Migrate base inference toolkit scripts and unit tests
+
 ## v2.0.19 (2023-10-17)
 
 ### Bug Fixes and Other Changes
