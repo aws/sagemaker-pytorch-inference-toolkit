@@ -1,4 +1,5 @@
 recursive-include src/sagemaker_pytorch_serving_container *
+recursive-include src/sagemaker_inference *
 
 include VERSION
 include LICENSE
