@@ -3,10 +3,8 @@ version: 0.2
 env:
   variables:
     FRAMEWORK_VERSIONS: '2.0.0 2.0.1'
-    # EIA_FRAMEWORK_VERSION: '1.3.1'
     CPU_INSTANCE_TYPE: 'ml.c4.xlarge'
     GPU_INSTANCE_TYPE: 'ml.g4dn.12xlarge'
-    # EIA_ACCELERATOR_TYPE: 'ml.eia2.medium'
     ECR_REPO: 'sagemaker-test'
     GITHUB_REPO: 'sagemaker-pytorch-serving-container'
     DLC_ACCOUNT: '763104351884'
@@ -35,9 +33,6 @@ phases:
       # run unit tests
       - tox -e py38,py39,py310 test/unit
 
-      # define EIA tag
-      # - DLC_EIA_TAG="$EIA_FRAMEWORK_VERSION-dlc-eia-$BUILD_ID"
-
       # run local CPU integration tests (build and push the image to ECR repo)
       - |
         for FRAMEWORK_VERSION in $FRAMEWORK_VERSIONS; 
@@ -48,14 +43,14 @@ phases:
             docker system prune --all --force;
           done
 
-      # launch remote GPU instance with Deep Learning AMI GPU PyTorch 1.9 (Ubuntu 20.04)
       - prefix='ml.'
       - instance_type=${GPU_INSTANCE_TYPE#"$prefix"}
-      
-      # build DLC GPU image because the base DLC image is too big and takes too long to build as part of the test
       - python3 setup.py sdist
       - $(aws ecr get-login --registry-ids $DLC_ACCOUNT --no-include-email --region $AWS_DEFAULT_REGION)
       - create-key-pair
+      
+      # launch remote GPU instance with Deep Learning AMI GPU PyTorch 1.9 (Ubuntu 20.04)
+      # build DLC GPU image because the base DLC image is too big and takes too long to build as part of the test
       - |
         for FRAMEWORK_VERSION in $FRAMEWORK_VERSIONS;
           do
@@ -96,10 +91,6 @@ phases:
             docker system prune --all --force;
           done
 
-      # run EIA sagemaker integration tests
-      # - test_cmd="IGNORE_COVERAGE=- tox -e py38 -- test/integration/sagemaker --build-image --push-image --dockerfile-type dlc.eia --region $AWS_DEFAULT_REGION --docker-base-name $ECR_REPO --aws-id $ACCOUNT --framework-version $EIA_FRAMEWORK_VERSION --processor cpu --instance-type $CPU_INSTANCE_TYPE --accelerator-type $EIA_ACCELERATOR_TYPE --tag $DLC_EIA_TAG"
-      # - execute-command-if-has-matching-changes "$test_cmd" "test/" "src/*.py" "setup.py" "setup.cfg"
-
     finally:
 
       # remove ECR image
@@ -111,5 +102,3 @@ phases:
             aws ecr batch-delete-image --repository-name $ECR_REPO --region $AWS_DEFAULT_REGION --image-ids imageTag=$DLC_CPU_TAG;
             aws ecr batch-delete-image --repository-name $ECR_REPO --region $AWS_DEFAULT_REGION --image-ids imageTag=$DLC_GPU_TAG;
           done
-      
-      # - aws ecr batch-delete-image --repository-name $ECR_REPO --region $AWS_DEFAULT_REGION --image-ids imageTag=$DLC_EIA_TAG

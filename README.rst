@@ -4,8 +4,7 @@ SageMaker PyTorch Inference Toolkit
 
 SageMaker PyTorch Inference Toolkit is an open-source library for serving PyTorch models on Amazon SageMaker.
 This library provides default pre-processing, predict and postprocessing for certain PyTorch model types and
-utilizes the `SageMaker Inference Toolkit <https://github.com/aws/sagemaker-inference-toolkit>`__
-for starting up the model server, which is responsible for handling inference requests.
+is responsible for starting up the TorchServe model server on SageMaker, which is responsible for handling inference requests.
 
 For training, see `SageMaker PyTorch Training Toolkit <https://github.com/aws/sagemaker-pytorch-training-toolkit>`__.
 

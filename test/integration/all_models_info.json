@@ -21,12 +21,6 @@
         "code_path": "code",
         "dir_path": ["mnist", "model_gpu"]
     },
-    "mnist_eia": 
-    {
-        "script_name": "mnist.py",
-        "model": "torch_model.pth",
-        "dir_path": ["mnist", "model_eia"]
-    },
     "mnist_inductor": 
     {
         "script_name": "mnist.py",
@@ -56,13 +50,6 @@
         "filename": "traced_resnet18.tar.gz",
         "code_path": "code",
         "dir_path": ["resnet18", "default_traced_resnet"]
-    },
-    "default_model_eia": 
-    {
-        "script_name": "mnist.py",
-        "model": "model.pt",
-        "code_path": "code",
-        "dir_path": ["mnist", "default_model_eia"]
     },
     "resnet18": 
     {
