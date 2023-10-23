@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.0.21 (2023-10-23)
+
+### Bug Fixes and Other Changes
+
+ * Cleanup to remove EIA integration tests and other unused files/code
+
 ## v2.0.20 (2023-10-19)
 
 ### Bug Fixes and Other Changes
