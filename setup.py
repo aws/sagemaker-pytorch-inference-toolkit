@@ -57,7 +57,7 @@ setup(
     extras_require={
         'test': ['coverage>=7.3.2', 'docker-compose==1.29.2', 'flake8>=6.1.0', 'Flask==1.1.1',
                  'mock>=5.1.0', 'pytest>=7.4.2', 'pytest-cov>=4.1.0', 'pytest-xdist>=3.3.1',
-                 'PyYAML~=6.0', 'sagemaker==2.125.0', 'requests>=2.31.0',
+                 'PyYAML==5.4.1', 'sagemaker==2.125.0', 'requests>=2.31.0',
                  'requests_mock>=1.11.0', 'torch>=2.1.0', 'torchvision>=0.16.0', 'tox>=4.11.3']
     },
 
