@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.0.22 (2023-12-18)
+
+### Bug Fixes and Other Changes
+
+ * Fix dependency versions
+
 ## v2.0.21 (2023-10-23)
 
 ### Bug Fixes and Other Changes
