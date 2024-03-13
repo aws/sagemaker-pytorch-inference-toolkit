@@ -163,7 +163,7 @@ class Transformer(object):
             return response_list
         except Exception as e:  # pylint: disable=broad-except
             trace = traceback.format_exc()
-            logger.exception("Transform failed")
+            logger.error(trace)
             if isinstance(e, BaseInferenceToolkitError):
                 return self.handle_error(context, e, trace)
             else:
