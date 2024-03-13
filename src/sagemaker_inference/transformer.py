@@ -19,6 +19,11 @@ from __future__ import absolute_import
 import importlib
 import traceback
 
+from sagemaker_inference import logging
+
+logging.configure_logger()
+logger = logging.get_logger()
+
 try:
     from inspect import signature  # pylint: disable=ungrouped-imports
 except ImportError:
@@ -158,6 +163,7 @@ class Transformer(object):
             return response_list
         except Exception as e:  # pylint: disable=broad-except
             trace = traceback.format_exc()
+            logger.exception("Transform failed")
             if isinstance(e, BaseInferenceToolkitError):
                 return self.handle_error(context, e, trace)
             else:
