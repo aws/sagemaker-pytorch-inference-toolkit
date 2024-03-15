@@ -17,6 +17,7 @@ requests.
 from __future__ import absolute_import
 
 import importlib
+import logging
 import traceback
 
 try:
@@ -55,6 +56,8 @@ from six.moves import http_client
 from sagemaker_inference import content_types, environment, utils
 from sagemaker_inference.default_inference_handler import DefaultInferenceHandler
 from sagemaker_inference.errors import BaseInferenceToolkitError, GenericInferenceToolkitError
+
+logger = logging.getLogger()
 
 
 class Transformer(object):
@@ -98,6 +101,11 @@ class Transformer(object):
         Returns:
             str: The error message and stacktrace from the exception.
         """
+        logger.error(
+            "Transform failed for model: %s. Error traceback: %s",
+            context.model_name,
+            trace.splitlines()
+        )
         context.set_response_status(
             code=inference_exception.status_code,
             phrase=utils.remove_crlf(inference_exception.phrase),
