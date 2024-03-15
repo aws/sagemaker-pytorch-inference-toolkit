@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.0.23 (2024-03-15)
+
+### Bug Fixes and Other Changes
+
+ * Improve error logging when invoking custom handler methods
+
 ## v2.0.22 (2023-12-18)
 
 ### Bug Fixes and Other Changes
