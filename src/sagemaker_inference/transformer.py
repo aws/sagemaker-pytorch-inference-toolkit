@@ -17,12 +17,10 @@ requests.
 from __future__ import absolute_import
 
 import importlib
+import logging
 import traceback
 
-from sagemaker_inference import logging
-
-logging.configure_logger()
-logger = logging.get_logger()
+logger = logging.getLogger()
 
 try:
     from inspect import signature  # pylint: disable=ungrouped-imports
@@ -103,6 +101,11 @@ class Transformer(object):
         Returns:
             str: The error message and stacktrace from the exception.
         """
+        logger.error(
+            "Transform failed for model: %s. Error traceback: %s",
+            context.model_name,
+            trace.splitlines()
+        )
         context.set_response_status(
             code=inference_exception.status_code,
             phrase=utils.remove_crlf(inference_exception.phrase),
@@ -163,7 +166,6 @@ class Transformer(object):
             return response_list
         except Exception as e:  # pylint: disable=broad-except
             trace = traceback.format_exc()
-            logger.error("Transform failed %s", trace.splitlines())
             if isinstance(e, BaseInferenceToolkitError):
                 return self.handle_error(context, e, trace)
             else:
