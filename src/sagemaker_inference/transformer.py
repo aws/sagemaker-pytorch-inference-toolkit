@@ -20,8 +20,6 @@ import importlib
 import logging
 import traceback
 
-logger = logging.getLogger()
-
 try:
     from inspect import signature  # pylint: disable=ungrouped-imports
 except ImportError:
@@ -58,6 +56,8 @@ from six.moves import http_client
 from sagemaker_inference import content_types, environment, utils
 from sagemaker_inference.default_inference_handler import DefaultInferenceHandler
 from sagemaker_inference.errors import BaseInferenceToolkitError, GenericInferenceToolkitError
+
+logger = logging.getLogger()
 
 
 class Transformer(object):
