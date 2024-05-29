@@ -184,8 +184,11 @@ def _retrieve_ts_server_process():
     ts_server_processes = list()
 
     for process in psutil.process_iter():
-        if TS_NAMESPACE in process.cmdline():
-            ts_server_processes.append(process)
+        try:
+            if TS_NAMESPACE in process.cmdline():
+                ts_server_processes.append(process)
+        except psutil.NoSuchProcess:
+            continue
 
     if not ts_server_processes:
         raise Exception("Torchserve model server was unsuccessfully started")
