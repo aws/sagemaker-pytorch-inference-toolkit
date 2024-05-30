@@ -52,7 +52,7 @@ def pytest_addoption(parser):
     parser.addoption('--instance-type')
     parser.addoption('--docker-base-name', default='sagemaker-pytorch-inference')
     parser.addoption('--region', default='us-west-2')
-    parser.addoption('--framework-version', default="2.0.0")
+    parser.addoption('--framework-version', default="2.1.0")
     parser.addoption('--py-version', choices=['2', '3'], default='3')
     parser.addoption('--processor', choices=['gpu', 'cpu'], default='cpu')
     # If not specified, will default to {framework-version}-{processor}-py{py-version}
