@@ -2,7 +2,7 @@ version: 0.2
 
 env:
   variables:
-    FRAMEWORK_VERSIONS: '2.0.0 2.0.1'
+    FRAMEWORK_VERSIONS: '2.1.0 2.2.0'
     CPU_INSTANCE_TYPE: 'ml.c4.xlarge'
     GPU_INSTANCE_TYPE: 'ml.g4dn.12xlarge'
     ECR_REPO: 'sagemaker-test'
@@ -49,12 +49,12 @@ phases:
       - $(aws ecr get-login --registry-ids $DLC_ACCOUNT --no-include-email --region $AWS_DEFAULT_REGION)
       - create-key-pair
       
-      # launch remote GPU instance with Deep Learning AMI GPU PyTorch 1.9 (Ubuntu 20.04)
+      # launch remote GPU instance with Deep Learning AMI GPU PyTorch 2.2 (Ubuntu 20.04)
       # build DLC GPU image because the base DLC image is too big and takes too long to build as part of the test
       - |
         for FRAMEWORK_VERSION in $FRAMEWORK_VERSIONS;
           do
-            launch-ec2-instance --instance-type $instance_type --ami-name ami-03e3ef8c92fdb39ad;
+            launch-ec2-instance --instance-type $instance_type --ami-name ami-081c4092fbff425f0;
             DLC_GPU_TAG="$FRAMEWORK_VERSION-dlc-gpu-$BUILD_ID";
             build_dir="test/container/$FRAMEWORK_VERSION";
             docker build -f "$build_dir/Dockerfile.dlc.gpu" -t $PREPROD_IMAGE:$DLC_GPU_TAG --build-arg region=$AWS_DEFAULT_REGION .;

@@ -184,6 +184,9 @@ def _retrieve_ts_server_process():
     ts_server_processes = list()
 
     for process in psutil.process_iter():
+        if process.status() == psutil.STATUS_ZOMBIE:
+            continue
+
         if TS_NAMESPACE in process.cmdline():
             ts_server_processes.append(process)
 
