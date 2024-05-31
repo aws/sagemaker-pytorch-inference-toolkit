@@ -49,7 +49,7 @@ def fixture_mme_endpoint(
     sagemaker_session, image_uri, region, use_gpu, resnet18_filename, traced_resnet18_filename, s3, bucket
 ):
     try:
-        instance_type = 'ml.g5.xlarge' if use_gpu else 'ml.c5.xlarge'
+        instance_type = 'ml.g4dn.xlarge' if use_gpu else 'ml.c5.xlarge'
         endpoint_name = sagemaker.utils.unique_name_from_base("sagemaker-pytorch-serving")
 
         model_data = sagemaker_session.upload_data(
