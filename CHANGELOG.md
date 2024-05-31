@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.0.24 (2024-05-31)
+
+### Bug Fixes and Other Changes
+
+ * Ignore zombie processes when detecting TorchServe status
+
 ## v2.0.23 (2024-03-15)
 
 ### Bug Fixes and Other Changes
