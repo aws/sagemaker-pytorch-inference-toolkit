@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.0.25 (2024-10-07)
+
+### Bug Fixes and Other Changes
+
+ * Disabling token auth and enabling model API by default
+
 ## v2.0.24 (2024-05-31)
 
 ### Bug Fixes and Other Changes
