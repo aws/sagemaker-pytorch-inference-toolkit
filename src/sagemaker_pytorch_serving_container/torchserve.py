@@ -126,7 +126,7 @@ def _create_torchserve_config_file(handler_service):
 def _generate_ts_config_properties(handler_service):
     env = environment.Environment()
     user_defined_configuration = {
-        "default_response_timeout": env.model_server_timeout,
+        "vmargs":"-XX:-UseContainerSupport -XX:InitialRAMPercentage=8.0 -XX:MaxRAMPercentage=10.0 -XX:-UseLargePages -XX:+UseG1GC -XX:+ExitOnOutOfMemoryError",        "default_response_timeout": env.model_server_timeout,
         "default_workers_per_model": env.model_server_workers,
         "inference_address": "http://0.0.0.0:{}".format(env.inference_http_port),
         "management_address": "http://0.0.0.0:{}".format(env.management_http_port),
