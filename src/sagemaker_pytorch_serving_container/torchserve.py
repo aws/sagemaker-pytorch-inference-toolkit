@@ -131,6 +131,7 @@ def _generate_ts_config_properties(handler_service):
         "inference_address": "http://0.0.0.0:{}".format(env.inference_http_port),
         "management_address": "http://0.0.0.0:{}".format(env.management_http_port),
         "default_service_handler": handler_service + ":handle",
+        "vmargs": env.vmargs,
     }
 
     ts_env = ts_environment.TorchServeEnvironment()
